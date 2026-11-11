@@ -12,17 +12,18 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.UUID;
+
 @Configuration
 public class DatabaseSeeder {
 
-    private String requiredEnv(String name) {
+    private String resolveDemoPassword(String name) {
         String value = System.getenv(name);
         if (value == null || value.isBlank()) {
-            throw new IllegalStateException("Required environment variable is not configured: " + name);
+            return UUID.randomUUID().toString();
         }
         return value;
     }
-
 
     @Bean
     public CommandLineRunner seedDatabase(UserRepository userRepository,
@@ -32,23 +33,23 @@ public class DatabaseSeeder {
         return args -> {
             // 1. Seed Role-specific Users for the login portals (Always upsert demo accounts)
             userRepository.save(new User("usr-admin", "admin", "admin@moil.gov.in",
-                    passwordEncoder.encode(requiredEnv("MANGANEX_DEMO_ADMIN_PASSWORD")), "Director General of Mining Operations",
+                    passwordEncoder.encode(resolveDemoPassword("MANGANEX_DEMO_ADMIN_PASSWORD")), "Director General of Mining Operations",
                     Role.ROLE_ADMIN, "Ministry of Steel / MOIL"));
 
             userRepository.save(new User("usr-geologist", "geologist", "geologist@moil.gov.in",
-                    passwordEncoder.encode(requiredEnv("MANGANEX_DEMO_GEOLOGIST_PASSWORD")), "Chief Exploration Geologist",
+                    passwordEncoder.encode(resolveDemoPassword("MANGANEX_DEMO_GEOLOGIST_PASSWORD")), "Chief Exploration Geologist",
                     Role.ROLE_GEOLOGIST, "GSI / MOIL Exploration Wing"));
 
             userRepository.save(new User("usr-engineer", "engineer", "engineer@moil.gov.in",
-                    passwordEncoder.encode(requiredEnv("MANGANEX_DEMO_ENGINEER_PASSWORD")), "Principal Mine Planning Engineer",
+                    passwordEncoder.encode(resolveDemoPassword("MANGANEX_DEMO_ENGINEER_PASSWORD")), "Principal Mine Planning Engineer",
                     Role.ROLE_ENGINEER, "Balaghat Underground Operations"));
 
             userRepository.save(new User("usr-analyst", "analyst", "analyst@moil.gov.in",
-                    passwordEncoder.encode(requiredEnv("MANGANEX_DEMO_ANALYST_PASSWORD")), "Senior Geospatial Data Analyst",
+                    passwordEncoder.encode(resolveDemoPassword("MANGANEX_DEMO_ANALYST_PASSWORD")), "Senior Geospatial Data Analyst",
                     Role.ROLE_ANALYST, "National Mineral Intelligence Unit"));
 
             userRepository.save(new User("usr-viewer", "viewer", "viewer@moil.gov.in",
-                    passwordEncoder.encode(requiredEnv("MANGANEX_DEMO_VIEWER_PASSWORD")), "Executive Observer",
+                    passwordEncoder.encode(resolveDemoPassword("MANGANEX_DEMO_VIEWER_PASSWORD")), "Executive Observer",
                     Role.ROLE_VIEWER, "Public Mineral Observatory"));
 
             // 2. Seed MOIL Mines Cadastre

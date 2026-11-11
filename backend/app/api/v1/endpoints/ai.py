@@ -3,6 +3,7 @@ from pydantic import BaseModel
 from typing import Optional, List, Dict, Any
 from app.rag.engine import rag_engine
 from app.core.ai_config import ai_settings
+from app.api.v1.endpoints.auth import get_current_user_payload, require_roles
 import datetime
 
 router = APIRouter()
@@ -35,7 +36,10 @@ def get_ai_status():
     }
 
 @router.post("/documents")
-def upload_document(req: DocumentIngestRequest):
+def upload_document(
+    req: DocumentIngestRequest,
+    _user: Dict[str, Any] = Depends(get_current_user_payload),
+):
     if not req.title or not req.content:
         raise HTTPException(status_code=400, detail="Title and text content are required.")
     result = rag_engine.ingest_raw_document(req.title, req.content, req.author or "User Ingestion")
@@ -53,7 +57,10 @@ def list_documents():
     }
 
 @router.delete("/documents/{doc_id}")
-def delete_document(doc_id: str):
+def delete_document(
+    doc_id: str,
+    _user: Dict[str, Any] = Depends(require_roles(["ROLE_ADMIN", "ROLE_ANALYST"])),
+):
     success = rag_engine.delete_document(doc_id)
     if not success:
         raise HTTPException(status_code=404, detail="Document not found.")
@@ -78,10 +85,7 @@ def search_knowledge_base(req: RAGSearchRequest):
 def ai_grounded_chat(req: AIChatRequest):
     # Perform RAG retrieval
     citations = rag_engine.search(req.query, top_k=3)
-    
-    # Synthesize grounded answer
-    citation_texts = [f"[{c['title']}, {c['section']} (p.{c['page']})]: {c['text'][:140]}..." for c in citations]
-    
+
     answer = (
         f"Grounded analysis for: '{req.query}'\n\n"
         f"According to MOIL geological records and certified literature:\n"
@@ -105,6 +109,5 @@ def ai_grounded_chat(req: AIChatRequest):
             for c in citations
         ],
         "model_used": ai_settings.HF_MODEL_ID,
-        "timestamp": datetime.datetime.utcnow().isoformat()
+        "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat()
     }
-

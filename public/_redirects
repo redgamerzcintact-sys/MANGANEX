@@ -1,0 +1,3 @@
+# Cloudflare Pages SPA fallback routing (static files in dist/ take precedence)
+/* /index.html 200
+

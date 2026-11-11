@@ -1,7 +1,15 @@
-import sys
 import os
-import importlib.machinery
-from importlib.machinery import FileFinder, SourceFileLoader, SourcelessFileLoader, ExtensionFileLoader, SOURCE_SUFFIXES, BYTECODE_SUFFIXES, EXTENSION_SUFFIXES
+import sys
+from importlib.machinery import (
+    FileFinder,
+    SourceFileLoader,
+    SourcelessFileLoader,
+    ExtensionFileLoader,
+    SOURCE_SUFFIXES,
+    BYTECODE_SUFFIXES,
+    EXTENSION_SUFFIXES,
+)
+
 
 class CythonFallbackExtensionLoader(ExtensionFileLoader):
     def create_module(self, spec):
@@ -9,7 +17,7 @@ class CythonFallbackExtensionLoader(ExtensionFileLoader):
             return super().create_module(spec)
         except (ImportError, OSError):
             dir_name, base_name = os.path.split(spec.origin)
-            simple_name = base_name.split('.')[0] + '.py'
+            simple_name = base_name.split(".")[0] + ".py"
             py_path = os.path.join(dir_name, simple_name)
             if os.path.exists(py_path):
                 loader = SourceFileLoader(spec.name, py_path)
@@ -19,14 +27,14 @@ class CythonFallbackExtensionLoader(ExtensionFileLoader):
             raise
 
     def exec_module(self, module):
-        if getattr(module, '__spec__', None) and isinstance(module.__spec__.loader, SourceFileLoader):
+        if getattr(module, "__spec__", None) and isinstance(module.__spec__.loader, SourceFileLoader):
             module.__spec__.loader.exec_module(module)
             return
         try:
             super().exec_module(module)
         except (ImportError, OSError):
             dir_name, base_name = os.path.split(module.__file__)
-            simple_name = base_name.split('.')[0] + '.py'
+            simple_name = base_name.split(".")[0] + ".py"
             py_path = os.path.join(dir_name, simple_name)
             if os.path.exists(py_path):
                 loader = SourceFileLoader(module.__name__, py_path)
@@ -35,20 +43,25 @@ class CythonFallbackExtensionLoader(ExtensionFileLoader):
             else:
                 raise
 
+
 loaders = [
     (CythonFallbackExtensionLoader, EXTENSION_SUFFIXES),
     (SourceFileLoader, SOURCE_SUFFIXES),
-    (SourcelessFileLoader, BYTECODE_SUFFIXES)
+    (SourcelessFileLoader, BYTECODE_SUFFIXES),
 ]
 sys.path_hooks = [FileFinder.path_hook(*loaders)]
 sys.path_importer_cache.clear()
 
 import uvicorn
 
-sys.path.insert(0, r"c:\Users\elhaam shaikh\Desktop\MANGANEX\backend")
-from app.main import app
+BACKEND_DIR = os.path.dirname(os.path.abspath(__file__))
+if BACKEND_DIR not in sys.path:
+    sys.path.insert(0, BACKEND_DIR)
+
+from app.main import app  # noqa: E402
 
 if __name__ == "__main__":
-    print("Starting uvicorn server on port 8000...")
-    uvicorn.run(app, host="0.0.0.0", port=8000)
-
+    host = os.getenv("PYTHON_BACKEND_HOST", "127.0.0.1")
+    port = int(os.getenv("PYTHON_BACKEND_PORT", "8000"))
+    print(f"Starting uvicorn server on {host}:{port}...")
+    uvicorn.run(app, host=host, port=port)

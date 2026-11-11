@@ -1,4 +1,4 @@
-const API_BASE = 'http://127.0.0.1:8000/api/v1';
+const API_BASE = ((import.meta as any).env?.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api/v1').replace(/\/+$/, '');
 
 export async function fetchApi<T>(endpoint: string, options?: RequestInit): Promise<T | null> {
   try {
@@ -18,6 +18,10 @@ export async function fetchApi<T>(endpoint: string, options?: RequestInit): Prom
     });
 
     if (!res.ok) {
+      if (res.status === 401 && endpoint !== '/auth/login') {
+        localStorage.removeItem('manganex_token');
+        localStorage.removeItem('manganex_auth_user');
+      }
       const errorJson = await res.json().catch(() => null);
       const detail = errorJson?.detail || errorJson?.message || `HTTP ${res.status}`;
       console.warn(`API request to ${endpoint} failed:`, detail);

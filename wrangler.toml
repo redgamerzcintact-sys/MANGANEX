@@ -1,0 +1,10 @@
+name = "manganex"
+compatibility_date = "2026-04-01"
+pages_build_output_dir = "dist"
+
+[vars]
+ENVIRONMENT = "production"
+# Set VITE_API_BASE_URL in Cloudflare Pages environment variables for production builds,
+# pointing to your Cloudflare Tunnel / reverse-proxied backend API origin:
+# VITE_API_BASE_URL = "https://api.your-domain.com/api/v1"
+

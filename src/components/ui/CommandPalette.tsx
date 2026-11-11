@@ -383,8 +383,9 @@ export const CommandPalette: React.FC = () => {
                                 className={`text-[10px] font-mono block mt-0.5 ${
                                   isDark ? 'text-[#9BAFC1]' : 'text-[#64748B]'
                                 }`}
-                                dangerouslySetInnerHTML={{ __html: item.subtitle }}
-                              />
+                              >
+                                {String(item.subtitle || '').replace(/&bull;/g, '•')}
+                              </span>
                             </div>
                           </div>
 

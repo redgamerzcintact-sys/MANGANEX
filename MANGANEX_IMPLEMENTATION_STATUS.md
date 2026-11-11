@@ -83,7 +83,7 @@
 1. **Java Compilation**: `BUILD SUCCESS` (18 source files compiled with Java 25 release 21 into `manganex-backend-1.0.0.jar`).
 2. **Frontend Build**: `npm run build` completed in 11.07s with **zero TypeScript errors**.
 3. **Authentication Verification**:
-   - Tested `/api/v1/auth/login` with `geologist` (`ManganexGeo2026!`). Returned signed JWT token.
+   - Tested `/api/v1/auth/login` with `geologist` (`$MANGANEX_DEMO_GEOLOGIST_PASSWORD`). Returned signed JWT token.
    - Tested `/api/v1/auth/me` with Bearer token. Verified 6 assigned permissions (`GEOLOGY_READ`, `BOREHOLE_ASSAY_VIEW`, etc.).
 4. **RAG Vector Search Verification**:
    - Query: *"What strata hosts the braunite manganese ore at Balaghat Bharweli?"*

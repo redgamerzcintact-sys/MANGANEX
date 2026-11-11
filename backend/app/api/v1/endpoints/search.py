@@ -64,7 +64,7 @@ def global_search(
                 results.append({
                     "id": m.id,
                     "title": m.mine_name,
-                    "subtitle": f"{m.mine_code} &bull; {m.district}, {m.state} ({m.mine_type})",
+                    "subtitle": f"{m.mine_code} • {m.district}, {m.state} ({m.mine_type})",
                     "category": "Mines & Cadastre",
                     "type": "mine",
                     "coordinates": [m.latitude, m.longitude],
@@ -84,7 +84,7 @@ def global_search(
                 results.append({
                     "id": p.id,
                     "title": p.name,
-                    "subtitle": f"{p.region} &bull; {p.unfc_status} &bull; Score: {p.prospectivity_score}%",
+                    "subtitle": f"{p.region} • {p.unfc_status} • Score: {p.prospectivity_score}%",
                     "category": "Geological Targets",
                     "type": "prospect",
                     "coordinates": [p.latitude, p.longitude],
@@ -104,7 +104,7 @@ def global_search(
                 results.append({
                     "id": b.id,
                     "title": f"Borehole {b.borehole_code}",
-                    "subtitle": f"Depth: {b.depth_m}m &bull; Strata: {b.strata}",
+                    "subtitle": f"Depth: {b.depth_m}m • Strata: {b.strata}",
                     "category": "Boreholes & Assays",
                     "type": "borehole",
                     "coordinates": [b.latitude, b.longitude],
@@ -122,7 +122,7 @@ def global_search(
             results.append({
                 "id": gf["name"],
                 "title": gf["name"],
-                "subtitle": f"{gf['lithology']} &bull; Age: {gf['age']}",
+                "subtitle": f"{gf['lithology']} • Age: {gf['age']}",
                 "category": "Formations & Faults",
                 "type": "geology",
                 "coordinates": gf["coordinates"],
@@ -137,7 +137,7 @@ def global_search(
             results.append({
                 "id": eq["code"],
                 "title": f"{eq['code']} — {eq['name']}",
-                "subtitle": f"{eq['mine']} &bull; {eq['status']}",
+                "subtitle": f"{eq['mine']} • {eq['status']}",
                 "category": "Equipment Telemetry",
                 "type": "equipment",
                 "route": eq["route"],
@@ -163,4 +163,3 @@ def global_search(
         "results": results[:25],
         "total": len(results)
     })
-

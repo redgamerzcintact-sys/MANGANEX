@@ -24,6 +24,8 @@ export const NexusDrawer: React.FC = () => {
   const [inputQuery, setInputQuery] = useState('');
   const [isListening, setIsListening] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [recognitionInstance, setRecognitionInstance] = useState<any>(null);
+  const [speechSynthesisActive, setSpeechSynthesisActive] = useState(false);
   const [messages, setMessages] = useState<Array<{
     role: 'user' | 'assistant';
     text: string;
@@ -93,9 +95,6 @@ export const NexusDrawer: React.FC = () => {
       setLoading(false);
     }
   };
-
-  const [recognitionInstance, setRecognitionInstance] = useState<any>(null);
-  const [speechSynthesisActive, setSpeechSynthesisActive] = useState(false);
 
   const handleVoiceToggle = () => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;

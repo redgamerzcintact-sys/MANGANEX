@@ -8,23 +8,32 @@ import com.manganex.security.JwtService;
 import com.manganex.users.entity.Role;
 import com.manganex.users.entity.User;
 import com.manganex.users.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
 @RequestMapping("/api/v1/auth")
 public class AuthController {
 
+    private static final int MAX_ATTEMPTS = 10;
+    private static final long WINDOW_MS = 5 * 60 * 1000L;
+
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
 
-    // In-memory token blacklist for logout & reset tokens
+    @Value("${manganex.security.allow-demo-reset-token:false}")
+    private boolean allowDemoResetToken;
+
+    // In-memory token blacklist, reset tokens, and basic auth rate limiter
     private final Set<String> revokedTokens = Collections.synchronizedSet(new HashSet<>());
     private final Map<String, String> passwordResetTokens = Collections.synchronizedMap(new HashMap<>());
+    private final Map<String, List<Long>> rateLimitBuckets = new ConcurrentHashMap<>();
 
     public AuthController(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService) {
         this.userRepository = userRepository;
@@ -32,6 +41,18 @@ public class AuthController {
         this.jwtService = jwtService;
     }
 
+    private boolean isRateLimited(String key, int maxAttempts) {
+        long now = System.currentTimeMillis();
+        List<Long> bucket = rateLimitBuckets.computeIfAbsent(key, k -> Collections.synchronizedList(new ArrayList<>()));
+        synchronized (bucket) {
+            bucket.removeIf(ts -> (now - ts) > WINDOW_MS);
+            if (bucket.size() >= maxAttempts) {
+                return true;
+            }
+            bucket.add(now);
+            return false;
+        }
+    }
     private List<String> getPermissionsForRole(Role role) {
         if (role == null) return List.of("VIEW_ONLY");
         switch (role) {
@@ -66,6 +87,13 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
+        String key = request.getUsername() == null ? "anon" : request.getUsername().trim().toLowerCase();
+        if (isRateLimited("login:" + key, MAX_ATTEMPTS)) {
+            return ResponseEntity.status(429).body(
+                    new LoginResponse(false, null, null, null, null, "Too many authentication attempts. Please try again later.")
+            );
+        }
+
         Optional<User> userOpt = userRepository.findByUsername(request.getUsername());
         if (userOpt.isEmpty()) {
             userOpt = userRepository.findByEmail(request.getUsername());
@@ -181,6 +209,11 @@ public class AuthController {
             return ResponseEntity.badRequest().body(new PasswordResetDtos.GenericResponse(false, "Official email is required."));
         }
 
+        String normalizedEmail = request.getEmail().trim().toLowerCase();
+        if (isRateLimited("pwd_reset:" + normalizedEmail, 5)) {
+            return ResponseEntity.status(429).body(new PasswordResetDtos.GenericResponse(false, "Too many reset requests. Please try again later."));
+        }
+
         Optional<User> userOpt = userRepository.findByEmail(request.getEmail());
         if (userOpt.isEmpty()) {
             // Constant-time generic response to prevent user enumeration
@@ -190,9 +223,16 @@ public class AuthController {
         String resetToken = UUID.randomUUID().toString().replace("-", "");
         passwordResetTokens.put(resetToken, userOpt.get().getEmail());
 
+        if (allowDemoResetToken) {
+            return ResponseEntity.ok(new PasswordResetDtos.GenericResponse(
+                    true,
+                    "Password reset token issued: " + resetToken + " (Demo/dev mode enabled)."
+            ));
+        }
+
         return ResponseEntity.ok(new PasswordResetDtos.GenericResponse(
                 true,
-                "Password reset token issued: " + resetToken + " (In production, dispatched via MOIL SMTP gateway)."
+                "If an account exists for this email, secure password recovery instructions have been dispatched."
         ));
     }
 

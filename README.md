@@ -85,7 +85,7 @@ MANGANEX is an integrated three-tier enterprise mining intelligence platform:
 
 ## 🔐 Demo Account Configuration
 
-Demo account passwords must be configured through local environment variables. Never publish credentials in source files or documentation.
+Demo account passwords must be configured through local environment variables (`MANGANEX_DEMO_*_PASSWORD`). Never publish credentials in source files or documentation.
 
 ---
 

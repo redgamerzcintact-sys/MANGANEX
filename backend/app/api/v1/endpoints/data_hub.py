@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 from app.database.session import get_db
 from app.models.entities import Dataset
 from app.schemas.all_schemas import ApiResponse
+from app.api.v1.endpoints.auth import get_current_user_payload
 import datetime
 import uuid
 
@@ -138,7 +139,11 @@ def get_dataset_detail(dataset_id: str, db: Session = Depends(get_db)):
 
 
 @router.post("/upload", response_model=ApiResponse)
-def register_dataset(payload: dict, db: Session = Depends(get_db)):
+def register_dataset(
+    payload: dict,
+    db: Session = Depends(get_db),
+    _user: dict = Depends(get_current_user_payload),
+):
     """Register a new dataset (metadata only)."""
     new_ds = {
         "id": f"ds-user-{uuid.uuid4().hex[:8]}",

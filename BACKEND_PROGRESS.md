@@ -50,7 +50,7 @@
 
 ## 3. DEMONSTRATION ACCOUNT SECURITY
 
-Demo account passwords are injected through local environment variables and are intentionally not documented or committed.
+Demo account passwords are injected through local environment variables (`MANGANEX_DEMO_*_PASSWORD`) and are intentionally not documented or committed.
 
 ---
 

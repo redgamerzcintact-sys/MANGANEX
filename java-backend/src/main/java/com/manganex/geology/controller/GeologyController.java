@@ -4,6 +4,7 @@ import com.manganex.geology.entity.MineEntity;
 import com.manganex.geology.entity.ProspectEntity;
 import com.manganex.geology.repository.MineRepository;
 import com.manganex.geology.repository.ProspectRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
@@ -19,6 +20,9 @@ public class GeologyController {
     private final MineRepository mineRepository;
     private final ProspectRepository prospectRepository;
     private final RestTemplate restTemplate = new RestTemplate();
+
+    @Value("${manganex.python-ai-service.base-url:http://127.0.0.1:8000}")
+    private String pythonAiServiceBaseUrl;
 
     public GeologyController(MineRepository mineRepository, ProspectRepository prospectRepository) {
         this.mineRepository = mineRepository;
@@ -61,7 +65,10 @@ public class GeologyController {
     public ResponseEntity<Map<String, Object>> proxyNexusChat(@RequestBody Map<String, Object> request) {
         try {
             // Forward question to Python intelligence service
-            String pythonUrl = "http://127.0.0.1:8000/api/v1/nexus/chat";
+            String baseUrl = pythonAiServiceBaseUrl.endsWith("/")
+                    ? pythonAiServiceBaseUrl.substring(0, pythonAiServiceBaseUrl.length() - 1)
+                    : pythonAiServiceBaseUrl;
+            String pythonUrl = baseUrl + "/api/v1/nexus/chat";
             ResponseEntity<Map> pythonResponse = restTemplate.postForEntity(pythonUrl, request, Map.class);
             return ResponseEntity.ok(pythonResponse.getBody());
         } catch (Exception e) {

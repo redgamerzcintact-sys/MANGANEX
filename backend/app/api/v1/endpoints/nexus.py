@@ -14,6 +14,7 @@ from app.ml.risk.engine import predict_mine_risks
 from app.ml.prospectivity.model import run_prospectivity_model
 from app.rag.engine import rag_engine
 from app.core.ai_config import ai_settings
+from app.api.v1.endpoints.auth import get_current_user_payload
 from pydantic import BaseModel
 import datetime
 import uuid
@@ -644,7 +645,7 @@ def list_sessions(user_id: Optional[str] = Query(None)):
             "message_count": len(s_data.get("messages", []))
         })
     # Sort pinned first, then by updated_at
-    res.sort(key=lambda x: (not x["pinned"], x["updated_at"]), reverse=True)
+    res.sort(key=lambda x: (x["pinned"], x["updated_at"]), reverse=True)
     return {"success": True, "sessions": res}
 
 @router.post("/sessions")
@@ -664,7 +665,11 @@ def create_session(title: Optional[str] = "New Geospatial Inquiry"):
     return {"success": True, "session": s_obj}
 
 @router.patch("/sessions/{session_id}")
-def update_session(session_id: str, req: SessionUpdateRequest):
+def update_session(
+    session_id: str,
+    req: SessionUpdateRequest,
+    _user: Dict[str, Any] = Depends(get_current_user_payload),
+):
     if session_id not in CONVERSATION_SESSIONS:
         raise HTTPException(status_code=404, detail="Conversation session not found.")
     s_obj = CONVERSATION_SESSIONS[session_id]
@@ -676,7 +681,10 @@ def update_session(session_id: str, req: SessionUpdateRequest):
     return {"success": True, "session": s_obj}
 
 @router.delete("/sessions/{session_id}")
-def delete_session(session_id: str):
+def delete_session(
+    session_id: str,
+    _user: Dict[str, Any] = Depends(get_current_user_payload),
+):
     if session_id in CONVERSATION_SESSIONS:
         del CONVERSATION_SESSIONS[session_id]
     return {"success": True, "message": "Conversation session deleted."}

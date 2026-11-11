@@ -20,8 +20,11 @@ spring:
 manganex:
   security:
     jwt:
-      secret: ${MANGANEX_JWT_SECRET}
-      expiration-ms: 86400000
+      secret: ${MANGANEX_JWT_SECRET:}
+      expiration-ms: ${MANGANEX_JWT_EXPIRATION_MS:86400000} # 24 hours
+    allow-demo-reset-token: ${ALLOW_DEMO_AUTH_TOKENS:false}
+  cors:
+    allowed-origins: ${MANGANEX_CORS_ORIGINS:http://localhost:3000,http://127.0.0.1:3000,http://localhost:5173}
   python-ai-service:
     base-url: ${PYTHON_AI_SERVICE_URL:http://127.0.0.1:8000}
 

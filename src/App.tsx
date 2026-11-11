@@ -1,5 +1,7 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
+import 'maplibre-gl/dist/maplibre-gl.css';
+import 'leaflet/dist/leaflet.css';
 import { AppLayout } from './components/layout/AppLayout';
 import { LandingPage } from './components/landing/LandingPage';
 import { CommandCenterPage } from './components/commandCenter/CommandCenterPage';
@@ -105,25 +107,25 @@ export const App: React.FC = () => {
         />
 
         {/* Shared / Specialized Feature Modules */}
-        <Route path="/command-center" element={<CommandCenterPage />} />
-        <Route path="/map-explorer" element={<CommandCenterPage />} />
+        <Route path="/command-center" element={<ProtectedRoute><CommandCenterPage /></ProtectedRoute>} />
+        <Route path="/map-explorer" element={<ProtectedRoute><CommandCenterPage /></ProtectedRoute>} />
         <Route path="/landing" element={<LandingPage />} />
-        <Route path="/exploration" element={<ExplorationPage />} />
-        <Route path="/geology" element={<ExplorationPage />} />
-        <Route path="/prospectivity" element={<ProspectivityPage />} />
-        <Route path="/subsurface" element={<SubsurfacePage />} />
-        <Route path="/satellite" element={<SatellitePage />} />
-        <Route path="/environmental" element={<EnvironmentalPage />} />
-        <Route path="/production" element={<ProductionPage />} />
-        <Route path="/equipment" element={<EquipmentPage />} />
-        <Route path="/risk-center" element={<RiskCenterPage />} />
-        <Route path="/scenario-lab" element={<ScenarioLabPage />} />
-        <Route path="/optimization" element={<OptimizationPage />} />
-        <Route path="/intelligence" element={<IntelligencePage />} />
-        <Route path="/models" element={<IntelligencePage />} />
-        <Route path="/nexus" element={<NexusPage />} />
-        <Route path="/reports" element={<ReportsPage />} />
-        <Route path="/data-hub" element={<DataHubPage />} />
+        <Route path="/exploration" element={<ProtectedRoute><ExplorationPage /></ProtectedRoute>} />
+        <Route path="/geology" element={<ProtectedRoute><ExplorationPage /></ProtectedRoute>} />
+        <Route path="/prospectivity" element={<ProtectedRoute><ProspectivityPage /></ProtectedRoute>} />
+        <Route path="/subsurface" element={<ProtectedRoute><SubsurfacePage /></ProtectedRoute>} />
+        <Route path="/satellite" element={<ProtectedRoute><SatellitePage /></ProtectedRoute>} />
+        <Route path="/environmental" element={<ProtectedRoute><EnvironmentalPage /></ProtectedRoute>} />
+        <Route path="/production" element={<ProtectedRoute><ProductionPage /></ProtectedRoute>} />
+        <Route path="/equipment" element={<ProtectedRoute><EquipmentPage /></ProtectedRoute>} />
+        <Route path="/risk-center" element={<ProtectedRoute><RiskCenterPage /></ProtectedRoute>} />
+        <Route path="/scenario-lab" element={<ProtectedRoute><ScenarioLabPage /></ProtectedRoute>} />
+        <Route path="/optimization" element={<ProtectedRoute><OptimizationPage /></ProtectedRoute>} />
+        <Route path="/intelligence" element={<ProtectedRoute><IntelligencePage /></ProtectedRoute>} />
+        <Route path="/models" element={<ProtectedRoute><IntelligencePage /></ProtectedRoute>} />
+        <Route path="/nexus" element={<ProtectedRoute><NexusPage /></ProtectedRoute>} />
+        <Route path="/reports" element={<ProtectedRoute><ReportsPage /></ProtectedRoute>} />
+        <Route path="/data-hub" element={<ProtectedRoute><DataHubPage /></ProtectedRoute>} />
 
         {/* Admin Clearance Only */}
         <Route
@@ -134,7 +136,7 @@ export const App: React.FC = () => {
             </ProtectedRoute>
           }
         />
-        <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
       </Route>
 
       {/* Fallback to login */}
