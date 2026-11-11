@@ -48,17 +48,9 @@
 
 ---
 
-## 3. SEEDED DEMONSTRATION ACCOUNTS
+## 3. DEMONSTRATION ACCOUNT SECURITY
 
-All demonstration accounts are seeded with secure bcrypt hashes:
-
-| Role | Username | Password | Organization / Jurisdiction |
-|---|---|---|---|
-| **Administrator** | `admin` | `ManganexAdmin2026!` | Ministry of Steel / MOIL |
-| **Geologist** | `geologist` | `ManganexGeo2026!` | GSI / MOIL Exploration Wing |
-| **Mining Engineer** | `engineer` | `ManganexEng2026!` | Balaghat Underground Operations |
-| **Data Analyst** | `analyst` | `ManganexData2026!` | National Mineral Intelligence Unit |
-| **Viewer** | `viewer` | `ManganexViewer2026!` | Public Mineral Observatory |
+Demo account passwords are injected through local environment variables and are intentionally not documented or committed.
 
 ---
 
