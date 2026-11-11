@@ -406,51 +406,6 @@ export const LoginPage: React.FC = () => {
     }
   };
 
-  // Dedicated "Use Demo Account" Handler (Calls real backend authentication)
-  const handleUseDemoAccount = async (role: RoleProfile) => {
-    setAuthenticatingDemoRole(role.id);
-    setSelectedRole(role.id);
-    setUsername(role.hintEmail);
-    setPassword(role.demoPassword);
-    setErrorMessage(null);
-    setSuccessMessage(null);
-
-    try {
-      const response = await api.login({
-        username: role.hintEmail,
-        password: role.demoPassword,
-        role: role.id
-      });
-
-      if (response && response.token) {
-        const respAny = response as any;
-        const userObj = {
-          id: respAny.id || `usr-${response.username}`,
-          username: response.username,
-          email: respAny.email || role.hintEmail,
-          fullName: response.fullName,
-          role: response.role as any,
-          organization: respAny.organization || 'Ministry of Steel / MOIL'
-        };
-
-        useAuthStore.getState().setAuth(userObj, response.token);
-
-        const targetRoute = getTargetRouteForRole(response.role);
-        setSuccessMessage(`Demo access confirmed: Authenticated as ${response.fullName} (${role.badge}). Redirecting to ${targetRoute}...`);
-
-        setTimeout(() => {
-          navigate(targetRoute);
-        }, 400);
-      } else {
-        setErrorMessage(response?.message || `Demo authentication failed for ${role.title}.`);
-      }
-    } catch (err: any) {
-      setErrorMessage(err?.message || `Failed to authenticate demo user for ${role.title}.`);
-    } finally {
-      setAuthenticatingDemoRole(null);
-    }
-  };
-
   const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!regFullName.trim() || !regEmail.trim() || !regUsername.trim() || !regPassword) {
