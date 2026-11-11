@@ -45,7 +45,6 @@ interface RoleProfile {
   badge: string;
   desc: string;
   hintEmail: string;
-  demoPassword: string;
   icon: React.ComponentType<{ className?: string }>;
   accentColor: string;
   redirectUrl: string;
@@ -59,7 +58,6 @@ const ROLES: RoleProfile[] = [
     badge: 'FULL ACCESS',
     desc: 'Platform governance, user management, and security policies.',
     hintEmail: 'admin@moil.gov.in',
-    demoPassword: 'ManganexAdmin2026!',
     icon: ShieldCheck,
     accentColor: '#54D8E8',
     redirectUrl: '/admin/dashboard',
@@ -71,7 +69,6 @@ const ROLES: RoleProfile[] = [
     badge: 'EXPLORATION',
     desc: 'Borehole assays, 3D lithology, and prospectivity analytics.',
     hintEmail: 'geologist@moil.gov.in',
-    demoPassword: 'ManganexGeo2026!',
     icon: Compass,
     accentColor: '#A78BFA',
     redirectUrl: '/geologist/dashboard',
@@ -83,7 +80,6 @@ const ROLES: RoleProfile[] = [
     badge: 'MINE OPS',
     desc: 'Production monitoring, fleet telemetry, and operational planning.',
     hintEmail: 'engineer@moil.gov.in',
-    demoPassword: 'ManganexEng2026!',
     icon: Activity,
     accentColor: '#F4B860',
     redirectUrl: '/operations/dashboard',
@@ -95,7 +91,6 @@ const ROLES: RoleProfile[] = [
     badge: 'AI & SATELLITE',
     desc: 'Sentinel-2 spectral indices, ML models, and analytics reports.',
     hintEmail: 'analyst@moil.gov.in',
-    demoPassword: 'ManganexData2026!',
     icon: Layers,
     accentColor: '#168BFF',
     redirectUrl: '/analytics/dashboard',
@@ -107,7 +102,6 @@ const ROLES: RoleProfile[] = [
     badge: 'READ-ONLY',
     desc: 'Read-only access to executive dashboards, maps, and reports.',
     hintEmail: 'viewer@moil.gov.in',
-    demoPassword: 'ManganexViewer2026!',
     icon: Eye,
     accentColor: '#43D6A0',
     redirectUrl: '/viewer/dashboard',
@@ -136,7 +130,6 @@ export const LoginPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
-  const [authenticatingDemoRole, setAuthenticatingDemoRole] = useState<UserRole | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
@@ -927,7 +920,6 @@ export const LoginPage: React.FC = () => {
               <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
                 {ROLES.map((role) => {
                   const Icon = role.icon;
-                  const isAuthenticating = authenticatingDemoRole === role.id;
                   const isSelected = selectedRole === role.id;
 
                   return (
@@ -959,19 +951,14 @@ export const LoginPage: React.FC = () => {
 
                       <button
                         type="button"
-                        disabled={isAuthenticating}
-                        onClick={() => handleUseDemoAccount(role)}
+                        onClick={() => setSelectedRole(role.id)}
                         className="w-full py-1 px-1.5 rounded bg-[#101927] hover:bg-[#1C3045] text-white border border-[#1C3045] text-[9.5px] font-mono font-bold flex items-center justify-center gap-1 transition-all cursor-pointer disabled:opacity-50"
                         style={{ borderLeftWidth: '2.5px', borderLeftColor: role.accentColor }}
                       >
-                        {isAuthenticating ? (
-                          <span className="w-2.5 h-2.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        ) : (
-                          <>
-                            <span>Use Demo</span>
-                            <ArrowRight className="w-2.5 h-2.5 text-[#54D8E8]" />
-                          </>
-                        )}
+                        <>
+                          <span>Select Role</span>
+                          <ArrowRight className="w-2.5 h-2.5 text-[#54D8E8]" />
+                        </>
                       </button>
                     </div>
                   );
