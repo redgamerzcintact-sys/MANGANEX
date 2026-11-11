@@ -868,7 +868,7 @@ export const LoginPage: React.FC = () => {
                   EXPLORE DEMO PROFILES (REAL SEEDED BACKEND AUTH)
                 </span>
                 <span className="text-[9px] font-mono text-[#657A90] hidden sm:inline">
-                  BCrypt Encrypted &bull; 1-Click Session
+                  Role-Based Access &bull; Secure Sign-In
                 </span>
               </div>
 
