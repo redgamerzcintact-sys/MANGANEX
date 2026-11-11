@@ -20,8 +20,8 @@ spring:
 manganex:
   security:
     jwt:
-      secret: "ManganexSuperSecureSecretKeyForEnterpriseMiningIntelligence2026FullStackPlatform"
-      expiration-ms: 86400000 # 24 hours
+      secret: ${MANGANEX_JWT_SECRET}
+      expiration-ms: 86400000
   python-ai-service:
     base-url: ${PYTHON_AI_SERVICE_URL:http://127.0.0.1:8000}
 
