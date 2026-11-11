@@ -1,6 +1,7 @@
 import urllib.request
 import json
 import sys
+import os
 
 BASE_URL = "http://localhost:8000/api/v1"
 JAVA_URL = "http://localhost:8080/actuator/health"
@@ -24,12 +25,15 @@ print("=====================================================================\n")
 # ── 1. AUTHENTICATION & ROLE TEST ──────────────────────────────────────────────
 print("── PART 1: 5-ROLE AUTHENTICATION & PORTAL MAPPING TEST ──")
 ROLES_TO_TEST = [
-    {"role": "ADMIN", "user": "admin@moil.gov.in", "pass": "ManganexAdmin2026!", "expected_role": "ROLE_ADMIN", "expected_route": "/admin/dashboard"},
-    {"role": "GEOLOGIST", "user": "geologist@moil.gov.in", "pass": "ManganexGeo2026!", "expected_role": "ROLE_GEOLOGIST", "expected_route": "/geologist/dashboard"},
-    {"role": "MINING_ENGINEER", "user": "engineer@moil.gov.in", "pass": "ManganexEng2026!", "expected_role": "ROLE_ENGINEER", "expected_route": "/operations/dashboard"},
-    {"role": "DATA_ANALYST", "user": "analyst@moil.gov.in", "pass": "ManganexData2026!", "expected_role": "ROLE_ANALYST", "expected_route": "/analytics/dashboard"},
-    {"role": "VIEWER", "user": "viewer@moil.gov.in", "pass": "ManganexViewer2026!", "expected_role": "ROLE_VIEWER", "expected_route": "/viewer/dashboard"}
+    {"role": "ADMIN", "user": "admin@moil.gov.in", "pass": os.getenv("MANGANEX_DEMO_ADMIN_PASSWORD"), "expected_role": "ROLE_ADMIN", "expected_route": "/admin/dashboard"},
+    {"role": "GEOLOGIST", "user": "geologist@moil.gov.in", "pass": os.getenv("MANGANEX_DEMO_GEOLOGIST_PASSWORD"), "expected_role": "ROLE_GEOLOGIST", "expected_route": "/geologist/dashboard"},
+    {"role": "MINING_ENGINEER", "user": "engineer@moil.gov.in", "pass": os.getenv("MANGANEX_DEMO_ENGINEER_PASSWORD"), "expected_role": "ROLE_ENGINEER", "expected_route": "/operations/dashboard"},
+    {"role": "DATA_ANALYST", "user": "analyst@moil.gov.in", "pass": os.getenv("MANGANEX_DEMO_ANALYST_PASSWORD"), "expected_role": "ROLE_ANALYST", "expected_route": "/analytics/dashboard"},
+    {"role": "VIEWER", "user": "viewer@moil.gov.in", "pass": os.getenv("MANGANEX_DEMO_VIEWER_PASSWORD"), "expected_role": "ROLE_VIEWER", "expected_route": "/viewer/dashboard"}
 ]
+ROLES_TO_TEST = [role for role in ROLES_TO_TEST if role["pass"]]
+if not ROLES_TO_TEST:
+    print("No demo passwords configured; skipping demo authentication checks.")
 
 for r in ROLES_TO_TEST:
     payload = {"username": r["user"], "password": r["pass"], "role": r["role"]}
