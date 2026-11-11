@@ -1,28 +1,32 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Compass,
-  MapPin,
-  Layers,
   Search,
-  Maximize2,
-  Minimize2,
-  Ruler,
-  Square,
-  Circle,
   Download,
   Upload,
-  RotateCcw,
-  AlertCircle,
-  CheckCircle2,
   Key,
   ExternalLink,
-  Sparkles,
-  Info,
   X,
   Plus,
-  Minus
+  Minus,
+  Globe,
+  CheckCircle2,
 } from 'lucide-react';
 import { Mine, GeologicalProspect } from '../../types';
+import { useAppStore } from '../../stores/appStore';
+import { LeafletSpatialMap, SpatialZoomCommand } from './LeafletSpatialMap';
+import {
+  ActiveLayersConfig,
+  BOREHOLES,
+  FAULT_TRACES,
+  GROUNDWATER_ZONES,
+  HAULAGE_CORRIDORS,
+  MOIL_CONCESSIONS,
+  MapTypeId,
+  RISK_ANOMALY_ZONES,
+  SelectedMapFeature,
+  searchSpatialFeatures,
+} from './moilSpatialData';
 
 interface GoogleMapExplorerProps {
   selectedMine?: Mine;
@@ -30,224 +34,225 @@ interface GoogleMapExplorerProps {
   selectedProspect?: GeologicalProspect | null;
   onSelectProspect?: (prospectId: string) => void;
   selectedYear: number;
-  activeLayers: {
-    boreholes: boolean;
-    seismic: boolean;
-    groundwater: boolean;
-    haulage: boolean;
-    riskHeatmap: boolean;
-  };
+  activeLayers: ActiveLayersConfig;
 }
 
-// Verified MOIL Central India Manganese Belt Concession Boundaries
-const MOIL_CONCESSIONS = [
-  {
-    id: 'mine-dongri-buzurg',
-    name: 'Dongri Buzurg Open-Cast Mine',
-    state: 'Maharashtra',
-    district: 'Bhandara',
-    grade: '41.2% Mn',
-    reserves: '18.2 Mt',
-    type: 'Open-Cast',
-    coords: [
-      { lat: 21.5540, lng: 79.6920 },
-      { lat: 21.5560, lng: 79.7040 },
-      { lat: 21.5440, lng: 79.7080 },
-      { lat: 21.5410, lng: 79.6950 }
-    ]
-  },
-  {
-    id: 'mine-balaghat',
-    name: 'Balaghat Underground Deep Mine',
-    state: 'Madhya Pradesh',
-    district: 'Balaghat',
-    grade: '44.8% Mn',
-    reserves: '24.5 Mt',
-    type: 'Underground',
-    coords: [
-      { lat: 21.8150, lng: 80.1750 },
-      { lat: 21.8220, lng: 80.1900 },
-      { lat: 21.8080, lng: 80.1980 },
-      { lat: 21.8010, lng: 80.1810 }
-    ]
-  },
-  {
-    id: 'mine-chikla',
-    name: 'Chikla Manganese Mine',
-    state: 'Maharashtra',
-    district: 'Bhandara',
-    grade: '43.5% Mn',
-    reserves: '14.8 Mt',
-    type: 'Underground',
-    coords: [
-      { lat: 21.5490, lng: 79.7600 },
-      { lat: 21.5550, lng: 79.7720 },
-      { lat: 21.5430, lng: 79.7780 },
-      { lat: 21.5380, lng: 79.7640 }
-    ]
-  },
-  {
-    id: 'mine-ukwa',
-    name: 'Ukwa Hillside Mine',
-    state: 'Madhya Pradesh',
-    district: 'Balaghat',
-    grade: '39.4% Mn',
-    reserves: '9.6 Mt',
-    type: 'Open-Cast',
-    coords: [
-      { lat: 21.9680, lng: 80.4680 },
-      { lat: 21.9750, lng: 80.4820 },
-      { lat: 21.9620, lng: 80.4890 },
-      { lat: 21.9560, lng: 80.4720 }
-    ]
-  },
-  {
-    id: 'mine-munsar',
-    name: 'Munsar Mine',
-    state: 'Maharashtra',
-    district: 'Nagpur',
-    grade: '42.0% Mn',
-    reserves: '11.4 Mt',
-    type: 'Underground',
-    coords: [
-      { lat: 21.4020, lng: 79.2880 },
-      { lat: 21.4080, lng: 79.2990 },
-      { lat: 21.3960, lng: 79.3040 },
-      { lat: 21.3910, lng: 79.2920 }
-    ]
+declare global {
+  interface Window {
+    __manganexGmAuthFailed?: boolean;
+    gm_authFailure?: () => void;
   }
-];
-
-// Structural Fault Line coordinates (Sauser Belt Thrust)
-const FAULT_LINES = [
-  [
-    { lat: 21.535, lng: 79.680 },
-    { lat: 21.550, lng: 79.710 },
-    { lat: 21.560, lng: 79.740 },
-    { lat: 21.575, lng: 79.780 }
-  ],
-  [
-    { lat: 21.800, lng: 80.160 },
-    { lat: 21.815, lng: 80.185 },
-    { lat: 21.830, lng: 80.210 }
-  ]
-];
-
-// Sample Exploratory Borehole Collars
-const BOREHOLES = [
-  { id: 'BH-DB-01', lat: 21.5495, lng: 79.6990, depth: 280, grade: 42.4, recovery: 91.2, lithology: 'Braunite' },
-  { id: 'BH-DB-02', lat: 21.5520, lng: 79.7025, depth: 340, grade: 45.1, recovery: 93.8, lithology: 'Pyrolusite' },
-  { id: 'BH-DB-03', lat: 21.5460, lng: 79.6960, depth: 210, grade: 38.6, recovery: 87.5, lithology: 'Gondite' },
-  { id: 'BH-BL-01', lat: 21.8120, lng: 80.1820, depth: 420, grade: 46.2, recovery: 94.6, lithology: 'Massive Braunite' },
-  { id: 'BH-BL-02', lat: 21.8180, lng: 80.1890, depth: 390, grade: 43.8, recovery: 92.1, lithology: 'Braunite Reef' }
-];
+}
 
 export const GoogleMapExplorer: React.FC<GoogleMapExplorerProps> = ({
-  selectedMine,
+  selectedMine: selectedMineProp,
   onSelectMine,
   selectedProspect,
-  onSelectProspect,
   selectedYear,
-  activeLayers
+  activeLayers,
 }) => {
-  const mapRef = useRef<HTMLDivElement>(null);
-  const [googleMap, setGoogleMap] = useState<any>(null);
-  const [isApiKeyMissing, setIsApiKeyMissing] = useState<boolean>(false);
-  const [useFallbackViewer, setUseFallbackViewer] = useState<boolean>(false);
+  const storeSelectedMine = useAppStore((s) => s.selectedMine);
+  const storeSetSelectedMineId = useAppStore((s) => s.setSelectedMineId);
 
-  // Map state
-  const [mapType, setMapType] = useState<'satellite' | 'roadmap' | 'terrain' | 'hybrid'>('hybrid');
-  const [cursorCoords, setCursorCoords] = useState<{ lat: number; lng: number } | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedFeature, setSelectedFeature] = useState<any>(null);
-  const [activeDrawTool, setActiveDrawTool] = useState<'none' | 'distance' | 'area' | 'marker'>('none');
-  const [measuredDistance, setMeasuredDistance] = useState<string | null>(null);
-  const [measuredArea, setMeasuredArea] = useState<string | null>(null);
-  const [isFullscreen, setIsFullscreen] = useState(false);
+  const effectiveMine = selectedMineProp ?? storeSelectedMine;
+  const selectMine = onSelectMine ?? storeSetSelectedMineId;
 
   const apiKey = (((import.meta as any).env?.VITE_GOOGLE_MAPS_API_KEY as string) || '').trim();
+  const hasValidApiKeyShape =
+    Boolean(apiKey) && apiKey !== 'YOUR_GOOGLE_MAPS_API_KEY_HERE' && apiKey.length >= 15;
 
+  const mapRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const googleOverlaysRef = useRef<any[]>([]);
+  const googleImportedLayerRef = useRef<any[]>([]);
 
-  // Detect whether Google Maps API Key is provided
+  const [googleMap, setGoogleMap] = useState<any>(null);
+  const [useFallbackViewer, setUseFallbackViewer] = useState<boolean>(
+    () => !hasValidApiKeyShape || Boolean(window.__manganexGmAuthFailed)
+  );
+  const [authFailureDetected, setAuthFailureDetected] = useState<boolean>(
+    () => Boolean(window.__manganexGmAuthFailed)
+  );
+  const [showKeyModal, setShowKeyModal] = useState<boolean>(false);
+
+  // Shared HUD & Map state
+  const [mapType, setMapType] = useState<MapTypeId>('hybrid');
+  const [cursorCoords, setCursorCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedFeature, setSelectedFeature] = useState<SelectedMapFeature | null>(null);
+  const [importedGeoJson, setImportedGeoJson] = useState<unknown | null>(null);
+  const [zoomCommand, setZoomCommand] = useState<SpatialZoomCommand | null>(null);
+  const [zoomSeq, setZoomSeq] = useState(0);
+
+  const activeCenter = useMemo<[number, number]>(() => {
+    if (selectedProspect?.coordinates) return selectedProspect.coordinates;
+    if (effectiveMine?.coordinates) return effectiveMine.coordinates;
+    return [21.8049, 80.2033];
+  }, [selectedProspect?.coordinates, effectiveMine?.coordinates]);
+
+  const issueZoomCommand = (
+    type: SpatialZoomCommand['type'],
+    target?: [number, number],
+    zoom?: number
+  ) => {
+    const nextSeq = zoomSeq + 1;
+    setZoomSeq(nextSeq);
+    setZoomCommand({ type, seq: nextSeq, target, zoom });
+  };
+
+  // Switch cleanly to Spatial GIS Engine whenever Google Maps fails auth, errors, or times out
+  const activateSpatialFallback = (reason: 'auth' | 'load' | 'missing') => {
+    if (reason === 'auth') {
+      window.__manganexGmAuthFailed = true;
+      setAuthFailureDetected(true);
+    }
+    setGoogleMap(null);
+    setUseFallbackViewer(true);
+  };
+
+  // Initialize Google Maps JS API only if key is configured and hasn't failed auth
   useEffect(() => {
-    // Intercept Google Maps auth failure to prevent grey crash
-    (window as any).gm_authFailure = () => {
-      console.warn('Google Maps API authentication failed or domain restricted. Activating high-precision spatial fallback engine.');
-      setUseFallbackViewer(true);
+    window.gm_authFailure = () => {
+      console.warn(
+        'Google Maps API authentication failed or domain restricted. Activating built-in ESRI Satellite GIS engine.'
+      );
+      activateSpatialFallback('auth');
     };
 
-    if (!apiKey || apiKey === 'YOUR_GOOGLE_MAPS_API_KEY_HERE' || apiKey.length < 15) {
-      setIsApiKeyMissing(true);
-    } else {
-      setIsApiKeyMissing(false);
-      loadGoogleMapsScript();
-    }
-  }, [apiKey]);
-
-  const loadGoogleMapsScript = () => {
-    if ((window as any).google && (window as any).google.maps) {
-      initMap();
+    if (!hasValidApiKeyShape) {
+      activateSpatialFallback('missing');
       return;
     }
 
-    const scriptId = 'manganex-google-maps-script';
-    if (document.getElementById(scriptId)) return;
+    if (window.__manganexGmAuthFailed) {
+      activateSpatialFallback('auth');
+      return;
+    }
 
-    const script = document.createElement('script');
-    script.id = scriptId;
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places,drawing,geometry&v=weekly`;
-    script.async = true;
-    script.defer = true;
-    script.onload = () => {
-      initMap();
-    };
-    script.onerror = () => {
-      console.warn('Google Maps script failed to load. Switching to high-res spatial fallback.');
-      setIsApiKeyMissing(true);
-      setUseFallbackViewer(true);
-    };
-    document.head.appendChild(script);
-  };
+    let cancelled = false;
+    let fallbackTimer: number | undefined;
+    let observer: MutationObserver | undefined;
 
-  const initMap = () => {
-    if (!mapRef.current || !(window as any).google || !(window as any).google.maps) return;
+    const watchForGoogleError = () => {
+      const container = mapRef.current;
+      if (!container) return;
+
+      const checkDom = () => {
+        if (cancelled) return;
+        if (container.querySelector('.gm-err-container')) {
+          activateSpatialFallback('auth');
+        }
+      };
+
+      observer = new MutationObserver(checkDom);
+      observer.observe(container, { childList: true, subtree: true });
+
+      fallbackTimer = window.setTimeout(() => {
+        if (cancelled) return;
+        const hasRenderedMap = Boolean(container.querySelector('.gm-style'));
+        const hasErrorBox = Boolean(container.querySelector('.gm-err-container'));
+        if (!hasRenderedMap || hasErrorBox) {
+          activateSpatialFallback('load');
+        }
+      }, 4500);
+    };
+
+    const startGoogleMap = () => {
+      if (cancelled || window.__manganexGmAuthFailed) return;
+      initGoogleMap();
+      watchForGoogleError();
+    };
+
+    if ((window as any).google?.maps?.Map) {
+      startGoogleMap();
+    } else {
+      const scriptId = 'manganex-google-maps-script';
+      let script = document.getElementById(scriptId) as HTMLScriptElement | null;
+
+      if (!script) {
+        script = document.createElement('script');
+        script.id = scriptId;
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(
+          apiKey
+        )}&libraries=places,drawing,geometry&v=weekly`;
+        script.async = true;
+        script.defer = true;
+        document.head.appendChild(script);
+      }
+
+      const handleLoad = () => {
+        if ((window as any).google?.maps?.Map) {
+          startGoogleMap();
+        } else {
+          activateSpatialFallback('load');
+        }
+      };
+      const handleError = () => {
+        console.warn('Google Maps script failed to load. Switching to built-in ESRI Satellite GIS.');
+        activateSpatialFallback('load');
+      };
+
+      script.addEventListener('load', handleLoad);
+      script.addEventListener('error', handleError);
+
+      // Guard if script tag stalled prior to mount
+      fallbackTimer = window.setTimeout(() => {
+        if (cancelled) return;
+        if (!(window as any).google?.maps?.Map) {
+          activateSpatialFallback('load');
+        }
+      }, 5000);
+
+      return () => {
+        cancelled = true;
+        script?.removeEventListener('load', handleLoad);
+        script?.removeEventListener('error', handleError);
+        observer?.disconnect();
+        if (fallbackTimer) window.clearTimeout(fallbackTimer);
+      };
+    }
+
+    return () => {
+      cancelled = true;
+      observer?.disconnect();
+      if (fallbackTimer) window.clearTimeout(fallbackTimer);
+    };
+  }, [apiKey, hasValidApiKeyShape]);
+
+  const initGoogleMap = () => {
+    if (!mapRef.current || !(window as any).google?.maps?.Map) return;
 
     const google = (window as any).google;
-    const initialCenter = selectedMine?.coordinates
-      ? { lat: selectedMine.coordinates[0], lng: selectedMine.coordinates[1] }
-      : { lat: 21.5485, lng: 79.6975 };
-
     const map = new google.maps.Map(mapRef.current, {
-      center: initialCenter,
-      zoom: 13,
+      center: { lat: activeCenter[0], lng: activeCenter[1] },
+      zoom: 12,
       mapTypeId: google.maps.MapTypeId.HYBRID,
       tilt: 45,
       disableDefaultUI: true,
       zoomControl: false,
       mapTypeControl: false,
       streetViewControl: false,
-      fullscreenControl: false
+      fullscreenControl: false,
     });
 
     setGoogleMap(map);
 
-    // Attach Google Places Autocomplete to Search Bar if available
+    // Places Autocomplete integration when enabled
     if (searchInputRef.current && google.maps.places) {
       try {
         const autocomplete = new google.maps.places.Autocomplete(searchInputRef.current, {
-          fields: ['geometry', 'name', 'formatted_address']
+          fields: ['geometry', 'name', 'formatted_address'],
         });
         autocomplete.addListener('place_changed', () => {
           const place = autocomplete.getPlace();
-          if (place.geometry && place.geometry.location) {
+          if (place.geometry?.location) {
             map.panTo(place.geometry.location);
-            map.setZoom(15);
+            map.setZoom(14);
             setSelectedFeature({
               type: 'Google Places Location',
               name: place.name || 'Selected Location',
               details: place.formatted_address || 'Geocoded via Google Places API',
-              location: `Lat: ${place.geometry.location.lat().toFixed(5)}, Lng: ${place.geometry.location.lng().toFixed(5)}`
+              location: `Lat: ${place.geometry.location.lat().toFixed(5)}, Lng: ${place.geometry.location.lng().toFixed(5)}`,
             });
           }
         });
@@ -256,12 +261,11 @@ export const GoogleMapExplorer: React.FC<GoogleMapExplorerProps> = ({
       }
     }
 
-    // Mousemove coordinate tracking
     map.addListener('mousemove', (e: any) => {
       setCursorCoords({ lat: e.latLng.lat(), lng: e.latLng.lng() });
     });
 
-    // 1. Render MOIL Concession Polygons
+    // Persistent MOIL Concession Polygons
     MOIL_CONCESSIONS.forEach((concession) => {
       const polygon = new google.maps.Polygon({
         paths: concession.coords,
@@ -270,106 +274,224 @@ export const GoogleMapExplorer: React.FC<GoogleMapExplorerProps> = ({
         strokeWeight: 2,
         fillColor: '#54D8E8',
         fillOpacity: 0.15,
-        map: map
+        map,
       });
 
       polygon.addListener('click', () => {
         setSelectedFeature({
-          type: 'Concession',
+          type: 'Concession Boundary',
           name: concession.name,
           details: `${concession.type} | Grade: ${concession.grade} | Measured Reserve: ${concession.reserves}`,
-          location: `${concession.district}, ${concession.state}`
+          location: `${concession.district}, ${concession.state}`,
         });
-        if (onSelectMine) onSelectMine(concession.id);
-      });
-    });
-
-    // 2. Render Fault Lines
-    FAULT_LINES.forEach((f) => {
-      new google.maps.Polyline({
-        path: f,
-        strokeColor: '#FF6878',
-        strokeOpacity: 0.85,
-        strokeWeight: 3,
-        map: map
-      });
-    });
-
-    // 3. Render Borehole Markers
-    BOREHOLES.forEach((bh) => {
-      const marker = new google.maps.Marker({
-        position: { lat: bh.lat, lng: bh.lng },
-        map: map,
-        title: `${bh.id}: ${bh.lithology} (${bh.grade}% Mn)`,
-        icon: {
-          path: google.maps.SymbolPath.CIRCLE,
-          scale: 6,
-          fillColor: bh.grade > 44 ? '#A78BFA' : '#F4B860',
-          fillOpacity: 1,
-          strokeColor: '#FFFFFF',
-          strokeWeight: 1.5
-        }
-      });
-
-      marker.addListener('click', () => {
-        setSelectedFeature({
-          type: 'Borehole Collar',
-          name: bh.id,
-          details: `Depth: ${bh.depth}m | Recovery: ${bh.recovery}% | Assay: ${bh.grade}% Mn`,
-          location: `Lithology: ${bh.lithology}`
-        });
+        selectMine(concession.storeMineId);
       });
     });
   };
 
-  // Change Google Map Type
-  const handleMapTypeChange = (type: 'satellite' | 'roadmap' | 'terrain' | 'hybrid') => {
-    setMapType(type);
-    if (!googleMap || !(window as any).google) return;
+  // Pan Google Map smoothly when selected mine/prospect changes
+  useEffect(() => {
+    if (!googleMap || useFallbackViewer) return;
+    googleMap.panTo({ lat: activeCenter[0], lng: activeCenter[1] });
+  }, [googleMap, useFallbackViewer, activeCenter]);
+
+  // Sync dynamic GIS layers on Google Maps when native engine is active
+  useEffect(() => {
     const google = (window as any).google;
-    const types: Record<string, any> = {
+    if (!googleMap || !google?.maps || useFallbackViewer) return;
+
+    googleOverlaysRef.current.forEach((item) => item.setMap(null));
+    googleOverlaysRef.current = [];
+
+    const yearFactor = 0.85 + Math.max(0, Math.min(5, selectedYear - 2020)) * 0.06;
+
+    if (activeLayers.riskHeatmap) {
+      RISK_ANOMALY_ZONES.forEach((zone) => {
+        const color =
+          zone.severity === 'critical'
+            ? '#FF4D6A'
+            : zone.severity === 'moderate'
+              ? '#F59E0B'
+              : '#10B981';
+        const circle = new google.maps.Circle({
+          strokeColor: color,
+          strokeOpacity: 0.65,
+          strokeWeight: 1.5,
+          fillColor: color,
+          fillOpacity: 0.18 * zone.baseIntensity,
+          map: googleMap,
+          center: { lat: zone.lat, lng: zone.lng },
+          radius: zone.radiusM * yearFactor,
+        });
+        googleOverlaysRef.current.push(circle);
+      });
+    }
+
+    if (activeLayers.groundwater) {
+      GROUNDWATER_ZONES.forEach((gw) => {
+        const circle = new google.maps.Circle({
+          strokeColor: '#38BDF8',
+          strokeOpacity: 0.8,
+          strokeWeight: 1.5,
+          fillColor: '#0284C7',
+          fillOpacity: 0.14,
+          map: googleMap,
+          center: { lat: gw.lat, lng: gw.lng },
+          radius: gw.radiusM,
+        });
+        googleOverlaysRef.current.push(circle);
+      });
+    }
+
+    if (activeLayers.seismic) {
+      FAULT_TRACES.forEach((trace) => {
+        const line = new google.maps.Polyline({
+          path: trace.points,
+          strokeColor: '#FF6878',
+          strokeOpacity: 0.9,
+          strokeWeight: 3,
+          map: googleMap,
+        });
+        googleOverlaysRef.current.push(line);
+      });
+    }
+
+    if (activeLayers.haulage) {
+      HAULAGE_CORRIDORS.forEach((corridor) => {
+        const line = new google.maps.Polyline({
+          path: corridor.points,
+          strokeColor: '#F59E0B',
+          strokeOpacity: 0.85,
+          strokeWeight: 3,
+          map: googleMap,
+        });
+        googleOverlaysRef.current.push(line);
+      });
+    }
+
+    if (activeLayers.boreholes) {
+      BOREHOLES.forEach((bh) => {
+        const marker = new google.maps.Marker({
+          position: { lat: bh.lat, lng: bh.lng },
+          map: googleMap,
+          title: `${bh.id}: ${bh.lithology} (${bh.grade}% Mn)`,
+          icon: {
+            path: google.maps.SymbolPath.CIRCLE,
+            scale: 6,
+            fillColor: bh.grade > 44 ? '#A78BFA' : '#F4B860',
+            fillOpacity: 1,
+            strokeColor: '#FFFFFF',
+            strokeWeight: 1.5,
+          },
+        });
+        marker.addListener('click', () => {
+          setSelectedFeature({
+            type: 'Borehole Collar',
+            name: bh.id,
+            details: `Depth: ${bh.depth}m | Recovery: ${bh.recovery}% | Assay: ${bh.grade}% Mn`,
+            location: `Lithology: ${bh.lithology}`,
+          });
+        });
+        googleOverlaysRef.current.push(marker);
+      });
+    }
+  }, [googleMap, useFallbackViewer, activeLayers, selectedYear]);
+
+  // Sync imported GeoJSON onto Google Maps when native engine is active
+  useEffect(() => {
+    if (!googleMap || useFallbackViewer || !importedGeoJson) return;
+    googleImportedLayerRef.current.forEach((f) => googleMap.data.remove(f));
+    try {
+      const added = googleMap.data.addGeoJson(importedGeoJson);
+      googleImportedLayerRef.current = added || [];
+      googleMap.data.setStyle({
+        strokeColor: '#00E69A',
+        strokeWeight: 2.5,
+        fillColor: '#00E69A',
+        fillOpacity: 0.2,
+      });
+    } catch {
+      // Ignore malformed GeoJSON on native layer
+    }
+  }, [googleMap, useFallbackViewer, importedGeoJson]);
+
+  const handleMapTypeChange = (type: MapTypeId) => {
+    setMapType(type);
+    if (!googleMap || useFallbackViewer || !(window as any).google?.maps) return;
+    const google = (window as any).google;
+    const types: Record<MapTypeId, any> = {
       satellite: google.maps.MapTypeId.SATELLITE,
       roadmap: google.maps.MapTypeId.ROADMAP,
       terrain: google.maps.MapTypeId.TERRAIN,
-      hybrid: google.maps.MapTypeId.HYBRID
+      hybrid: google.maps.MapTypeId.HYBRID,
     };
     googleMap.setMapTypeId(types[type]);
   };
 
-  // Global Places / Mine Search
+  const handleZoomIn = () => {
+    if (!useFallbackViewer && googleMap) {
+      googleMap.setZoom((googleMap.getZoom() || 12) + 1);
+    } else {
+      issueZoomCommand('in');
+    }
+  };
+
+  const handleZoomOut = () => {
+    if (!useFallbackViewer && googleMap) {
+      googleMap.setZoom((googleMap.getZoom() || 12) - 1);
+    } else {
+      issueZoomCommand('out');
+    }
+  };
+
+  const handleResetOrientation = () => {
+    if (!useFallbackViewer && googleMap) {
+      googleMap.panTo({ lat: activeCenter[0], lng: activeCenter[1] });
+      googleMap.setZoom(12);
+      googleMap.setHeading(0);
+      googleMap.setTilt(45);
+    } else {
+      issueZoomCommand('reset', activeCenter, 12);
+    }
+  };
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (!searchQuery.trim()) return;
 
-    const term = searchQuery.toLowerCase();
-    const foundMine = MOIL_CONCESSIONS.find((m) => m.name.toLowerCase().includes(term) || m.district.toLowerCase().includes(term));
+    const match = searchSpatialFeatures(searchQuery);
+    if (match) {
+      setSelectedFeature(match.feature);
+      if (match.storeMineId) selectMine(match.storeMineId);
 
-    if (foundMine && googleMap) {
-      const center = foundMine.coords[0];
-      googleMap.panTo(center);
-      googleMap.setZoom(14);
-      setSelectedFeature({
-        type: 'Concession Search Result',
-        name: foundMine.name,
-        details: `${foundMine.type} | Grade: ${foundMine.grade} | Reserves: ${foundMine.reserves}`,
-        location: `${foundMine.district}, ${foundMine.state}`
-      });
+      if (!useFallbackViewer && googleMap) {
+        googleMap.panTo({ lat: match.center[0], lng: match.center[1] });
+        googleMap.setZoom(match.zoom);
+      } else {
+        issueZoomCommand('focus', match.center, match.zoom);
+      }
       return;
     }
 
-    // Fallback to Google Geocoder if available
-    if ((window as any).google && (window as any).google.maps) {
+    if (!useFallbackViewer && (window as any).google?.maps?.Geocoder && googleMap) {
       const geocoder = new (window as any).google.maps.Geocoder();
-      geocoder.geocode({ address: searchQuery + ', India' }, (results: any, status: any) => {
-        if (status === 'OK' && results[0] && googleMap) {
+      geocoder.geocode({ address: `${searchQuery}, India` }, (results: any, status: any) => {
+        if (status === 'OK' && results[0]) {
           googleMap.setCenter(results[0].geometry.location);
           googleMap.setZoom(13);
         }
       });
+      return;
     }
+
+    setSelectedFeature({
+      type: 'Search Lookup',
+      name: `"${searchQuery.trim()}"`,
+      details: 'No direct match. Try Balaghat, Dongri, Chikla, Ukwa, Munsar, BH-BL-01, or lat,lng coordinates.',
+      location: 'Central India Manganese Belt Index',
+    });
   };
 
-  // Export GeoJSON
   const handleExportGeoJSON = () => {
     const geojson = {
       type: 'FeatureCollection',
@@ -383,13 +505,13 @@ export const GoogleMapExplorer: React.FC<GoogleMapExplorerProps> = ({
           grade: c.grade,
           reserves: c.reserves,
           state: c.state,
-          district: c.district
+          district: c.district,
         },
         geometry: {
           type: 'Polygon',
-          coordinates: [c.coords.map((pt) => [pt.lng, pt.lat])]
-        }
-      }))
+          coordinates: [c.coords.map((pt) => [pt.lng, pt.lat])],
+        },
+      })),
     };
 
     const blob = new Blob([JSON.stringify(geojson, null, 2)], { type: 'application/geo+json' });
@@ -401,7 +523,6 @@ export const GoogleMapExplorer: React.FC<GoogleMapExplorerProps> = ({
     URL.revokeObjectURL(url);
   };
 
-  // GeoJSON Import
   const handleImportGeoJSON = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -410,64 +531,91 @@ export const GoogleMapExplorer: React.FC<GoogleMapExplorerProps> = ({
     reader.onload = (event) => {
       try {
         const parsed = JSON.parse(event.target?.result as string);
-        alert(`GeoJSON imported successfully: ${parsed.features?.length || 0} features loaded.`);
-      } catch (err) {
-        alert('Invalid GeoJSON file format.');
+        setImportedGeoJson(parsed);
+        const count = Array.isArray(parsed?.features) ? parsed.features.length : 1;
+        setSelectedFeature({
+          type: 'GeoJSON Overlay Loaded',
+          name: file.name,
+          details: `${count} spatial feature(s) rendered onto active GIS viewport.`,
+          location: 'Custom Cadastre Layer',
+        });
+      } catch {
+        setSelectedFeature({
+          type: 'GeoJSON Error',
+          name: file.name,
+          details: 'Invalid GeoJSON file format.',
+          location: 'Import Cancelled',
+        });
       }
     };
     reader.readAsText(file);
+    e.target.value = '';
   };
 
+  const activeCoords = cursorCoords ?? { lat: activeCenter[0], lng: activeCenter[1] };
+
   return (
-    <div className="relative w-full h-full overflow-hidden bg-[#020712] select-none font-sans">
-      {/* ── 1. API KEY SETUP / INFORMATIVE CARD (Displayed when key is unconfigured) ── */}
-      {isApiKeyMissing && !useFallbackViewer && (
-        <div className="absolute inset-0 z-30 flex items-center justify-center p-6 bg-[#040812]/90 backdrop-blur-md">
-          <div className="max-w-xl w-full p-6 rounded-2xl bg-[#090E18] border border-[#1C3045] shadow-[0_0_50px_rgba(84,216,232,0.15)] space-y-5">
+    <div className="relative w-full h-full overflow-hidden bg-[#050D1A] select-none font-sans">
+      {/* ── 1. OPTIONAL DISMISSIBLE GOOGLE MAPS SETUP MODAL ────────────────────── */}
+      {showKeyModal && (
+        <div className="absolute inset-0 z-30 flex items-center justify-center p-6 bg-[#040812]/85 backdrop-blur-md">
+          <div className="max-w-xl w-full p-6 rounded-2xl bg-[#090E18] border border-[#1C3045] shadow-[0_0_50px_rgba(84,216,232,0.18)] space-y-4 relative">
+            <button
+              onClick={() => setShowKeyModal(false)}
+              title="Close"
+              className="absolute top-4 right-4 p-1.5 rounded-lg text-[#9BAFC1] hover:text-white hover:bg-[#152235] transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-[#54D8E8]/15 border border-[#54D8E8]/40 flex items-center justify-center text-[#54D8E8]">
                 <Key className="w-5 h-5" />
               </div>
               <div>
                 <h3 className="font-heading font-extrabold text-base text-white">
-                  Google Maps Platform Integration
+                  Spatial GIS Engine & Google Maps Setup
                 </h3>
                 <p className="text-xs font-mono text-[#657A90]">
-                  OFFICIAL JAVASCRIPT API & SATELLITE ENGINE SETUP
+                  {authFailureDetected
+                    ? 'GOOGLE KEY RESTRICTED FOR THIS ORIGIN — ESRI SATELLITE GIS ACTIVE'
+                    : hasValidApiKeyShape
+                      ? 'GOOGLE MAPS API CONFIGURED + ESRI FALLBACK READY'
+                      : 'BUILT-IN ESRI SATELLITE GIS ACTIVE (NO API KEY NEEDED)'}
                 </p>
               </div>
             </div>
 
             <div className="p-4 rounded-xl bg-[#0D1522] border border-[#1C3045] space-y-2.5 text-xs">
               <p className="text-[#9BAFC1] leading-relaxed">
-                MANGANEX utilizes the <strong>Google Maps Platform JavaScript API</strong> for high-resolution satellite imagery, hybrid topography, Places autocomplete, and elevation profiles across the Central India Manganese Belt.
+                MANGANEX runs natively on high-resolution <strong>ESRI World Imagery, Topographic & CartoDB Dark GIS tiles</strong> with zero API key required. To optionally overlay Google Places & 3D tilt imagery:
               </p>
 
               <div className="space-y-1.5 pt-1 text-[11.5px] font-mono text-[#54D8E8]">
-                <div>1. Enable <strong>Maps JavaScript API</strong>, <strong>Places API</strong>, and <strong>Geocoding API</strong> in Google Cloud Console.</div>
-                <div>2. Add your key to <code className="px-1.5 py-0.5 rounded bg-[#152235] text-white">.env</code> in project root:</div>
-                <div className="p-2 rounded bg-[#060A12] border border-[#1C3045] text-white select-all">
-                  VITE_GOOGLE_MAPS_API_KEY=AIzaSy...
-                </div>
+                <div>1. Enable <strong>Maps JavaScript API</strong> &amp; <strong>Places API</strong> in Google Cloud Console.</div>
+                <div>2. Whitelist your deployment domain under HTTP referrers and set <code className="px-1.5 py-0.5 rounded bg-[#152235] text-white">VITE_GOOGLE_MAPS_API_KEY</code>.</div>
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-1">
               <button
-                onClick={() => setUseFallbackViewer(true)}
-                className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-[#152235] hover:bg-[#1E2F46] border border-[#1C3045] text-xs font-mono font-bold text-white transition-all flex items-center justify-center gap-2"
+                onClick={() => {
+                  setUseFallbackViewer(true);
+                  setShowKeyModal(false);
+                }}
+                className="w-full sm:w-auto px-4 py-2 rounded-xl bg-[#152235] hover:bg-[#1E2F46] border border-[#1C3045] text-xs font-mono font-bold text-white transition-all flex items-center justify-center gap-2"
               >
-                <Compass className="w-4 h-4 text-[#54D8E8]" />
-                Preview with Spatial Fallback
+                <CheckCircle2 className="w-4 h-4 text-[#00E69A]" />
+                Use Built-In Satellite GIS
               </button>
 
               <a
                 href="https://developers.google.com/maps/documentation/javascript/get-api-key"
                 target="_blank"
                 rel="noreferrer"
-                className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-[#54D8E8] hover:bg-[#38b2c2] text-[#080C12] text-xs font-mono font-extrabold transition-all shadow-md flex items-center justify-center gap-1.5"
+                className="w-full sm:w-auto px-4 py-2 rounded-xl bg-[#54D8E8] hover:bg-[#38b2c2] text-[#080C12] text-xs font-mono font-extrabold transition-all shadow-md flex items-center justify-center gap-1.5"
               >
-                <span>Get Google Maps API Key</span>
+                <span>Google Maps Docs</span>
                 <ExternalLink className="w-3.5 h-3.5" />
               </a>
             </div>
@@ -477,15 +625,17 @@ export const GoogleMapExplorer: React.FC<GoogleMapExplorerProps> = ({
 
       {/* ── 2. TOP FLOATING HUD & SEARCH BAR ────────────────────────────────────── */}
       <div className="absolute top-4 left-4 right-4 z-20 flex flex-wrap items-center justify-between gap-3 pointer-events-none">
-        {/* Places & Mine Search */}
-        <form onSubmit={handleSearch} className="pointer-events-auto flex items-center gap-2 bg-[#080D18]/90 backdrop-blur-md px-3 py-1.5 rounded-xl border border-[#1C3045] shadow-lg w-full sm:w-80">
-          <Search className="w-3.5 h-3.5 text-[#54D8E8]" />
+        <form
+          onSubmit={handleSearch}
+          className="pointer-events-auto flex items-center gap-2 bg-[#080D18]/90 backdrop-blur-md px-3 py-1.5 rounded-xl border border-[#1C3045] shadow-lg w-full sm:w-80"
+        >
+          <Search className="w-3.5 h-3.5 text-[#54D8E8] shrink-0" />
           <input
             ref={searchInputRef}
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search mine, city, or coordinates..."
+            placeholder="Search mine, borehole, or lat,lng..."
             className="w-full bg-transparent text-xs font-mono text-white placeholder-[#657A90] outline-none"
           />
         </form>
@@ -507,8 +657,18 @@ export const GoogleMapExplorer: React.FC<GoogleMapExplorerProps> = ({
           ))}
         </div>
 
-        {/* GIS Tools: GeoJSON Export/Import & Measurement */}
+        {/* GIS Tools & Spatial Engine Badge */}
         <div className="pointer-events-auto flex items-center gap-1.5 bg-[#080D18]/90 backdrop-blur-md p-1 rounded-xl border border-[#1C3045] shadow-lg">
+          <button
+            onClick={() => setShowKeyModal(true)}
+            title="Spatial GIS Engine Info & Google Maps Setup"
+            className="flex items-center gap-1.5 px-2 py-1 rounded-lg text-[10px] font-mono font-bold text-[#00E69A] bg-[#00E69A]/10 border border-[#00E69A]/25 hover:bg-[#00E69A]/20 transition-colors"
+          >
+            <Globe className="w-3 h-3" />
+            <span className="hidden md:inline">
+              {useFallbackViewer ? 'ESRI GIS' : 'GOOGLE MAPS'}
+            </span>
+          </button>
           <button
             onClick={handleExportGeoJSON}
             title="Export Active Layers as GeoJSON"
@@ -529,14 +689,14 @@ export const GoogleMapExplorer: React.FC<GoogleMapExplorerProps> = ({
       {/* Floating Map Zoom & Orientation Controls */}
       <div className="absolute right-4 top-20 z-20 flex flex-col gap-1.5 bg-[#080D18]/90 backdrop-blur-md p-1.5 rounded-xl border border-[#1C3045] shadow-lg">
         <button
-          onClick={() => googleMap && googleMap.setZoom((googleMap.getZoom() || 13) + 1)}
+          onClick={handleZoomIn}
           title="Zoom In"
           className="p-2 rounded-lg text-white hover:bg-[#152235] hover:text-[#54D8E8] transition-colors"
         >
           <Plus className="w-4 h-4" />
         </button>
         <button
-          onClick={() => googleMap && googleMap.setZoom((googleMap.getZoom() || 13) - 1)}
+          onClick={handleZoomOut}
           title="Zoom Out"
           className="p-2 rounded-lg text-white hover:bg-[#152235] hover:text-[#54D8E8] transition-colors"
         >
@@ -544,55 +704,35 @@ export const GoogleMapExplorer: React.FC<GoogleMapExplorerProps> = ({
         </button>
         <div className="w-full h-px bg-[#1C3045] my-0.5" />
         <button
-          onClick={() => {
-            if (googleMap) {
-              googleMap.setHeading(0);
-              googleMap.setTilt(45);
-            }
-          }}
-          title="Reset Orientation & Tilt"
+          onClick={handleResetOrientation}
+          title="Center on Active Mine"
           className="p-2 rounded-lg text-[#54D8E8] hover:bg-[#152235] transition-colors"
         >
           <Compass className="w-4 h-4" />
         </button>
       </div>
 
-      {/* ── 3. MAP CANVAS CONTAINER ────────────────────────────────────────────── */}
-      <div ref={mapRef} className="w-full h-full" />
+      {/* ── 3. ISOLATED MAP ENGINE CONTAINER (Never Collapses to Blank Screen) ──── */}
+      <div className="absolute inset-0 z-0 isolate">
+        {useFallbackViewer ? (
+          <LeafletSpatialMap
+            center={activeCenter}
+            mapType={mapType}
+            selectedMineId={effectiveMine?.id}
+            selectedYear={selectedYear}
+            activeLayers={activeLayers}
+            importedGeoJson={importedGeoJson}
+            zoomCommand={zoomCommand}
+            onCursorMove={setCursorCoords}
+            onSelectFeature={setSelectedFeature}
+            onSelectMine={selectMine}
+          />
+        ) : (
+          <div ref={mapRef} className="w-full h-full" />
+        )}
+      </div>
 
-      {/* Fallback ESRI Satellite Canvas when Google API Key is unconfigured */}
-      {(isApiKeyMissing && useFallbackViewer) && (
-        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center p-8 bg-gradient-to-b from-[#040814] to-[#0A1220]">
-          <div className="max-w-md text-center space-y-4">
-            <div className="w-16 h-16 mx-auto rounded-2xl bg-[#54D8E8]/10 border border-[#54D8E8]/30 flex items-center justify-center text-[#54D8E8]">
-              <Compass className="w-8 h-8 animate-spin-slow" />
-            </div>
-            <h4 className="font-heading font-extrabold text-lg text-white">
-              High-Precision Geospatial Fallback Active
-            </h4>
-            <p className="text-xs font-mono text-[#9BAFC1] leading-relaxed">
-              Monitoring 5 MOIL Manganese concessions across Madhya Pradesh and Maharashtra. Concession boundaries, boreholes, and fault traces are loaded into memory.
-            </p>
-            <div className="grid grid-cols-2 gap-2 text-left text-xs font-mono pt-2">
-              {MOIL_CONCESSIONS.map((m) => (
-                <div key={m.id} className="p-2 rounded-lg bg-[#152235]/60 border border-[#1C3045] flex justify-between items-center">
-                  <div>
-                    <div className="font-bold text-white text-[11px]">{m.name.split(' ')[0]}</div>
-                    <div className="text-[9px] text-[#657A90]">{m.district}</div>
-                  </div>
-                  <span className="text-[10px] text-[#54D8E8] font-bold">{m.grade}</span>
-                </div>
-              ))}
-            </div>
-            <button
-              onClick={() => setUseFallbackViewer(false)}
-              className="mt-4 px-4 py-2 rounded-xl bg-[#54D8E8] text-[#080C12] text-xs font-mono font-bold hover:bg-[#38b2c2] transition-colors"
-            >
-              Configure Google Maps API Key
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Keep hidden Google container outside fallback toggle? Not needed because Google only mounts when !useFallbackViewer */}
 
       {/* ── 4. SELECTED FEATURE DETAILS POPUP ──────────────────────────────────── */}
       {selectedFeature && (
@@ -613,19 +753,19 @@ export const GoogleMapExplorer: React.FC<GoogleMapExplorerProps> = ({
 
       {/* ── 5. BOTTOM HUD: COORDINATES & SCALE ──────────────────────────────────── */}
       <div className="absolute bottom-3 left-4 right-4 z-20 pointer-events-none flex items-center justify-between text-[10.5px] font-mono text-[#657A90]">
-        <div className="pointer-events-auto px-3 py-1 rounded-lg bg-[#080D18]/80 backdrop-blur-md border border-[#1C3045] flex items-center gap-3">
+        <div className="pointer-events-auto px-3 py-1 rounded-lg bg-[#080D18]/85 backdrop-blur-md border border-[#1C3045] flex items-center gap-3">
           <span>
-            LAT: <strong className="text-white">{cursorCoords ? cursorCoords.lat.toFixed(5) : '21.54850'}° N</strong>
+            LAT: <strong className="text-white">{activeCoords.lat.toFixed(5)}° N</strong>
           </span>
           <span>
-            LNG: <strong className="text-white">{cursorCoords ? cursorCoords.lng.toFixed(5) : '79.69750'}° E</strong>
+            LNG: <strong className="text-white">{activeCoords.lng.toFixed(5)}° E</strong>
           </span>
           <span>
             DATUM: <strong className="text-[#54D8E8]">WGS-84 / UTM 44N</strong>
           </span>
         </div>
 
-        <div className="pointer-events-auto px-3 py-1 rounded-lg bg-[#080D18]/80 backdrop-blur-md border border-[#1C3045]">
+        <div className="pointer-events-auto px-3 py-1 rounded-lg bg-[#080D18]/85 backdrop-blur-md border border-[#1C3045]">
           CENTRAL INDIA MANGANESE BELT (MOIL)
         </div>
       </div>

@@ -100,3 +100,43 @@ code, kbd, samp, pre, .font-mono {
   background-color: var(--elevated-surface);
   border: 1px solid var(--border-color);
 }
+
+/* MANGANEX Tactical GIS Leaflet Theme Overrides */
+.leaflet-container {
+  background: #050D1A !important;
+  font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.manganex-map-tooltip {
+  background: rgba(8, 13, 24, 0.94) !important;
+  border: 1px solid rgba(84, 216, 232, 0.45) !important;
+  color: #F2F6FA !important;
+  border-radius: 8px !important;
+  padding: 5px 8px !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55) !important;
+  backdrop-filter: blur(8px);
+}
+
+.manganex-map-tooltip::before {
+  border-top-color: rgba(84, 216, 232, 0.45) !important;
+  border-right-color: transparent !important;
+  border-left-color: transparent !important;
+}
+
+.leaflet-bottom.leaflet-right {
+  bottom: 44px;
+  right: 12px;
+}
+
+.leaflet-control-attribution {
+  background: rgba(8, 13, 24, 0.72) !important;
+  color: #657A90 !important;
+  border: 1px solid #1C3045 !important;
+  border-radius: 6px !important;
+  font-size: 9px !important;
+  padding: 1px 6px !important;
+}
+
+.leaflet-control-attribution a {
+  color: #54D8E8 !important;
+}
