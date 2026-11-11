@@ -7,7 +7,11 @@ from typing import Optional, List, Dict
 import datetime
 import uuid
 import hashlib
+import hmac
+import os
+import secrets
 import time
+from app.core.config import settings
 
 router = APIRouter()
 
@@ -40,9 +44,8 @@ LOCKOUT_THRESHOLD = 5
 LOCKOUT_DURATION_SEC = 900 # 15 minutes
 
 def hash_pw(password: str) -> str:
-    # Deterministic SHA-256 + salt for local persistence
-    salt = "manganex_secure_salt_2026_"
-    return hashlib.sha256((salt + password).encode('utf-8')).hexdigest()
+    # Keyed hash; the signing secret must be supplied through the environment.
+    return hmac.new(settings.SECRET_KEY.encode("utf-8"), password.encode("utf-8"), hashlib.sha256).hexdigest()
 
 ROLE_PERMISSIONS = {
     "ROLE_ADMIN": [
@@ -67,61 +70,46 @@ ROLE_PERMISSIONS = {
     ]
 }
 
+# Demo credentials are injected at runtime and never committed to source.
+# Random per-process fallbacks disable predictable demo logins when unset.
+demo_passwords = {
+    "admin": os.getenv("MANGANEX_DEMO_ADMIN_PASSWORD") or secrets.token_urlsafe(32),
+    "geologist": os.getenv("MANGANEX_DEMO_GEOLOGIST_PASSWORD") or secrets.token_urlsafe(32),
+    "engineer": os.getenv("MANGANEX_DEMO_ENGINEER_PASSWORD") or secrets.token_urlsafe(32),
+    "analyst": os.getenv("MANGANEX_DEMO_ANALYST_PASSWORD") or secrets.token_urlsafe(32),
+    "viewer": os.getenv("MANGANEX_DEMO_VIEWER_PASSWORD") or secrets.token_urlsafe(32),
+}
+
 ROLE_ACCOUNTS = {
     "admin": {
-        "id": "usr-admin",
-        "username": "admin",
-        "email": "admin@moil.gov.in",
-        "fullName": "Director General of Mining Operations",
-        "role": "ROLE_ADMIN",
+        "id": "usr-admin", "username": "admin", "email": "admin@moil.gov.in",
+        "fullName": "Director General of Mining Operations", "role": "ROLE_ADMIN",
         "organization": "Ministry of Steel / MOIL",
-        "password": "ManganexAdmin2026!",
-        "password_hash": hash_pw("ManganexAdmin2026!"),
-        "verified": True
+        "password_hash": hash_pw(demo_passwords["admin"]), "verified": True
     },
     "geologist": {
-        "id": "usr-geologist",
-        "username": "geologist",
-        "email": "geologist@moil.gov.in",
-        "fullName": "Chief Exploration Geologist",
-        "role": "ROLE_GEOLOGIST",
+        "id": "usr-geologist", "username": "geologist", "email": "geologist@moil.gov.in",
+        "fullName": "Chief Exploration Geologist", "role": "ROLE_GEOLOGIST",
         "organization": "GSI / MOIL Exploration Wing",
-        "password": "ManganexGeo2026!",
-        "password_hash": hash_pw("ManganexGeo2026!"),
-        "verified": True
+        "password_hash": hash_pw(demo_passwords["geologist"]), "verified": True
     },
     "engineer": {
-        "id": "usr-engineer",
-        "username": "engineer",
-        "email": "engineer@moil.gov.in",
-        "fullName": "Principal Mine Planning Engineer",
-        "role": "ROLE_ENGINEER",
+        "id": "usr-engineer", "username": "engineer", "email": "engineer@moil.gov.in",
+        "fullName": "Principal Mine Planning Engineer", "role": "ROLE_ENGINEER",
         "organization": "Balaghat Underground Operations",
-        "password": "ManganexEng2026!",
-        "password_hash": hash_pw("ManganexEng2026!"),
-        "verified": True
+        "password_hash": hash_pw(demo_passwords["engineer"]), "verified": True
     },
     "analyst": {
-        "id": "usr-analyst",
-        "username": "analyst",
-        "email": "analyst@moil.gov.in",
-        "fullName": "Senior Geospatial Data Analyst",
-        "role": "ROLE_ANALYST",
+        "id": "usr-analyst", "username": "analyst", "email": "analyst@moil.gov.in",
+        "fullName": "Senior Geospatial Data Analyst", "role": "ROLE_ANALYST",
         "organization": "National Mineral Intelligence Unit",
-        "password": "ManganexData2026!",
-        "password_hash": hash_pw("ManganexData2026!"),
-        "verified": True
+        "password_hash": hash_pw(demo_passwords["analyst"]), "verified": True
     },
     "viewer": {
-        "id": "usr-viewer",
-        "username": "viewer",
-        "email": "viewer@moil.gov.in",
-        "fullName": "Executive Observer",
-        "role": "ROLE_VIEWER",
+        "id": "usr-viewer", "username": "viewer", "email": "viewer@moil.gov.in",
+        "fullName": "Executive Observer", "role": "ROLE_VIEWER",
         "organization": "Public Mineral Observatory",
-        "password": "ManganexViewer2026!",
-        "password_hash": hash_pw("ManganexViewer2026!"),
-        "verified": True
+        "password_hash": hash_pw(demo_passwords["viewer"]), "verified": True
     }
 }
 
@@ -202,7 +190,6 @@ def register_user(req: RegisterRequest, db: Session = Depends(get_db)):
         "fullName": req.fullName.strip(),
         "role": assigned_role,
         "organization": req.organization or "MOIL Limited",
-        "password": req.password,
         "password_hash": p_hash,
         "verified": True  # Seeded as ready to use with verification token available
     }
@@ -268,7 +255,7 @@ def login(req: LoginRequest):
         raise HTTPException(status_code=401, detail="Invalid username or password.")
         
     # Check password
-    if target_user["password"] != req.password and target_user.get("password_hash") != hash_pw(req.password):
+    if not hmac.compare_digest(target_user["password_hash"], hash_pw(req.password)):
         record_failed_attempt(u_key)
         raise HTTPException(status_code=401, detail="Invalid username or password.")
         
@@ -315,7 +302,9 @@ def get_current_user(authorization: Optional[str] = Header(None)):
         
     parts = token.split("_")
     username = parts[2] if len(parts) >= 3 else "admin"
-    user_acc = ROLE_ACCOUNTS.get(username, ROLE_ACCOUNTS["admin"])
+    user_acc = ROLE_ACCOUNTS.get(username)
+    if not user_acc:
+        raise HTTPException(status_code=401, detail="Unknown or unavailable account.")
     
     role = user_acc["role"]
     permissions = ROLE_PERMISSIONS.get(role, ROLE_PERMISSIONS["ROLE_VIEWER"])
@@ -401,7 +390,6 @@ def reset_password(req: ResetPasswordRequest):
 
     for _, acc in ROLE_ACCOUNTS.items():
         if acc["email"].lower() == email:
-            acc["password"] = req.new_password
             acc["password_hash"] = hash_pw(req.new_password)
             return {
                 "success": True,
