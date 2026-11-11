@@ -1,0 +1,32 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: manganex-enterprise-backend
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:h2:file:./manganex-java-db;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=PostgreSQL}
+    username: ${SPRING_DATASOURCE_USERNAME:sa}
+    password: ${SPRING_DATASOURCE_PASSWORD:}
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+
+manganex:
+  security:
+    jwt:
+      secret: "ManganexSuperSecureSecretKeyForEnterpriseMiningIntelligence2026FullStackPlatform"
+      expiration-ms: 86400000 # 24 hours
+  python-ai-service:
+    base-url: ${PYTHON_AI_SERVICE_URL:http://127.0.0.1:8000}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics

@@ -1,0 +1,102 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    /* Dark Theme (Default) */
+    --bg-primary: #080C12;
+    --bg-secondary: #0D141E;
+    --panel-surface: #101927;
+    --elevated-surface: #152235;
+    --border-color: #1C3045;
+    --border-hover: #2C4866;
+    --accent-primary: #54D8E8;
+    --accent-blue: #168BFF;
+    --accent-secondary: #A78BFA;
+    --color-success: #43D6A0;
+    --color-warning: #F4B860;
+    --color-critical: #FF6878;
+    --text-primary: #F2F6FA;
+    --text-secondary: #9BAFC1;
+    --text-muted: #657A90;
+    --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    --glow-cyan: 0 0 15px rgba(84, 216, 232, 0.25);
+  }
+
+  html.light {
+    /* Light Theme (Precision Engineering Clean) */
+    --bg-primary: #F5F7FA;
+    --bg-secondary: #EDF1F5;
+    --panel-surface: #FFFFFF;
+    --elevated-surface: #F8FAFC;
+    --border-color: #DCE4EC;
+    --border-hover: #CBD5E1;
+    --accent-primary: #087F9B;
+    --accent-blue: #1674D1;
+    --accent-secondary: #7C3AED;
+    --color-success: #159B72;
+    --color-warning: #B7791F;
+    --color-critical: #D94B59;
+    --text-primary: #172333;
+    --text-secondary: #64748B;
+    --text-muted: #94A3B8;
+    --card-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
+    --glow-cyan: 0 0 12px rgba(8, 127, 155, 0.18);
+  }
+}
+
+body {
+  font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+  overflow-x: hidden;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+h1, h2, h3, h4, .font-heading {
+  font-family: 'Space Grotesk', sans-serif;
+  letter-spacing: -0.02em;
+}
+
+code, kbd, samp, pre, .font-mono {
+  font-family: 'IBM Plex Mono', monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Precision Swiss / Aerospace Scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-primary);
+}
+
+/* Geospatial & Aerospace HUD Grid */
+.hud-grid {
+  background-size: 32px 32px;
+  background-image: 
+    linear-gradient(to right, var(--border-color) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--border-color) 1px, transparent 1px);
+}
+
+.hud-panel {
+  background-color: var(--panel-surface);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--card-shadow);
+}
+
+.hud-elevated {
+  background-color: var(--elevated-surface);
+  border: 1px solid var(--border-color);
+}
