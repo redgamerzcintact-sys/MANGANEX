@@ -6,12 +6,10 @@ from pydantic import BaseModel, EmailStr
 from typing import Optional, List, Dict
 import datetime
 import uuid
-import hashlib
-import hmac
 import os
 import secrets
 import time
-from app.core.config import settings
+from passlib.context import CryptContext
 
 router = APIRouter()
 
@@ -43,9 +41,10 @@ FAILED_ATTEMPTS: Dict[str, List[float]] = {} # identifier -> list of timestamps
 LOCKOUT_THRESHOLD = 5
 LOCKOUT_DURATION_SEC = 900 # 15 minutes
 
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
 def hash_pw(password: str) -> str:
-    # Keyed hash; the signing secret must be supplied through the environment.
-    return hmac.new(settings.SECRET_KEY.encode("utf-8"), password.encode("utf-8"), hashlib.sha256).hexdigest()
+    return pwd_context.hash(password)
 
 ROLE_PERMISSIONS = {
     "ROLE_ADMIN": [
@@ -255,7 +254,7 @@ def login(req: LoginRequest):
         raise HTTPException(status_code=401, detail="Invalid username or password.")
         
     # Check password
-    if not hmac.compare_digest(target_user["password_hash"], hash_pw(req.password)):
+    if not pwd_context.verify(req.password, target_user["password_hash"]):
         record_failed_attempt(u_key)
         raise HTTPException(status_code=401, detail="Invalid username or password.")
         
