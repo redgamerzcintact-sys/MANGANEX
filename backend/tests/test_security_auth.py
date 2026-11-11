@@ -14,7 +14,10 @@ os.environ.setdefault("MANGANEX_DEMO_VIEWER_PASSWORD", TEST_VIEWER_PW)
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from app.api.v1.endpoints.auth import ROLE_ACCOUNTS, hash_pw  # noqa: E402
+from app.core.config import settings  # noqa: E402
+from app.database.session import SessionLocal  # noqa: E402
 from app.main import app  # noqa: E402
+from app.models.entities import User  # noqa: E402
 
 client = TestClient(app)
 
@@ -127,3 +130,103 @@ def test_security_headers_present():
 
     auth_resp = client.get("/api/v1/auth/me")
     assert auth_resp.headers.get("cache-control") == "no-store"
+
+
+def test_registration_immediate_login_and_db_persistence():
+    uname = f"regtest_{secrets.token_hex(4)}"
+    email = f"{uname}@moil.gov.in"
+    password = f"Str0ng#{secrets.token_hex(4)}"
+
+    try:
+        res = client.post(
+            "/api/v1/auth/register",
+            json={
+                "fullName": "Regression Test Geologist",
+                "email": email,
+                "username": uname,
+                "password": password,
+                "organization": "MOIL Exploration",
+                "role": "ROLE_GEOLOGIST",
+            },
+        )
+        assert res.status_code == 200, res.text
+        reg_body = res.json()
+        assert reg_body["success"] is True
+        assert reg_body["emailVerified"] is True
+
+        # Clear in-memory cache to verify DB-backed login & /me work seamlessly across restarts
+        ROLE_ACCOUNTS.pop(uname, None)
+        token = _login(uname, password)
+
+        ROLE_ACCOUNTS.pop(uname, None)
+        me = client.get("/api/v1/auth/me", headers={"Authorization": f"Bearer {token}"})
+        assert me.status_code == 200, me.text
+        assert me.json()["email"] == email
+        assert me.json()["role"] == "ROLE_GEOLOGIST"
+    finally:
+        ROLE_ACCOUNTS.pop(uname, None)
+        db = SessionLocal()
+        try:
+            db.query(User).filter(User.email == email).delete()
+            db.commit()
+        finally:
+            db.close()
+
+
+def test_demo_login_profiles_and_production_gate():
+    geo = client.post("/api/v1/auth/demo-login", json={"role": "GEOLOGIST"})
+    assert geo.status_code == 200, geo.text
+    geo_body = geo.json()
+    assert geo_body["success"] is True
+    assert geo_body["role"] == "ROLE_GEOLOGIST"
+    assert len(geo_body["token"].split(".")) == 3
+
+    me = client.get("/api/v1/auth/me", headers={"Authorization": f"Bearer {geo_body['token']}"})
+    assert me.status_code == 200
+    assert me.json()["role"] == "ROLE_GEOLOGIST"
+
+    invalid = client.post("/api/v1/auth/demo-login", json={"role": "UNKNOWN_ROLE"})
+    assert invalid.status_code == 400
+
+    prev_env = settings.ENVIRONMENT
+    prev_demo_login = settings.ALLOW_DEMO_LOGIN
+    prev_secret_key = settings.SECRET_KEY
+    uname = f"prodreg_{secrets.token_hex(4)}"
+    email = f"{uname}@moil.gov.in"
+    password = f"Pr0d#{secrets.token_hex(4)}"
+    try:
+        settings.ENVIRONMENT = "production"
+        settings.ALLOW_DEMO_LOGIN = None
+        settings.SECRET_KEY = secrets.token_urlsafe(32)
+        blocked = client.post("/api/v1/auth/demo-login", json={"role": "ADMIN"})
+        assert blocked.status_code == 403
+
+        # Registration still lets user sign in when SMTP verification is not enforced
+        reg = client.post(
+            "/api/v1/auth/register",
+            json={
+                "fullName": "Production Signup User",
+                "email": email,
+                "username": uname,
+                "password": password,
+                "role": "VIEWER",
+            },
+        )
+        assert reg.status_code == 200, reg.text
+        assert reg.json()["emailVerified"] is True
+        assert "verificationToken" not in reg.json()
+
+        login_res = client.post("/api/v1/auth/login", json={"username": email, "password": password})
+        assert login_res.status_code == 200, login_res.text
+        assert login_res.json()["role"] == "ROLE_VIEWER"
+    finally:
+        settings.ENVIRONMENT = prev_env
+        settings.ALLOW_DEMO_LOGIN = prev_demo_login
+        settings.SECRET_KEY = prev_secret_key
+        ROLE_ACCOUNTS.pop(uname, None)
+        db = SessionLocal()
+        try:
+            db.query(User).filter(User.email == email).delete()
+            db.commit()
+        finally:
+            db.close()

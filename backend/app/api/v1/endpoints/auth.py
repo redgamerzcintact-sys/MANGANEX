@@ -24,6 +24,10 @@ class LoginRequest(BaseModel):
     role: Optional[str] = None
 
 
+class DemoLoginRequest(BaseModel):
+    role: str
+
+
 class RegisterRequest(BaseModel):
     fullName: str
     email: str
@@ -241,6 +245,109 @@ ROLE_ACCOUNTS: Dict[str, Dict[str, Any]] = {
 }
 
 
+ROLE_NORMALIZATION_MAP = {
+    "ADMIN": "ROLE_ADMIN",
+    "ROLE_ADMIN": "ROLE_ADMIN",
+    "GEOLOGIST": "ROLE_GEOLOGIST",
+    "ROLE_GEOLOGIST": "ROLE_GEOLOGIST",
+    "ENGINEER": "ROLE_ENGINEER",
+    "ROLE_ENGINEER": "ROLE_ENGINEER",
+    "MINING_ENGINEER": "ROLE_ENGINEER",
+    "MINING ENGINEER": "ROLE_ENGINEER",
+    "ANALYST": "ROLE_ANALYST",
+    "ROLE_ANALYST": "ROLE_ANALYST",
+    "DATA_ANALYST": "ROLE_ANALYST",
+    "DATA ANALYST": "ROLE_ANALYST",
+    "VIEWER": "ROLE_VIEWER",
+    "ROLE_VIEWER": "ROLE_VIEWER",
+}
+
+DEMO_ROLE_KEYS = {
+    "ROLE_ADMIN": "admin",
+    "ROLE_GEOLOGIST": "geologist",
+    "ROLE_ENGINEER": "engineer",
+    "ROLE_ANALYST": "analyst",
+    "ROLE_VIEWER": "viewer",
+}
+
+
+def _normalize_role(raw: Optional[str], default: str = "ROLE_VIEWER") -> str:
+    cleaned = (raw or "").strip().upper()
+    if not cleaned:
+        return default
+    return ROLE_NORMALIZATION_MAP.get(cleaned, default)
+
+
+def _extract_username(db_user: User) -> str:
+    uid = (db_user.id or "").strip()
+    if uid.startswith("usr-"):
+        suffix = uid[4:]
+        if "-" in suffix:
+            return suffix.rsplit("-", 1)[0].lower()
+        return suffix.lower()
+    return uid.lower()
+
+
+def _account_from_db_user(db_user: User) -> Dict[str, Any]:
+    uname = _extract_username(db_user)
+    record = {
+        "id": db_user.id,
+        "username": uname,
+        "email": db_user.email,
+        "fullName": db_user.name,
+        "role": db_user.role,
+        "organization": db_user.organization or "MOIL Limited",
+        "password_hash": db_user.password_hash,
+        "verified": True,
+    }
+    ROLE_ACCOUNTS.setdefault(uname, record)
+    return ROLE_ACCOUNTS[uname]
+
+
+def _find_account(identifier: str, db: Optional[Session] = None) -> Optional[Dict[str, Any]]:
+    key = identifier.strip().lower()
+    if not key:
+        return None
+    if key in ROLE_ACCOUNTS:
+        return ROLE_ACCOUNTS[key]
+    for acc in ROLE_ACCOUNTS.values():
+        if acc.get("email", "").lower() == key:
+            return acc
+    if db is None:
+        return None
+    db_user = db.query(User).filter(User.email == key).first()
+    if db_user:
+        return _account_from_db_user(db_user)
+    candidates = (
+        db.query(User)
+        .filter((User.id == key) | (User.id.like(f"usr-{key}-%")))
+        .all()
+    )
+    for row in candidates:
+        if row.id.lower() == key or _extract_username(row) == key:
+            return _account_from_db_user(row)
+    return None
+
+
+def _build_auth_response(target_user: Dict[str, Any], message: str = "Login successful.") -> Dict[str, Any]:
+    token = create_access_token(
+        username=target_user["username"],
+        role=target_user["role"],
+        user_id=target_user["id"],
+    )
+    return {
+        "success": True,
+        "token": token,
+        "id": target_user["id"],
+        "username": target_user["username"],
+        "email": target_user["email"],
+        "fullName": target_user["fullName"],
+        "role": target_user["role"],
+        "organization": target_user.get("organization", "MOIL Limited"),
+        "message": message,
+    }
+
+
 def check_rate_limit(identifier: str) -> None:
     now = time.time()
     attempts = FAILED_ATTEMPTS.get(identifier, [])
@@ -263,14 +370,17 @@ def reset_failed_attempts(identifier: str) -> None:
     FAILED_ATTEMPTS.pop(identifier, None)
 
 
-def get_current_user_payload(authorization: Optional[str] = Header(None)) -> Dict[str, Any]:
+def get_current_user_payload(
+    authorization: Optional[str] = Header(None),
+    db: Session = Depends(get_db),
+) -> Dict[str, Any]:
     """Dependency enforcing a valid, non-revoked, unexpired Bearer JWT."""
     if not authorization or not authorization.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Missing or invalid Authorization header.")
     token = authorization.replace("Bearer ", "", 1).strip()
     payload = decode_access_token(token)
     username = payload["sub"]
-    user_acc = ROLE_ACCOUNTS.get(username)
+    user_acc = _find_account(username, db)
     if not user_acc:
         raise HTTPException(status_code=401, detail="User account no longer exists.")
     return user_acc
@@ -299,26 +409,26 @@ def register_user(req: RegisterRequest, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="A valid official email is required.")
     _validate_password_strength(req.password)
 
-    # Check duplicate username / email
+    # Check duplicate username / email across active accounts and SQLite
     if uname in ROLE_ACCOUNTS:
         raise HTTPException(status_code=409, detail=f"Username '{uname}' is already registered in MANGANEX.")
     for _, acc in ROLE_ACCOUNTS.items():
         if acc.get("email", "").lower() == email:
             raise HTTPException(status_code=409, detail=f"Email '{email}' is already associated with an existing account.")
 
-    existing_db = db.query(User).filter((User.id == uname) | (User.email == email)).first()
-    if existing_db:
+    existing_email = db.query(User).filter(User.email == email).first()
+    if existing_email:
+        raise HTTPException(status_code=409, detail="User with this email or username already exists in database.")
+    username_candidates = (
+        db.query(User)
+        .filter((User.id == uname) | (User.id.like(f"usr-{uname}-%")))
+        .all()
+    )
+    if any(row.id.lower() == uname or _extract_username(row) == uname for row in username_candidates):
         raise HTTPException(status_code=409, detail="User with this email or username already exists in database.")
 
     # Prevent privilege escalation via self-registration
-    norm_map = {
-        "ADMIN": "ROLE_ADMIN", "ROLE_ADMIN": "ROLE_ADMIN",
-        "GEOLOGIST": "ROLE_GEOLOGIST", "ROLE_GEOLOGIST": "ROLE_GEOLOGIST",
-        "ENGINEER": "ROLE_ENGINEER", "ROLE_ENGINEER": "ROLE_ENGINEER", "MINING_ENGINEER": "ROLE_ENGINEER",
-        "ANALYST": "ROLE_ANALYST", "ROLE_ANALYST": "ROLE_ANALYST", "DATA_ANALYST": "ROLE_ANALYST",
-        "VIEWER": "ROLE_VIEWER", "ROLE_VIEWER": "ROLE_VIEWER",
-    }
-    requested_role = norm_map.get((req.role or "ROLE_GEOLOGIST").strip().upper(), "ROLE_VIEWER")
+    requested_role = _normalize_role(req.role or "ROLE_GEOLOGIST", default="ROLE_VIEWER")
     if requested_role == "ROLE_ADMIN":
         raise HTTPException(
             status_code=403,
@@ -328,6 +438,7 @@ def register_user(req: RegisterRequest, db: Session = Depends(get_db)):
 
     uid = f"usr-{uname}-{uuid.uuid4().hex[:6]}"
     p_hash = hash_pw(req.password)
+    auto_verified = not settings.REQUIRE_EMAIL_VERIFICATION
 
     verification_token = f"verif-{secrets.token_urlsafe(24)}"
     VERIFICATION_TOKENS[verification_token] = {
@@ -344,7 +455,7 @@ def register_user(req: RegisterRequest, db: Session = Depends(get_db)):
         "role": assigned_role,
         "organization": (req.organization or "MOIL Limited").strip(),
         "password_hash": p_hash,
-        "verified": settings.ENVIRONMENT.lower() != "production",
+        "verified": auto_verified,
     }
 
     try:
@@ -361,12 +472,18 @@ def register_user(req: RegisterRequest, db: Session = Depends(get_db)):
     except Exception:
         db.rollback()
 
+    message = (
+        f"Account for {req.fullName.strip()} registered and activated. You may sign in immediately."
+        if auto_verified
+        else f"Account for {req.fullName.strip()} registered. Check your email to verify activation."
+    )
     response: Dict[str, Any] = {
         "success": True,
-        "message": f"Account for {req.fullName.strip()} registered. Check your email to verify activation.",
+        "message": message,
         "username": uname,
         "role": assigned_role,
         "email": email,
+        "emailVerified": auto_verified,
     }
     if settings.allow_demo_tokens_in_response:
         response["verificationToken"] = verification_token
@@ -395,21 +512,17 @@ def verify_email(token: str = Query(...)):
 
 
 @router.post("/login")
-def login(req: LoginRequest):
+def login(req: LoginRequest, db: Session = Depends(get_db)):
     u_key = req.username.lower().strip()
     check_rate_limit(u_key)
 
-    target_user = None
-    for _, acc in ROLE_ACCOUNTS.items():
-        if acc["username"] == u_key or acc["email"].lower() == u_key:
-            target_user = acc
-            break
+    target_user = _find_account(u_key, db)
 
     if not target_user or not verify_pw(req.password, target_user.get("password_hash", "")):
         record_failed_attempt(u_key)
         raise HTTPException(status_code=401, detail="Invalid username or password.")
 
-    if not target_user.get("verified", True):
+    if settings.REQUIRE_EMAIL_VERIFICATION and not target_user.get("verified", True):
         raise HTTPException(status_code=403, detail="Account email is not verified yet.")
 
     reset_failed_attempts(u_key)
@@ -417,39 +530,32 @@ def login(req: LoginRequest):
     if req.role and req.role.strip():
         req_r = req.role.strip().upper()
         user_r = target_user["role"].upper()
-        norm_map = {
-            "ADMIN": "ROLE_ADMIN", "ROLE_ADMIN": "ROLE_ADMIN",
-            "GEOLOGIST": "ROLE_GEOLOGIST", "ROLE_GEOLOGIST": "ROLE_GEOLOGIST",
-            "ENGINEER": "ROLE_ENGINEER", "ROLE_ENGINEER": "ROLE_ENGINEER",
-            "MINING_ENGINEER": "ROLE_ENGINEER", "MINING ENGINEER": "ROLE_ENGINEER",
-            "ANALYST": "ROLE_ANALYST", "ROLE_ANALYST": "ROLE_ANALYST",
-            "DATA_ANALYST": "ROLE_ANALYST", "DATA ANALYST": "ROLE_ANALYST",
-            "VIEWER": "ROLE_VIEWER", "ROLE_VIEWER": "ROLE_VIEWER",
-        }
-        target_norm = norm_map.get(req_r, req_r)
+        target_norm = _normalize_role(req_r, default=req_r)
         if target_norm != user_r and req_r not in user_r and user_r.replace("ROLE_", "") not in req_r:
             raise HTTPException(
                 status_code=403,
                 detail="Access denied: Account lacks required role clearance for this mission portal.",
             )
 
-    token = create_access_token(
-        username=target_user["username"],
-        role=target_user["role"],
-        user_id=target_user["id"],
-    )
+    return _build_auth_response(target_user, message="Login successful.")
 
-    return {
-        "success": True,
-        "token": token,
-        "id": target_user["id"],
-        "username": target_user["username"],
-        "email": target_user["email"],
-        "fullName": target_user["fullName"],
-        "role": target_user["role"],
-        "organization": target_user.get("organization", "MOIL Limited"),
-        "message": "Login successful.",
-    }
+
+@router.post("/demo-login")
+def demo_login(req: DemoLoginRequest):
+    if not settings.allow_demo_login:
+        raise HTTPException(
+            status_code=403,
+            detail="Demo account quick sign-in is disabled in this environment.",
+        )
+    normalized_role = _normalize_role(req.role, default="")
+    account_key = DEMO_ROLE_KEYS.get(normalized_role)
+    target_user = ROLE_ACCOUNTS.get(account_key or "")
+    if not target_user:
+        raise HTTPException(status_code=400, detail="Unsupported demo profile requested.")
+    return _build_auth_response(
+        target_user,
+        message=f"Demo access verified for {target_user['fullName']} ({target_user['role']}).",
+    )
 
 
 @router.get("/me")
@@ -482,14 +588,17 @@ def logout(authorization: Optional[str] = Header(None)):
 
 
 @router.post("/refresh")
-def refresh_token(authorization: Optional[str] = Header(None)):
+def refresh_token(
+    authorization: Optional[str] = Header(None),
+    db: Session = Depends(get_db),
+):
     if not authorization or not authorization.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="No active token to refresh.")
 
     old_token = authorization.replace("Bearer ", "", 1).strip()
     payload = decode_access_token(old_token)
     username = payload["sub"]
-    user_acc = ROLE_ACCOUNTS.get(username)
+    user_acc = _find_account(username, db)
     if not user_acc:
         raise HTTPException(status_code=401, detail="User account no longer exists.")
 
@@ -511,7 +620,7 @@ def refresh_token(authorization: Optional[str] = Header(None)):
 
 
 @router.post("/forgot-password")
-def forgot_password(req: ForgotPasswordRequest):
+def forgot_password(req: ForgotPasswordRequest, db: Session = Depends(get_db)):
     email_clean = req.email.lower().strip()
     if not email_clean or not EMAIL_REGEX.match(email_clean):
         raise HTTPException(status_code=400, detail="Valid official email is required.")
@@ -521,8 +630,8 @@ def forgot_password(req: ForgotPasswordRequest):
 
     # Constant generic message to prevent user enumeration
     generic_msg = "If an account exists for this email, password recovery instructions have been dispatched."
-    account_exists = any(acc["email"].lower() == email_clean for acc in ROLE_ACCOUNTS.values())
-    if not account_exists:
+    target_user = _find_account(email_clean, db)
+    if not target_user:
         return {"success": True, "message": generic_msg}
 
     reset_tok = f"rst-{secrets.token_urlsafe(24)}"
@@ -542,7 +651,7 @@ def forgot_password(req: ForgotPasswordRequest):
 
 
 @router.post("/reset-password")
-def reset_password(req: ResetPasswordRequest):
+def reset_password(req: ResetPasswordRequest, db: Session = Depends(get_db)):
     if not req.token or req.token not in RESET_TOKENS:
         raise HTTPException(status_code=400, detail="Invalid or expired reset token.")
 
@@ -557,13 +666,22 @@ def reset_password(req: ResetPasswordRequest):
     del RESET_TOKENS[req.token]
     reset_failed_attempts(f"pwd_reset:{email}")
 
-    for _, acc in ROLE_ACCOUNTS.items():
-        if acc["email"].lower() == email:
-            acc["password_hash"] = hash_pw(req.new_password)
-            return {
-                "success": True,
-                "message": "Password successfully updated. You may now sign in with your new password.",
-            }
+    new_hash = hash_pw(req.new_password)
+    target_acc = _find_account(email, db)
+    if target_acc:
+        target_acc["password_hash"] = new_hash
+    db_user = db.query(User).filter(User.email == email).first()
+    if db_user:
+        try:
+            db_user.password_hash = new_hash
+            db.commit()
+        except Exception:
+            db.rollback()
+    if target_acc or db_user:
+        return {
+            "success": True,
+            "message": "Password successfully updated. You may now sign in with your new password.",
+        }
 
     return {
         "success": True,

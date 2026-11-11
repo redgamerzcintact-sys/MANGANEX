@@ -12,7 +12,7 @@ This report documents the security findings, remediations implemented across the
 
 ### Verification Status (Latest Observed Runs)
 - **Frontend Production Build (`npm run build`)**: **Passed** (`tsc -b && vite build`, exit code 0, `2532 modules transformed`).
-- **Python Backend Suite (`pytest backend/tests -q`)**: **Passed** (`10 passed` across `backend/tests/test_api.py` and `backend/tests/test_security_auth.py`).
+- **Python Backend Suite (`pytest backend/tests -q`)**: **Passed** (`12 passed` across `backend/tests/test_api.py` and `backend/tests/test_security_auth.py`).
 - **Workspace Secret & Path Scan**: Zero remaining exposed API keys, hardcoded personal developer paths, hardcoded demo passwords, or static JWT secrets in tracked source files. Only gitignored local files (`.env`, `backend/.env`, `*.db`, `*.trace.db`) and the UI placeholder string `VITE_GOOGLE_MAPS_API_KEY=AIzaSy...` remain.
 - **Java Backend (`java-backend/`)**: Source code hardened cleanly; **not compiled/runtime-tested in this workspace** because Maven (`mvn`) and `java-backend/target/manganex-backend-1.0.0.jar` are not installed locally. Run `mvn clean package` and full Java integration tests before deploying the Java service.
 
@@ -27,11 +27,12 @@ This report documents the security findings, remediations implemented across the
 2. **Scrub Remote GitHub History & Force-Push Clean History (`CRITICAL`)**
    - Legacy root commit `e8a7103` on `https://github.com/redgamerzcintact-sys/MANGANEX.git` originally committed `.env`, `backend/.env`, `manganex.db`, `backend/manganex.db`, `manganex-java-db.mv.db`, `java-backend/manganex-java-db.mv.db`, and `java-backend/manganex-java-db.trace.db`, leaving them reachable in history even after later deletion commits.
    - Purge all sensitive files across all refs before toggling repository visibility to **Public**, force-push clean history, and rotate any credentials that ever appeared in prior commits.
-3. **Configure Demo Seed Credentials Safely for Development vs. Production (`HIGH`)**
+3. **Configure Demo Accounts Safely for Development vs. Production (`HIGH`)**
    - Showcase demo accounts (`admin`, `geologist`, `engineer`, `analyst`, `viewer`) no longer carry hardcoded passwords in source code, `LoginPage.tsx`, `README.md`, or test suites.
-   - Both FastAPI (`backend/app/api/v1/endpoints/auth.py`) and Spring Boot (`java-backend/src/main/java/com/manganex/config/DatabaseSeeder.java`) read `MANGANEX_DEMO_*_PASSWORD` environment variables at startup and generate cryptographically random per-process passwords (`secrets.token_urlsafe(32)` / `UUID.randomUUID()`) when unset so demo login is disabled by default.
+   - Instead, 1-click showcase sign-in uses `POST /api/v1/auth/demo-login` (`ALLOW_DEMO_LOGIN` defaults to `true` in development and `false` in `ENVIRONMENT=production` unless explicitly enabled), while manual password authentication loads `MANGANEX_DEMO_*_PASSWORD` environment variables with cryptographically random per-process fallbacks (`secrets.token_urlsafe(32)` / `UUID.randomUUID()`).
+   - Self-registered accounts are immediately activated unless `REQUIRE_EMAIL_VERIFICATION=true` is configured alongside an SMTP delivery provider.
    - Before deploying to an internet-facing production environment:
-     - Keep all `MANGANEX_DEMO_*_PASSWORD` variables unset (or replace demo accounts with real SSO/IdP provisioned credentials), set `ENVIRONMENT=production`, and keep `ALLOW_DEMO_AUTH_TOKENS=false`.
+     - Keep all `MANGANEX_DEMO_*_PASSWORD` variables unset, set `ENVIRONMENT=production`, keep `ALLOW_DEMO_AUTH_TOKENS=false`, and set `ALLOW_DEMO_LOGIN=false` (unless hosting a public read-only/synthetic demo portal).
      - Inject strong random secrets: `SECRET_KEY` (>= 32 chars) and `MANGANEX_JWT_SECRET` (>= 64 bytes).
 
 ---

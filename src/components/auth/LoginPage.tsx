@@ -130,6 +130,7 @@ export const LoginPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+  const [authenticatingDemoRole, setAuthenticatingDemoRole] = useState<UserRole | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
@@ -436,8 +437,17 @@ export const LoginPage: React.FC = () => {
       });
 
       if (res && res.success) {
-        setIssuedVerificationToken(res.verificationToken);
-        setSuccessMessage(`Account registered for ${res.username} with role ${res.role}. Verification token generated.`);
+        setUsername(regUsername.trim());
+        setPassword(regPassword);
+        setSelectedRole(regRole);
+        if (res.emailVerified === false && res.verificationToken) {
+          setIssuedVerificationToken(res.verificationToken);
+          setSuccessMessage(`Account registered for ${res.username} (${res.role}). Verify activation below.`);
+        } else {
+          setIssuedVerificationToken(null);
+          setAuthMode('SIGN_IN');
+          setSuccessMessage(`Account registered and activated for ${res.username} (${res.role}). Click Sign In below to enter.`);
+        }
       } else {
         setErrorMessage(res?.message || 'Registration failed.');
       }
@@ -445,6 +455,46 @@ export const LoginPage: React.FC = () => {
       setErrorMessage(err?.message || 'Registration failed.');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Dedicated Demo Profile Login (issues scoped demo session via backend API without client-side secrets)
+  const handleDemoLogin = async (role: RoleProfile) => {
+    setAuthenticatingDemoRole(role.id);
+    setSelectedRole(role.id);
+    setUsername(role.hintEmail);
+    setErrorMessage(null);
+    setSuccessMessage(null);
+
+    try {
+      const response = await api.demoLogin(role.id);
+
+      if (response && response.token) {
+        const respAny = response as any;
+        const userObj = {
+          id: respAny.id || `usr-${response.username}`,
+          username: response.username,
+          email: respAny.email || role.hintEmail,
+          fullName: response.fullName,
+          role: response.role as any,
+          organization: respAny.organization || 'Ministry of Steel / MOIL'
+        };
+
+        useAuthStore.getState().setAuth(userObj, response.token);
+
+        const targetRoute = getTargetRouteForRole(response.role);
+        setSuccessMessage(`Demo access confirmed: Authenticated as ${response.fullName} (${role.badge}). Redirecting to ${targetRoute}...`);
+
+        setTimeout(() => {
+          navigate(targetRoute);
+        }, 400);
+      } else {
+        setErrorMessage(response?.message || `Demo authentication failed for ${role.title}.`);
+      }
+    } catch (err: any) {
+      setErrorMessage(err?.message || `Failed to start demo session for ${role.title}.`);
+    } finally {
+      setAuthenticatingDemoRole(null);
     }
   };
 
@@ -791,7 +841,6 @@ export const LoginPage: React.FC = () => {
                       <option value="ENGINEER">Mining Engineer (Production & Fleet)</option>
                       <option value="ANALYST">Data Analyst (Satellite & ML)</option>
                       <option value="VIEWER">Viewer (Executive Read-Only)</option>
-                      <option value="ADMIN">Administrator (Governance & IAM)</option>
                     </select>
                   </div>
 
@@ -868,19 +917,24 @@ export const LoginPage: React.FC = () => {
                   EXPLORE DEMO PROFILES (REAL SEEDED BACKEND AUTH)
                 </span>
                 <span className="text-[9px] font-mono text-[#657A90] hidden sm:inline">
-                  Role-Based Access &bull; Secure Sign-In
+                  Role-Based Access &bull; 1-Click Demo Session
                 </span>
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
                 {ROLES.map((role) => {
                   const Icon = role.icon;
+                  const isAuthenticating = authenticatingDemoRole === role.id;
                   const isSelected = selectedRole === role.id;
 
                   return (
                     <div
                       key={role.id}
-                      className={`p-2.5 rounded-xl border transition-all flex flex-col justify-between ${
+                      onClick={() => {
+                        handleRoleSelect(role);
+                        setUsername(role.hintEmail);
+                      }}
+                      className={`p-2.5 rounded-xl border transition-all flex flex-col justify-between cursor-pointer ${
                         isSelected
                           ? 'bg-[#152235] border-[#54D8E8] shadow-[0_0_12px_rgba(84,216,232,0.2)]'
                           : 'bg-[#060B12]/80 border-[#1C3045] hover:border-[#2C4866]'
@@ -906,14 +960,22 @@ export const LoginPage: React.FC = () => {
 
                       <button
                         type="button"
-                        onClick={() => setSelectedRole(role.id)}
+                        disabled={isAuthenticating}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDemoLogin(role);
+                        }}
                         className="w-full py-1 px-1.5 rounded bg-[#101927] hover:bg-[#1C3045] text-white border border-[#1C3045] text-[9.5px] font-mono font-bold flex items-center justify-center gap-1 transition-all cursor-pointer disabled:opacity-50"
                         style={{ borderLeftWidth: '2.5px', borderLeftColor: role.accentColor }}
                       >
-                        <>
-                          <span>Select Role</span>
-                          <ArrowRight className="w-2.5 h-2.5 text-[#54D8E8]" />
-                        </>
+                        {isAuthenticating ? (
+                          <span className="w-2.5 h-2.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                          <>
+                            <span>Use Demo</span>
+                            <ArrowRight className="w-2.5 h-2.5 text-[#54D8E8]" />
+                          </>
+                        )}
                       </button>
                     </div>
                   );

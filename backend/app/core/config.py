@@ -27,6 +27,10 @@ class Settings(BaseSettings):
 
     # Only allow inline demo verification/reset tokens when explicitly in non-production
     ALLOW_DEMO_AUTH_TOKENS: Optional[bool] = None
+    # Allow 1-click showcase demo login (defaults true outside production; override via env)
+    ALLOW_DEMO_LOGIN: Optional[bool] = None
+    # Require explicit email-link verification before login (enable once SMTP delivery is configured)
+    REQUIRE_EMAIL_VERIFICATION: bool = False
 
     # Database
     DATABASE_URL: str = "sqlite:///./manganex.db"
@@ -78,6 +82,12 @@ class Settings(BaseSettings):
         if self.ALLOW_DEMO_AUTH_TOKENS is not None:
             return self.ALLOW_DEMO_AUTH_TOKENS
         return True
+
+    @property
+    def allow_demo_login(self) -> bool:
+        if self.ALLOW_DEMO_LOGIN is not None:
+            return self.ALLOW_DEMO_LOGIN
+        return self.ENVIRONMENT.lower() != "production"
 
     class Config:
         case_sensitive = True

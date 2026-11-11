@@ -65,13 +65,31 @@ export const api = {
     return fetchApi<{
       success: boolean;
       message: string;
-      verificationToken: string;
+      verificationToken?: string;
+      emailVerified?: boolean;
       username: string;
       role: string;
       email: string;
     }>('/auth/register', {
       method: 'POST',
       body: JSON.stringify(payload)
+    });
+  },
+
+  demoLogin: async (role: string) => {
+    return fetchApi<{
+      success: boolean;
+      token: string;
+      id?: string;
+      username: string;
+      email?: string;
+      fullName: string;
+      role: string;
+      organization?: string;
+      message: string;
+    }>('/auth/demo-login', {
+      method: 'POST',
+      body: JSON.stringify({ role })
     });
   },
 
