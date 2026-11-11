@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: manganex-api
+    runtime: python
+    plan: free
+    region: singapore
+    rootDir: backend
+    buildCommand: pip install --upgrade pip && pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT --workers 1
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.11
+      - key: ENVIRONMENT
+        value: production
+      - key: DEBUG
+        value: "false"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ALLOW_DEMO_AUTH_TOKENS
+        value: "false"
+      - key: DATABASE_URL
+        value: sqlite:///./manganex.db
+      - key: BACKEND_CORS_ORIGINS
+        sync: false
+      - key: USE_SYNTHETIC_DATA
+        value: "true"
+      - key: DATA_STATUS
+        value: VALIDATED_SYNTHETIC_DEMO
