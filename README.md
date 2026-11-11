@@ -83,15 +83,9 @@ MANGANEX is an integrated three-tier enterprise mining intelligence platform:
 
 ---
 
-## 🔑 Pre-Seeded Demo Credentials
+## 🔐 Demo Account Configuration
 
-| Role Portal | Username / Email | Password | Primary Mission Scope |
-| :--- | :--- | :--- | :--- |
-| **Director / Admin** | `admin@moil.gov.in` | `ManganexAdmin2026!` | Governance, IAM, System Health |
-| **Chief Geologist** | `geologist@moil.gov.in` | `ManganexGeo2026!` | Borehole Assays, 3D Subsurface |
-| **Mining Engineer** | `engineer@moil.gov.in` | `ManganexEng2026!` | Production Pulse, Fleet Telemetry |
-| **Geospatial Analyst** | `analyst@moil.gov.in` | `ManganexData2026!` | Sentinel-2 Indices, ML Models |
-| **Executive Viewer** | `viewer@moil.gov.in` | `ManganexViewer2026!` | Executive Dashboards, Reports |
+Demo account passwords must be configured through local environment variables. Never publish credentials in source files or documentation.
 
 ---
 
