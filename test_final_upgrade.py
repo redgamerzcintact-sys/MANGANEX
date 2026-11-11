@@ -3,6 +3,8 @@ import urllib.parse
 import json
 import sys
 import time
+import os
+import secrets
 
 def make_request(url, method='GET', data=None, headers=None):
     if headers is None:
@@ -53,12 +55,15 @@ def run_tests():
     # ── TEST 2: Seeded Demo Role Logins (Part 2)
     print("\n[2] Testing 5 Seeded Role-Based Demo Accounts (Part 2)...")
     roles = [
-        ("admin@moil.gov.in", "ManganexAdmin2026!", "ADMIN", "ROLE_ADMIN"),
-        ("geologist@moil.gov.in", "ManganexGeo2026!", "GEOLOGIST", "ROLE_GEOLOGIST"),
-        ("engineer@moil.gov.in", "ManganexEng2026!", "MINING_ENGINEER", "ROLE_ENGINEER"),
-        ("analyst@moil.gov.in", "ManganexData2026!", "DATA_ANALYST", "ROLE_ANALYST"),
-        ("viewer@moil.gov.in", "ManganexViewer2026!", "VIEWER", "ROLE_VIEWER"),
+        ("admin@moil.gov.in", os.getenv("MANGANEX_DEMO_ADMIN_PASSWORD"), "ADMIN", "ROLE_ADMIN"),
+        ("geologist@moil.gov.in", os.getenv("MANGANEX_DEMO_GEOLOGIST_PASSWORD"), "GEOLOGIST", "ROLE_GEOLOGIST"),
+        ("engineer@moil.gov.in", os.getenv("MANGANEX_DEMO_ENGINEER_PASSWORD"), "MINING_ENGINEER", "ROLE_ENGINEER"),
+        ("analyst@moil.gov.in", os.getenv("MANGANEX_DEMO_ANALYST_PASSWORD"), "DATA_ANALYST", "ROLE_ANALYST"),
+        ("viewer@moil.gov.in", os.getenv("MANGANEX_DEMO_VIEWER_PASSWORD"), "VIEWER", "ROLE_VIEWER"),
     ]
+    roles = [item for item in roles if item[1]]
+    if not roles:
+        print("  [SKIP] Demo login tests: configure MANGANEX_DEMO_*_PASSWORD variables.")
     for u, p, r, expected_role in roles:
         total += 1
         status, body = make_request("http://localhost:8000/api/v1/auth/login", method="POST", data={"username": u, "password": p, "role": r})
