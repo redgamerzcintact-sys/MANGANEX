@@ -3,22 +3,31 @@ node_modules/
 .pnp
 .pnp.js
 
-# Build Outputs
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+!**/.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+secrets/
+credentials/
+
+# Build outputs
 dist/
 dist-ssr/
 *.local
+*.tsbuildinfo
 
-# Environment variables
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-# Java / Maven Outputs
+# Java / Maven outputs
 java-backend/target/
 *.class
 
-# Python Outputs
+# Python outputs
 __pycache__/
 *.py[cod]
 *$py.class
@@ -44,6 +53,15 @@ venv/
 ENV/
 env/
 
+# Local databases and database logs
+*.db
+*.db-*
+*.mv.db
+*.trace.db
+*.sqlite
+*.sqlite3
+pgdata/
+
 # Logs
 logs/
 *.log
@@ -54,10 +72,7 @@ pnpm-debug.log*
 frontend_server.log
 java_server.log
 
-# Database storage
-pgdata/
-
-# IDE & OS
+# IDE and OS
 .vscode/
 .vscode - Copy/
 .idea/
@@ -66,4 +81,3 @@ pgdata/
 .DS_Store
 Thumbs.db
 Desktop.ini
-
