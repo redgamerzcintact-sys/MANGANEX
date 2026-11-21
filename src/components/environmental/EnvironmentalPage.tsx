@@ -20,6 +20,7 @@ import {
   Tooltip,
   CartesianGrid
 } from 'recharts';
+import { WeatherTelemetryPanel } from '../common/WeatherTelemetryPanel';
 
 const SENSOR_TIMELINE = [
   { date: '01 Nov', dustPpm: 42, groundwaterM: -24.2, rainfallMm: 0 },
@@ -94,6 +95,12 @@ export const EnvironmentalPage: React.FC = () => {
           <span className="text-[10px] text-[#43D6A0]">Pore Pressure Stable</span>
         </div>
       </div>
+
+      {/* Real Weather & Soil Moisture Ingestion Panel */}
+      <WeatherTelemetryPanel
+        initialMineId="mine-balaghat"
+        title="Open-Meteo Meteorological & Soil Moisture Telemetry"
+      />
 
       {/* Environmental Chart */}
       <div className="p-5 rounded-2xl border border-[#1C3045] bg-[#101927]">

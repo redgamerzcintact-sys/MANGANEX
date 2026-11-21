@@ -154,6 +154,8 @@ export const api = {
   getProspects: () => fetchApi<any[]>('/geology/prospects'),
   getBoreholes: () => fetchApi<any[]>('/geology/boreholes'),
   explainProspect: (id: string) => fetchApi<any>(`/geology/prospects/${id}/explain`),
+  getProspectivityGrid: () => fetchApi<any>('/geology/prospectivity/grid'),
+  getProspectivityModelCard: () => fetchApi<any>('/geology/prospectivity/model-card'),
   scoreCustomProspect: (features: Record<string, number>) =>
     fetchApi<any>('/geology/prospectivity/score', {
       method: 'POST',
@@ -253,5 +255,12 @@ export const api = {
 
   // ── Global Intelligence Search ──────────────────────────────────────────────
   searchGlobal: (query: string) =>
-    fetchApi<{ query: string; results: any[]; total: number }>(`/search?q=${encodeURIComponent(query)}`)
+    fetchApi<{ query: string; results: any[]; total: number }>(`/search?q=${encodeURIComponent(query)}`),
+
+  // ── Real Weather & Soil Moisture Telemetry (Open-Meteo) ────────────────────
+  getWeatherSummary: () =>
+    fetchApi<any>('/weather/summary'),
+
+  getMineWeather: (mineId: string) =>
+    fetchApi<any>(`/weather/${mineId}`)
 };

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useAppStore } from '../../stores/appStore';
 import { api } from '../../services/api';
 import { ProvenanceBadge } from '../common/ProvenanceBadge';
+import { WeatherTelemetryPanel } from '../common/WeatherTelemetryPanel';
 import {
   Activity, TrendingDown, TrendingUp, AlertTriangle, Clock,
   RefreshCw, ChevronDown, Zap, Target, BarChart3, Layers
@@ -60,7 +61,7 @@ export const ProductionPage: React.FC = () => {
   const [history, setHistory] = useState<any>(null);
   const [summary, setSummary] = useState<any>(null);
   const [loading, setLoading] = useState(false);
-  const [tab, setTab] = useState<'forecast' | 'history' | 'fleet'>('forecast');
+  const [tab, setTab] = useState<'forecast' | 'weather' | 'history' | 'fleet'>('forecast');
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -244,6 +245,7 @@ export const ProductionPage: React.FC = () => {
         <div className="flex border-b border-[#1A2D40] shrink-0 bg-[#0A1520]">
           {[
             { id: 'forecast', label: 'ML Forecast' },
+            { id: 'weather', label: 'Weather & Soil Saturation' },
             { id: 'history', label: '90-Day History' },
             { id: 'fleet', label: 'Mine Comparison' },
           ].map(t => (
@@ -339,6 +341,22 @@ export const ProductionPage: React.FC = () => {
                 Human expert review required before operational decisions. 
                 Model: {forecast?.model_metadata?.models?.join(' + ')} | R²: {forecast?.model_metadata?.r2_score} | MAPE: {forecast?.model_metadata?.mape_percent}%
               </div>
+
+              {/* Weather & Soil Moisture Ingestion Panel */}
+              <WeatherTelemetryPanel
+                initialMineId={activeMineId}
+                compact
+                title="Open-Meteo Weather & Soil Saturation Shortfall Impact"
+              />
+            </div>
+          )}
+
+          {tab === 'weather' && (
+            <div className="space-y-6">
+              <WeatherTelemetryPanel
+                initialMineId={activeMineId}
+                title="Real Weather, Soil Moisture & Haul Road Impact"
+              />
             </div>
           )}
 

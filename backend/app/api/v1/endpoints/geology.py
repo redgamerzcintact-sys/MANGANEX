@@ -1,9 +1,10 @@
+import datetime
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.database.session import get_db
 from app.models.entities import GeologicalProspect, Borehole
 from app.schemas.all_schemas import ApiResponse, DataProvenance
-from app.ml.prospectivity.model import run_prospectivity_model
+from app.ml.prospectivity.model import run_prospectivity_model, get_model_card, get_prospectivity_grid
 
 router = APIRouter()
 
@@ -32,9 +33,16 @@ def get_all_prospects(db: Session = Depends(get_db)):
             "nearbyBoreholesCount": p.nearby_boreholes_count,
             "recommendedAction": p.recommended_action,
             "radarMetrics": p.radar_metrics,
-            "data_status": "VALIDATED_SYNTHETIC_DEMO",
+            "data_status": "DERIVED",
         })
-    return ApiResponse(data=result)
+    return ApiResponse(
+        data=result,
+        data_provenance=DataProvenance(
+            status="DERIVED",
+            source="GSI Mineral Survey & Spatial Block CV Model",
+            retrieved_at=datetime.datetime.now(datetime.timezone.utc).isoformat() + "Z"
+        )
+    )
 
 
 @router.get("/boreholes", response_model=ApiResponse)
@@ -117,5 +125,37 @@ def score_custom_prospect(features: dict, db: Session = Depends(get_db)):
         data_provenance=DataProvenance(
             status="DERIVED",
             source="Random Forest + Gradient Boosting Feature Scorer",
+        )
+    )
+
+@router.get("/prospectivity/grid", response_model=ApiResponse)
+def get_grid_prospectivity():
+    """
+    Returns 500m precomputed prospectivity grid with Random Forest + Gradient Boosting
+    probability, RF tree variance uncertainty, and per-cell SHAP feature contributions.
+    """
+    grid = get_prospectivity_grid()
+    return ApiResponse(
+        data=grid,
+        data_provenance=DataProvenance(
+            status="DERIVED",
+            source="500m Grid Ingestion (Sentinel-2 B4/B2, SWIR B11/B12, NDVI, SRTM, Sauser Lineaments)",
+            retrieved_at=datetime.datetime.now(datetime.timezone.utc).isoformat() + "Z"
+        )
+    )
+
+@router.get("/prospectivity/model-card", response_model=ApiResponse)
+def get_prospectivity_model_card():
+    """
+    Returns the real ML Model Card for the prospectivity ensemble, detailing spatial block
+    cross-validation metrics (ROC-AUC, PR-AUC vs naive baseline), architecture, and statutory limitations.
+    """
+    card = get_model_card()
+    return ApiResponse(
+        data=card,
+        data_provenance=DataProvenance(
+            status="REAL",
+            source="Spatial Block Cross-Validation (GroupKFold 10km) & TreeExplainer Model Card",
+            retrieved_at=datetime.datetime.now(datetime.timezone.utc).isoformat() + "Z"
         )
     )

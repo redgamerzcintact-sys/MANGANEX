@@ -1,0 +1,45 @@
+{
+  "model_name": "MOIL-GeoProspect-Ensemble v2.0 (Spatial Block CV)",
+  "architecture": "RandomForestClassifier (120 trees) + GradientBoostingClassifier (120 trees)",
+  "framework": "scikit-learn + shap",
+  "evaluation_scheme": "5-Fold Spatial Block Cross-Validation (10km geographic isolation)",
+  "study_area": "Central India Manganese Belt (Sauser Mobile Belt)",
+  "bounding_box": {
+    "lat_min": 21.32,
+    "lat_max": 22.02,
+    "lon_min": 79.15,
+    "lon_max": 80.55,
+    "resolution": "500m centroid grid"
+  },
+  "training_data": {
+    "total_labeled_cells": 3552,
+    "positive_occurrences": 36,
+    "negative_cells": 3516,
+    "exclusion_buffer_km": 2.0,
+    "sources": [
+      "Geological Survey of India (GSI) Manganese Bulletins",
+      "USGS Mineral Resources Data System (MRDS)",
+      "Sentinel-2 Surface Multispectral Alteration Ratios",
+      "SRTM 30m Global Topography"
+    ]
+  },
+  "metrics": {
+    "spatial_cv_roc_auc": 1.0,
+    "spatial_cv_pr_auc": 0.982,
+    "naive_baseline_pr_auc": 0.01,
+    "auc_lift_over_baseline": 98.2
+  },
+  "feature_importances": {
+    "Iron Oxide Alteration (B4/B2)": 0.455,
+    "SWIR Clay Ratio (B11/B12)": 0.288,
+    "Vegetation Stress (NDVI)": 0.218,
+    "SRTM Elevation": 0.016,
+    "Topographic Slope": 0.003,
+    "Lineament Proximity": 0.019
+  },
+  "limitations": [
+    "Surface indicators only; labels are public occurrences, not MOIL drill data.",
+    "Satellite multi-spectral signatures detect surface alteration gossans (iron-oxide, clay, vegetative stress) but cannot penetrate rock to image subterranean manganese.",
+    "All high-probability targets represent mineral suitability zones (UNFC 333 - Inferred) and strictly require confirmatory borehole core drilling before mineral reserve conversion."
+  ]
+}

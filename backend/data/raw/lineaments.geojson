@@ -1,0 +1,60 @@
+{
+  "type": "FeatureCollection",
+  "name": "Sauser_Mobile_Belt_Lineaments",
+  "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": { "id": "FAULT-SAUSER-THRUST", "name": "Sauser Frontal Thrust Lineament", "kinematics": "Dextral Reverse", "source": "GSI Structural Map of Sauser Fold Belt" },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [79.25, 21.38],
+          [79.50, 21.48],
+          [79.75, 21.56],
+          [80.05, 21.72],
+          [80.35, 21.85],
+          [80.55, 21.98]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "id": "FAULT-BHARWELI-SHEAR", "name": "Balaghat-Bharweli Shear Zone", "kinematics": "Strike-Slip", "source": "GSI Central Region Bulletin" },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [80.12, 21.75],
+          [80.18, 21.80],
+          [80.24, 21.86],
+          [80.30, 21.92]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "id": "FAULT-BAWANTHARI", "name": "Bawanthari River Fault Lineament", "kinematics": "Normal Extensional", "source": "GSI Nagpur Geological Quadrangle" },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [79.55, 21.45],
+          [79.68, 21.52],
+          [79.82, 21.60],
+          [79.95, 21.70]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "id": "FAULT-UKWA-CREST", "name": "Ukwa Plateau Marginal Lineament", "kinematics": "Steep Oblique", "source": "GSI Balaghat Sheet 64C" },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [80.38, 21.92],
+          [80.45, 21.96],
+          [80.52, 22.01]
+        ]
+      }
+    }
+  ]
+}

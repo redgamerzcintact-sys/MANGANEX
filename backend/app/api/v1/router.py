@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from app.api.v1.endpoints import (
     mines, geology, operations, nexus, optimization,
-    production, satellite, risk_intelligence, data_hub, auth, ai, search
+    production, satellite, risk_intelligence, data_hub, auth, ai, search, weather
 )
 
 api_router = APIRouter()
@@ -18,3 +18,4 @@ api_router.include_router(satellite.router, prefix="/satellite", tags=["Satellit
 api_router.include_router(risk_intelligence.router, prefix="/risks", tags=["Risk Intelligence"])
 api_router.include_router(data_hub.router, prefix="/datasets", tags=["Data Hub"])
 api_router.include_router(search.router, prefix="/search", tags=["Global Intelligence Search"])
+api_router.include_router(weather.router, prefix="/weather", tags=["Real Weather & Soil Moisture Ingestion"])
