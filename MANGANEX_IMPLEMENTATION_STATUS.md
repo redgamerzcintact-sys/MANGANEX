@@ -9,15 +9,16 @@
 
 | Layer | Runtime / Engine | Port | Status | Health & Verification Endpoint |
 |---|---|---|---|---|
-| **Frontend Web Client** | React 18 + Vite 6 + TailwindCSS + Three.js | `3000` | **LIVE (HTTP 200)** | `http://127.0.0.1:3000/` |
-| **Java Enterprise Backend** | Spring Boot 3.3.3 + Spring Security + Data JPA (Java 25) | `8080` | **UP (Actuator Live)** | `http://127.0.0.1:8080/actuator/health` |
-| **Python AI & RAG Engine** | FastAPI + NumPy + XGBoost + SQLite (Python 3.11) | `8000` | **HEALTHY** | `http://127.0.0.1:8000/health` |
+| **Frontend Web Client** | React 19 + Vite 6 + TailwindCSS + Three.js | `3000` | **LIVE (HTTP 200)** | `http://127.0.0.1:3000/` |
+| **Java Enterprise Backend** | Spring Boot 3.3.3 (Reference Architecture) | `8080` | **OPTIONAL** | `http://127.0.0.1:8080/actuator/health` |
+| **Python AI & RAG Engine** | FastAPI + NumPy + scikit-learn + SQLite (Python 3.11) | `8000` | **HEALTHY** | `http://127.0.0.1:8000/health` |
+|---|---|---|---|---|
 
 ---
 
 ## 2. COMPLETED FEATURE MODULES
 
-### A. Centralized Identity & Access Management (Zero Mock / No Demo Login)
+### A. Centralized Identity & Access Management (Full Auth with 1-Click Demo Profiles)
 - **Role Clearance Selector**: Placed cleanly below the primary login form as directed.
 - **Enterprise Fields**: Official identifier / email input, access key input with toggle visibility, remember session toggle, and forgot password modal.
 - **Server-Side Enforcement**: All permissions are validated and enforced on the backend via HMAC-SHA512 signed JWTs.

@@ -184,7 +184,7 @@ export const ViewerDashboardPage: React.FC = () => {
           <div className="space-y-2 text-xs font-mono">
             {[
               { title: 'Balaghat Deep Winze Shaft', note: 'Shaft deepening to -300m level has intersected high-grade 46.5% Mn ore reef.' },
-              { title: 'Dongri Buzurg Beneficiation', note: 'Heavy Media Separation (HMS) plant achieved 94.2% recovery efficiency.' },
+              { title: 'Dongri Buzurg Beneficiation', note: 'Heavy Media Separation (HMS) plant achieved verified high recovery efficiency.' },
               { title: 'Sauser Belt Exploration', note: 'GSI joint core exploration confirmed 6.4 Mt extension under UNFC-122 category.' }
             ].map((h, i) => (
               <div key={i} className="p-2.5 rounded-lg bg-[#152235]/40 border border-[#1C3045]/60">

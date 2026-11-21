@@ -1,16 +1,18 @@
 """
 MANGANEX - Production Forecasting ML Engine
-Random Forest + XGBoost time-series forecasting with SHAP explanations.
+Random Forest + Gradient Boosting (scikit-learn) time-series forecasting with feature attribution.
 All forecasts use VALIDATED_SYNTHETIC_DEMO data.
 """
 import numpy as np
 import datetime
+import zlib
 from typing import List, Dict, Any, Optional
 
 
 def _generate_synthetic_history(mine_id: str, days: int = 90) -> List[Dict]:
-    """Generate synthetic 90-day production history for a mine."""
-    rng = np.random.default_rng(hash(mine_id) % (2**31))
+    """Generate synthetic 90-day production history for a mine with stable deterministic seed."""
+    stable_seed = zlib.crc32(mine_id.encode("utf-8")) % (2**31)
+    rng = np.random.default_rng(stable_seed)
     
     # Mine-specific baseline parameters
     mine_params = {

@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.database.session import get_db
 from app.models.entities import RiskAssessment, Mine
-from app.schemas.all_schemas import ApiResponse, ScenarioInput
+from app.schemas.all_schemas import ApiResponse, ScenarioInput, DataProvenance
 
 router = APIRouter()
 
@@ -69,5 +69,11 @@ def simulate_future_fork(input_data: ScenarioInput, db: Session = Depends(get_db
         ],
         "calculationEngineVersion": "Manganex-SimEngine-v2.1"
     }
-    return ApiResponse(data=data)
+    return ApiResponse(
+        data=data,
+        data_provenance=DataProvenance(
+            status="DERIVED",
+            source="Parametric Physics-Based Mine Simulator (Rainfall / Fleet / Dewatering)",
+        )
+    )
 

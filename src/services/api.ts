@@ -29,6 +29,12 @@ export async function fetchApi<T>(endpoint: string, options?: RequestInit): Prom
     }
 
     const json = await res.json();
+    if (json && typeof json === 'object') {
+      const prov = json.data_provenance || json.metadata?.data_provenance;
+      if (prov && json.data && typeof json.data === 'object' && !json.data.data_provenance) {
+        json.data.data_provenance = prov;
+      }
+    }
     // Return data property if standard envelope, otherwise return top-level json
     return (json.data !== undefined ? json.data : json) as T;
   } catch (err: any) {

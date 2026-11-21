@@ -36,7 +36,7 @@ import {
 } from 'recharts';
 
 const MODEL_BENCHMARKS = [
-  { model: 'XGBoost v4.8 (Prospectivity)', auc: 0.942, f1: 0.915, r2: 0.928, status: 'PRODUCTION' },
+  { model: 'Random Forest + GB (Prospectivity)', auc: 0.942, f1: 0.915, r2: 0.928, status: 'PRODUCTION' },
   { model: 'Random Forest (Shortfall)', auc: 0.918, f1: 0.892, r2: 0.932, status: 'PRODUCTION' },
   { model: 'Sentinel-2 MSI SWIR Engine', auc: 0.894, f1: 0.870, r2: 0.885, status: 'ACTIVE' },
   { model: 'OR-Tools SCIP Fleet Optimizer', auc: 0.965, f1: 0.950, r2: 0.960, status: 'PRODUCTION' },
@@ -107,7 +107,7 @@ export const DataAnalystDashboardPage: React.FC = () => {
         {[
           { label: 'Ingested Data Volume', val: '269.9 MB', sub: '18 Geopackages & Tabular Datasets', icon: Database, color: '#168BFF' },
           { label: 'Overall Data Quality Score', val: '97.4%', sub: 'Zero null collars in master assay', icon: CheckCircle2, color: '#43D6A0' },
-          { label: 'Champion Model AUC-ROC', val: '0.942', sub: 'XGBoost v4.8 Sauser Prospectivity', icon: Cpu, color: '#54D8E8' },
+          { label: 'Champion Model AUC-ROC', val: '0.942', sub: 'Random Forest + GB Sauser Prospectivity', icon: Cpu, color: '#54D8E8' },
           { label: 'Active Ingestion Pipeline', val: 'Automated 24h', sub: 'Copernicus Sentinel-2 + OpenMeteo', icon: Satellite, color: '#F4B860' }
         ].map((stat, i) => {
           const Icon = stat.icon;

@@ -112,9 +112,9 @@ def health_check():
         "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
         "database": "CONNECTED",
         "intelligence_engines": {
-            "geological_prospectivity": "ACTIVE (XGBoost/RF)",
-            "satellite_cadence": "ACTIVE (Sentinel-2 / Landsat-9)",
-            "production_forecasting": "ACTIVE (SARIMA / Regressor)",
+            "geological_prospectivity": "ACTIVE (Random Forest + Gradient Boosting)",
+            "satellite_cadence": "ACTIVE (Sentinel-2 / Landsat-9 Surface Indicators)",
+            "production_forecasting": "ACTIVE (Random Forest + Gradient Boosting)",
             "nexus_copilot": "READY",
         },
         "environment": settings.ENVIRONMENT,

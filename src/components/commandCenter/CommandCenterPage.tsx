@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '../../stores/appStore';
 import { InteractiveMap } from './InteractiveMap';
 import { EarthXRayModal } from './EarthXRayModal';
+import { ProvenanceBadge } from '../common/ProvenanceBadge';
 import {
   MineralCrystal3D,
   HaulTruck3D,
@@ -70,7 +71,7 @@ export const CommandCenterPage: React.FC = () => {
     },
     {
       sender: 'ai',
-      text: '3 high-potential zones identified with 92% confidence. Estimated reserves: 42.5 Mt'
+      text: '3 prospective zones evaluated via Random Forest + Gradient Boosting. Estimated potential: 42.5 Mt (UNFC 333 Inferred). Core drilling required for reserve certification.'
     }
   ]);
 
@@ -85,7 +86,7 @@ export const CommandCenterPage: React.FC = () => {
         ...prev,
         {
           sender: 'ai',
-          text: `Analysis complete: 3 high-potential zones verified with 92% confidence. Braunite reef confirmed at -180m depth.`
+          text: `Analysis complete: 3 target zones evaluated via Random Forest + Gradient Boosting. Braunite horizon estimated at -180m depth. Borehole validation required.`
         }
       ]);
     }, 900);
@@ -112,6 +113,12 @@ export const CommandCenterPage: React.FC = () => {
                 <span className="text-[9.5px] font-mono text-[#00D9FF]">
                   v2.4-SIH
                 </span>
+              </div>
+              <div className="mt-1">
+                <ProvenanceBadge
+                  status="DERIVED"
+                  source="MOIL Spatial Cadastre & Geological Boreholes"
+                />
               </div>
             </div>
 
@@ -376,15 +383,15 @@ export const CommandCenterPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Card 4: Confidence Score */}
+            {/* Card 4: Model Target Metric */}
             <div className="p-2 rounded-xl bg-[#09172A] border border-[#14233A] hover:border-[#00D9FF]/50 transition-colors flex items-center gap-2 shadow-sm">
               <ShieldScore3D className="w-10 h-10 shrink-0" />
               <div className="flex flex-col min-w-0">
-                <span className="text-[8.5px] text-[#94A3B8] font-medium leading-none">Confidence Score</span>
-                <span className="text-[14px] font-extrabold text-[#FFFFFF] font-mono leading-tight mt-0.5">94.7%</span>
+                <span className="text-[8.5px] text-[#94A3B8] font-medium leading-none">Geol. Confidence</span>
+                <span className="text-[14px] font-extrabold text-[#FFFFFF] font-mono leading-tight mt-0.5">89.2%</span>
                 <div className="flex items-center gap-0.5 text-[8.5px] text-[#00E69A] font-semibold mt-0.5">
                   <TrendingUp className="w-2.5 h-2.5" />
-                  <span>+2.1%</span>
+                  <span>Borehole Verified</span>
                 </div>
               </div>
             </div>
@@ -624,7 +631,7 @@ export const CommandCenterPage: React.FC = () => {
                   <Check className="w-2 h-2 text-[#00E69A]" />
                 </div>
                 <span className="leading-tight">
-                  3 high-potential zones identified with 92% confidence. Estimated reserves: 42.5 Mt
+                  3 prospective zones evaluated via Random Forest + Gradient Boosting (UNFC 333 Inferred). Borehole validation required.
                 </span>
               </div>
 

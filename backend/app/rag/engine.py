@@ -76,7 +76,7 @@ class RAGEngine:
                     {
                         "page": 3,
                         "section": "Ferric & Ferrous Iron Oxide Ratio Indexing",
-                        "text": "Manganese oxide gossans and supergene enrichment horizons in Central India display distinct spectral absorption features in Sentinel-2 Band 4 (Red, 665nm) and Band 8A (Narrow NIR, 865nm). The Iron Oxide Ratio (B4/B2) combined with SWIR Alteration Ratio (B11/B12) reliably flags manganiferous lateritic crusts with 89.4% cross-validation accuracy against ground truth borehole collars."
+                        "text": "Manganese oxide gossans and supergene enrichment horizons in Central India display distinct spectral absorption features in Sentinel-2 Band 4 (Red, 665nm) and Band 8A (Narrow NIR, 865nm). The Iron Oxide Ratio (B4/B2) combined with SWIR Alteration Ratio (B11/B12) serves as a surface indicator for manganiferous lateritic crusts, requiring borehole core drilling for subsurface validation."
                     }
                 ]
             },

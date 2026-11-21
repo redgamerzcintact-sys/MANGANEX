@@ -8,7 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from app.database.session import get_db
 from app.models.entities import Mine, ProductionRecord
-from app.schemas.all_schemas import ApiResponse
+from app.schemas.all_schemas import ApiResponse, DataProvenance
 from app.ml.forecasting.model import run_production_forecast, get_mine_history
 import datetime
 
@@ -50,12 +50,18 @@ def get_production_forecast(
     
     result = run_production_forecast(mine_id, horizon_days=horizon_days, production_history=history)
     
-    return ApiResponse(data={
-        **result,
-        "mine_name": mine.mine_name,
-        "mine_code": mine.mine_code,
-        "ore_grade_mn_percent": mine.ore_grade_mn_percent,
-    })
+    return ApiResponse(
+        data={
+            **result,
+            "mine_name": mine.mine_name,
+            "mine_code": mine.mine_code,
+            "ore_grade_mn_percent": mine.ore_grade_mn_percent,
+        },
+        data_provenance=DataProvenance(
+            status="DERIVED",
+            source="MOIL Production History + Random Forest & Gradient Boosting Time-Series",
+        )
+    )
 
 
 @router.get("/history/{mine_id}", response_model=ApiResponse)

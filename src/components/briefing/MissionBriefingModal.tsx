@@ -24,60 +24,39 @@ export const MissionBriefingModal: React.FC = () => {
 
   const scenes = [
     {
-      title: "Scene 1 — India's Manganese Challenge",
-      subtitle: "The Mission & Geological Setting",
+      title: "Step 1 — Command Center: Central India Manganese Belt",
+      subtitle: "MOIL Cadastre & Operational Mine Telemetry",
       route: '/command-center',
-      description: "India's steel production target of 300 MTPA by 2030 requires over 10 MT of manganese ore annually. Central India (Sauser Belt spanning Maharashtra and Madhya Pradesh) hosts MOIL's primary high-grade reserves, yet legacy extraction encounters acute depth limits, declining grades, and monsoon vulnerabilities.",
-      keyAction: "Highlighting Central India Manganese Corridor and operational mine network."
+      description: "Real-time spatial monitoring of MOIL's core manganese concessions across Maharashtra and Madhya Pradesh (Balaghat, Dongri Buzurg, Chikla, Ukwa, Munsar). Displays high-precision cadastral polygons, Sauser fault traces, and active mine status indicators.",
+      keyAction: "Reviewing spatial concessions, Sauser thrust lineaments, and live mine operational telemetry."
     },
     {
-      title: "Scene 2 — Detect the Opportunity",
-      subtitle: "AI Mineral Prospecting & Deep Sensing",
-      route: '/exploration',
-      description: "By fusing Landsat-9 SWIR hydrothermal alteration signatures with magnetic lineaments and regional fold tectonics, MANGANEX isolates high-confidence blind ore horizons—such as the Sauser Belt Fold Extension scoring 91.4% prospectivity.",
-      keyAction: "Inspecting Prospect DNA and structural anticlinal continuity."
+      title: "Step 2 — Reserve Prospectivity AI",
+      subtitle: "Subsurface Geology & Core Assays (Satellite Surface Indicators)",
+      route: '/prospectivity',
+      description: "Blind manganese prospect discovery powered by scikit-learn Random Forest + Gradient Boosting. Subsurface targets are driven by drillcore assays and structural fold compatibility; Sentinel-2 SWIR/iron oxide indices serve strictly as surface alteration indicators.",
+      keyAction: "Inspecting prospectivity scores, feature attribution weights, and UNFC reserve categories."
     },
     {
-      title: "Scene 3 — Look Beneath the Surface",
-      subtitle: "Earth X-Ray & Subsurface Slicing",
-      route: '/subsurface',
-      description: "Transitioning directly from 2D satellite surface observations to a 3D geological digital twin. Diamond wireline drillholes (BH-BG-2023-14) intersect massive Braunite-Pyrolusite reefs between 135m and 275m depth, confirming economic feasibility.",
-      keyAction: "Rotating 3D geological strata and dragging the horizontal depth slicer."
+      title: "Step 3 — Production Shortfall Forecasting",
+      subtitle: "Weather, Equipment Downtime & Blasting Impact",
+      route: '/production',
+      description: "30-day predictive time-series forecasting estimating monthly extraction deficits. Accurately anticipates monsoon sump inundation, equipment maintenance delays, and blasting restrictions to protect MOIL's extraction targets.",
+      keyAction: "Analyzing 30-day P50 forecasts, confidence intervals, and primary shortfall drivers."
     },
     {
-      title: "Scene 4 — Identify Operational Risk",
-      subtitle: "Shortfall Radar & Causal Ripple",
-      route: '/risk-center',
-      description: "Extreme monsoon precipitation (124.5 mm in 24h) triggered Sub-Level 7 sump flooding at Balaghat, placing an estimated 8,800 tonnes of high-grade dioxide ore at immediate risk of dispatch delay.",
-      keyAction: "Visualizing causal cascading ripple from sump pumps to blast faces and surface dispatch."
-    },
-    {
-      title: "Scene 5 — Explore the Future",
-      subtitle: "Future Fork: Decision Simulation Laboratory",
+      title: "Step 4 — Future Fork Scenario Lab",
+      subtitle: "Parametric What-If Simulation & Shortfall Mitigation",
       route: '/scenario-lab',
-      description: "Rather than passively accepting production deficits, planners simulate corrective actions: deploying auxiliary submersible dewatering pumps and reallocating haulage fleet to Upper Level 4 recovers 6,400 tonnes of lost volume.",
-      keyAction: "Comparing Baseline Deficit vs. Corrective Future scenario."
+      description: "Interactive decision laboratory allowing mine planners to simulate rainfall shocks, fleet availability changes, and pump capacity adjustments. Computes potential recoverable volume and rebalances stope extraction.",
+      keyAction: "Comparing baseline deficit vs. corrective dewatering and fleet reallocation future scenarios."
     },
     {
-      title: "Scene 6 — Operational Chessboard",
-      subtitle: "Optimization Studio & Fleet Scheduling",
-      route: '/optimization',
-      description: "Dynamic resource allocation shifts idle electric LHD loaders from development drifts to active extraction stopes, optimizing cycle times and clearing ore-pass bottlenecks.",
-      keyAction: "Reviewing drag-and-drop fleet allocation and shift constraints."
-    },
-    {
-      title: "Scene 7 — Scientific Explainability & Trust",
-      subtitle: "AI Intelligence Center & Trust Lens",
-      route: '/intelligence',
-      description: "Every AI prediction is backed by transparent data provenance: distinguishing observed drill cores, interpolated geophysics, and synthetic training runs with clear uncertainty boundaries.",
-      keyAction: "Inspecting feature importance and scientific provenance markers."
-    },
-    {
-      title: "Scene 8 — Executive Decision Briefing",
-      subtitle: "Mission Complete & Exportable Briefing",
-      route: '/reports',
-      description: "Synthesized operational summary ready for Ministry of Steel officials and MOIL directorate: immediate pump intervention authorized, new core drilling campaign chartered for North Balaghat.",
-      keyAction: "Generating printable executive PDF decision briefing."
+      title: "Step 5 — NEXUS AI Copilot",
+      subtitle: "Multilingual Decision Support & Scientific RAG",
+      route: '/nexus',
+      description: "Autonomous geoscientific assistant supporting Indian languages (Hindi, Marathi, etc.) and international languages. Synthesizes borehole assays, UNFC reserve classifications, and mitigation protocols with verifiable source citations.",
+      keyAction: "Querying multilingual knowledge base, borehole assays, and automated operational recommendations."
     }
   ];
 
@@ -110,7 +89,7 @@ export const MissionBriefingModal: React.FC = () => {
           <div>
             <div className="flex items-center gap-2">
               <span className="text-xs font-mono uppercase tracking-widest text-[#37D9FF]">
-                MANGANEX MISSION BRIEFING MODE
+                MANGANEX 5-STEP JUDGE GUIDED TOUR
               </span>
               <span className="text-xs text-[#96AABD]">
                 • Step {briefingSceneIndex + 1} of {scenes.length}
@@ -125,7 +104,7 @@ export const MissionBriefingModal: React.FC = () => {
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#26384A] bg-[#152130] text-xs font-mono text-[#96AABD] hover:text-[#FF6378] hover:border-[#FF6378]/50 transition-colors"
         >
           <X className="h-4 w-4" />
-          <span>EXIT BRIEFING</span>
+          <span>EXIT TOUR</span>
         </button>
       </div>
 
@@ -133,7 +112,7 @@ export const MissionBriefingModal: React.FC = () => {
       <div className="pointer-events-auto max-w-2xl mx-auto w-full rounded-2xl bg-[#101925]/95 border border-[#26384A] p-5 shadow-[0_10px_40px_rgba(0,0,0,0.8)] backdrop-blur-xl">
         <div className="flex items-center justify-between text-xs font-mono text-[#9A85FF] mb-1">
           <span>{currentScene.subtitle}</span>
-          <span className="text-[#38D9A9]">SCENE {briefingSceneIndex + 1}/8</span>
+          <span className="text-[#38D9A9]">STEP {briefingSceneIndex + 1}/{scenes.length}</span>
         </div>
 
         <p className="text-sm text-[#EDF5FC] leading-relaxed mb-3">
@@ -153,7 +132,7 @@ export const MissionBriefingModal: React.FC = () => {
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#26384A] text-xs font-medium text-[#96AABD] hover:text-[#EDF5FC] disabled:opacity-40 disabled:pointer-events-none transition-colors"
           >
             <ChevronLeft className="h-4 w-4" />
-            <span>Previous Scene</span>
+            <span>Previous Step</span>
           </button>
 
           {/* Stepper Dots */}
@@ -176,7 +155,7 @@ export const MissionBriefingModal: React.FC = () => {
             onClick={handleNext}
             className="flex items-center gap-2 px-4 py-1.5 rounded-lg bg-[#37D9FF] hover:bg-[#37D9FF]/90 text-black text-xs font-semibold tracking-wide shadow-[0_0_15px_rgba(55,217,255,0.4)] transition-all"
           >
-            <span>{briefingSceneIndex === scenes.length - 1 ? 'Finish Briefing' : 'Next Scene'}</span>
+            <span>{briefingSceneIndex === scenes.length - 1 ? 'Finish Tour' : 'Next Step'}</span>
             <ChevronRight className="h-4 w-4" />
           </button>
         </div>

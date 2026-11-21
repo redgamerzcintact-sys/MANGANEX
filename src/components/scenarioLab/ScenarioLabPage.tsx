@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAppStore } from '../../stores/appStore';
 import { api } from '../../services/api';
+import { ProvenanceBadge } from '../common/ProvenanceBadge';
 import {
   GitFork,
   Sliders,
@@ -95,9 +96,16 @@ export const ScenarioLabPage: React.FC = () => {
             {isSimulating ? (
               <RefreshCw className="h-4 w-4 text-[#54D8E8] animate-spin" />
             ) : (
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#43D6A0]/10 text-[#43D6A0] border border-[#43D6A0]/30">
-                LIVE SOLVER
-              </span>
+              <div className="flex items-center gap-2">
+                <ProvenanceBadge
+                  provenance={backendSimulation?.data_provenance}
+                  status="DERIVED"
+                  source="Physics Mine Simulator"
+                />
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#43D6A0]/10 text-[#43D6A0] border border-[#43D6A0]/30">
+                  LIVE SOLVER
+                </span>
+              </div>
             )}
           </div>
           <p className="text-xs text-[#9BAFC1] mt-0.5 font-mono">

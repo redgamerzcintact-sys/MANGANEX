@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAppStore } from '../../stores/appStore';
 import { api } from '../../services/api';
+import { ProvenanceBadge } from '../common/ProvenanceBadge';
 import {
   Activity, TrendingDown, TrendingUp, AlertTriangle, Clock,
   RefreshCw, ChevronDown, Zap, Target, BarChart3, Layers
@@ -193,6 +194,7 @@ export const ProductionPage: React.FC = () => {
             </div>
           </div>
           <div className="flex items-center gap-3">
+            <ProvenanceBadge provenance={forecast?.data_provenance} status="DERIVED" source="MOIL Shift Log Telemetry + Scikit-Learn RF/GB" />
             <StatusBadge level={riskLevel} />
             <button onClick={loadData} disabled={loading}
               className="flex items-center gap-1.5 px-3 py-1.5 bg-[#0D2035] border border-[#1A2D40] rounded text-[11px] text-[#54D8E8] hover:border-[#54D8E8] transition-all">
@@ -312,7 +314,7 @@ export const ProductionPage: React.FC = () => {
                 </div>
 
                 <div className="bg-[#0A1520] border border-[#1A2D40] rounded p-4">
-                  <div className="text-xs text-[#54D8E8] mb-3">Feature Importance (SHAP Proxy)</div>
+                  <div className="text-xs text-[#54D8E8] mb-3">Feature Importance (Attribution Weights)</div>
                   {forecast?.shap_contributions?.slice(0, 5).map((s: any, i: number) => (
                     <div key={i} className="mb-2">
                       <div className="flex justify-between text-[10px] mb-1">

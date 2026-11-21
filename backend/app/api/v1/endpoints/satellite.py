@@ -9,7 +9,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from app.database.session import get_db
 from app.models.entities import Mine, SatelliteObservation
-from app.schemas.all_schemas import ApiResponse
+from app.schemas.all_schemas import ApiResponse, DataProvenance
 from app.services.satellite.processor import (
     generate_synthetic_satellite_series,
     compute_band_composite,
@@ -30,16 +30,22 @@ def get_satellite_observations(
     
     observations = generate_synthetic_satellite_series(mine_id, days=days)
     
-    return ApiResponse(data={
-        "mine_id": mine_id,
-        "mine_name": mine.mine_name,
-        "observations": observations,
-        "total_count": len(observations),
-        "valid_count": sum(1 for o in observations if o.get("valid_observation", False)),
-        "data_status": "VALIDATED_SYNTHETIC_DEMO",
-        "satellite_sources": ["Sentinel-2 MSI Level-2A"],
-        "disclaimer": "All band values and indices are synthetically generated for demonstration purposes."
-    })
+    return ApiResponse(
+        data={
+            "mine_id": mine_id,
+            "mine_name": mine.mine_name,
+            "observations": observations,
+            "total_count": len(observations),
+            "valid_count": sum(1 for o in observations if o.get("valid_observation", False)),
+            "data_status": "VALIDATED_SYNTHETIC_DEMO",
+            "satellite_sources": ["Sentinel-2 MSI Level-2A (Surface Indicators Only)"],
+            "disclaimer": "Surface reflectance and vegetation/iron-oxide indices only. Subsurface manganese mineralization cannot be detected by satellite."
+        },
+        data_provenance=DataProvenance(
+            status="SYNTHETIC",
+            source="Copernicus Sentinel-2 MSI Multi-Spectral Surface Index Generator",
+        )
+    )
 
 
 @router.get("/composite/{mine_id}", response_model=ApiResponse)

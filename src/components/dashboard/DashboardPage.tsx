@@ -56,7 +56,7 @@ const RECENT_INVESTIGATIONS = [
     zone: 'Dongri Buzurg North Ridge',
     type: 'Drillcore Lithology Assay',
     prospectivity: '42.5 Mt Potential',
-    confidence: '94.2%',
+    confidence: '91.4%',
     status: 'Verified',
     link: '/exploration'
   },

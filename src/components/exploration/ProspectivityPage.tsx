@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { PROSPECTS_DATA } from '../../data/demoData';
 import { GeologicalProspect } from '../../types';
+import { ProvenanceBadge } from '../common/ProvenanceBadge';
 import {
   Cpu,
   MapPin,
@@ -53,14 +54,20 @@ export const ProspectivityPage: React.FC = () => {
             AI Prospectivity & Anomaly Ranking
           </h1>
           <p className="text-xs sm:text-sm text-[#9BAFC1] mt-0.5">
-            XGBoost & Random Forest multi-layered spatial prediction models for blind manganese discovery.
+            Random Forest &amp; Gradient Boosting (scikit-learn) multi-layered spatial prediction models for blind manganese discovery.
           </p>
         </div>
 
-        {/* Disclaimer Notice */}
-        <div className="px-3.5 py-2 rounded-xl bg-[#F4B860]/10 border border-[#F4B860]/30 text-xs font-mono text-[#F4B860] flex items-center gap-2">
-          <Info className="w-4 h-4 shrink-0" />
-          <span>SCORES INDICATE EXPLORATION POTENTIAL &bull; NOT UNFC RESERVES</span>
+        {/* Disclaimer & Provenance Notice */}
+        <div className="flex flex-wrap items-center gap-2">
+          <ProvenanceBadge
+            status="DERIVED"
+            source="Scikit-Learn Random Forest + Gradient Boosting (Core Assays & Fold Tectonics)"
+          />
+          <div className="px-3.5 py-2 rounded-xl bg-[#F4B860]/10 border border-[#F4B860]/30 text-xs font-mono text-[#F4B860] flex items-center gap-2">
+            <Info className="w-4 h-4 shrink-0" />
+            <span>SCORES INDICATE EXPLORATION POTENTIAL &bull; NOT UNFC RESERVES</span>
+          </div>
         </div>
       </div>
 
@@ -114,7 +121,7 @@ export const ProspectivityPage: React.FC = () => {
               <span className="text-xs font-mono text-[#54D8E8] font-bold">
                 EVIDENCE BREAKDOWN: {selectedProspect.name.toUpperCase()}
               </span>
-              <span className="text-xs font-mono text-[#43D6A0]">XGBoost v2.4</span>
+              <span className="text-xs font-mono text-[#43D6A0]">Random Forest + GB v2.4</span>
             </div>
             <h3 className="font-heading font-extrabold text-xl text-white mb-2">
               Multi-Source Attribution Radar

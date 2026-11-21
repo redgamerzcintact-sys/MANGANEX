@@ -75,7 +75,7 @@ const INITIAL_EVENTS: FeedEvent[] = [
   {
     id: 'ev-05',
     category: 'AI_MODEL',
-    title: 'XGBoost Prospectivity Model Retrained (v2.4.1)',
+    title: 'Random Forest + GB Model Retrained (v2.4.1)',
     description: 'ROC-AUC improved to 0.941 across 142 training boreholes. Mandla corridor prospectivity upgraded to Very High.',
     timestamp: '3 hrs ago',
     severity: 'INFO',

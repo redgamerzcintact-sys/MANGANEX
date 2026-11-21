@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.database.session import get_db
 from app.models.entities import GeologicalProspect, Borehole
-from app.schemas.all_schemas import ApiResponse
+from app.schemas.all_schemas import ApiResponse, DataProvenance
 from app.ml.prospectivity.model import run_prospectivity_model
 
 router = APIRouter()
@@ -99,11 +99,23 @@ def explain_prospect_ai(prospect_id: str, db: Session = Depends(get_db)):
         "recommended_action": p.recommended_action,
         "disclaimer": "ML prospectivity score is NOT a UNFC mineral reserve estimate. Field validation required.",
     }
-    return ApiResponse(data=explanation)
+    return ApiResponse(
+        data=explanation,
+        data_provenance=DataProvenance(
+            status="DERIVED",
+            source="Scikit-Learn Random Forest + Gradient Boosting (Core Assays & Fold Tectonics)",
+        )
+    )
 
 
 @router.post("/prospectivity/score", response_model=ApiResponse)
 def score_custom_prospect(features: dict, db: Session = Depends(get_db)):
     """Score a custom prospect through the ML prospectivity engine."""
     result = run_prospectivity_model(features)
-    return ApiResponse(data=result)
+    return ApiResponse(
+        data=result,
+        data_provenance=DataProvenance(
+            status="DERIVED",
+            source="Random Forest + Gradient Boosting Feature Scorer",
+        )
+    )

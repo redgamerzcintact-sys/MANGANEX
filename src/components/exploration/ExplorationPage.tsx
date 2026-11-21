@@ -264,7 +264,7 @@ export const ExplorationPage: React.FC = () => {
             <div className="flex items-center gap-2">
               <Cpu className="h-4 w-4 text-[#54D8E8]" />
               <span className="font-heading font-bold text-sm text-[#F2F6FA]">
-                XGBoost + Random Forest Feature Attribution (SHAP Analysis)
+                Random Forest + Gradient Boosting Feature Attribution (Explainable AI)
               </span>
             </div>
             <div className="flex items-center gap-2">

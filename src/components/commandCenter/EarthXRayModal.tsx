@@ -139,7 +139,7 @@ export const EarthXRayModal: React.FC<EarthXRayModalProps> = ({ mine, onClose })
                 <span className="px-2.5 py-1 rounded bg-[#101925]/90 border border-[#26384A] text-xs font-mono text-[#9A85FF]">
                   GEOLOGICAL SECTION (0m to -400m RL)
                 </span>
-                <span className="text-xs font-mono text-[#38D9A9]">CONFIDENCE: 94%</span>
+                <span className="text-xs font-mono text-[#38D9A9]">CORE DRILL VALIDATED</span>
               </div>
 
               {/* Interactive Strata Column */}

@@ -9,9 +9,9 @@
 
 | Component | Framework / Runtime | Port | Health Status | Verification URL |
 |---|---|---|---|---|
-| **Frontend Web Client** | React 18 + Vite + TailwindCSS + MapLibre + Three.js | `3000` | ✅ LIVE (HTTP 200) | `http://127.0.0.1:3000/` |
-| **Java Enterprise Backend** | Spring Boot 3.3.3 + Spring Security + Data JPA (Java 25) | `8080` | ✅ LIVE (UP) | `http://127.0.0.1:8080/actuator/health` |
-| **Python AI/ML Service** | FastAPI + SQLite / PostgreSQL + XGBoost + NumPy (Python 3.11) | `8000` | ✅ LIVE (HEALTHY) | `http://127.0.0.1:8000/health` |
+| **Frontend Web Client** | React 19 + Vite + TailwindCSS + MapLibre + Three.js | `3000` | ✅ LIVE (HTTP 200) | `http://127.0.0.1:3000/` |
+| **Java Enterprise Backend** | Spring Boot 3.3.3 (Reference Architecture) | `8080` | ⚠️ OPTIONAL | `http://127.0.0.1:8080/actuator/health` |
+| **Python AI/ML Service** | FastAPI + SQLite + scikit-learn + NumPy (Python 3.11) | `8000` | ✅ LIVE (HEALTHY) | `http://127.0.0.1:8000/health` |
 
 ---
 

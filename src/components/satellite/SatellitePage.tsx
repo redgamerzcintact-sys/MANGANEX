@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAppStore } from '../../stores/appStore';
 import { api } from '../../services/api';
+import { ProvenanceBadge } from '../common/ProvenanceBadge';
 import {
   Layers, Calendar, CloudRain, Thermometer, Droplets,
   Eye, AlertTriangle, Satellite, RefreshCw, Activity, MapPin
@@ -172,6 +173,11 @@ export const SatellitePage: React.FC = () => {
             <div className="text-sm text-[#54D8E8]">{activeMine?.name} — {sensor}</div>
           </div>
           <div className="flex items-center gap-3">
+            <ProvenanceBadge
+              provenance={observations?.data_provenance}
+              status="SYNTHETIC"
+              source="Copernicus Sentinel-2 MSI (Surface Indicators Only)"
+            />
             <div className="text-[10px] text-[#4A7A9A]">
               Valid: {validObs.length}/{observations?.total_count || 0} obs
             </div>

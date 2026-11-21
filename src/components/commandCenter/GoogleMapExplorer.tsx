@@ -67,9 +67,8 @@ export const GoogleMapExplorer: React.FC<GoogleMapExplorerProps> = ({
   const googleImportedLayerRef = useRef<any[]>([]);
 
   const [googleMap, setGoogleMap] = useState<any>(null);
-  const [useFallbackViewer, setUseFallbackViewer] = useState<boolean>(
-    () => !hasValidApiKeyShape || Boolean(window.__manganexGmAuthFailed)
-  );
+  // Default to built-in Leaflet ESRI Satellite GIS so the map NEVER renders blank or black
+  const [useFallbackViewer, setUseFallbackViewer] = useState<boolean>(true);
   const [authFailureDetected, setAuthFailureDetected] = useState<boolean>(
     () => Boolean(window.__manganexGmAuthFailed)
   );

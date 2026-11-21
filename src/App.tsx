@@ -42,8 +42,9 @@ const DynamicRoleDashboardRedirect: React.FC = () => {
 export const App: React.FC = () => {
   return (
     <Routes>
-      {/* Root Entry: Website opens directly on Enterprise Login */}
-      <Route path="/" element={<LoginPage />} />
+      {/* Root Entry: Website opens directly on Judge-First Landing Page */}
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/landing" element={<LandingPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/admin/login" element={<LoginPage />} />
       <Route path="/geologist/login" element={<LoginPage />} />

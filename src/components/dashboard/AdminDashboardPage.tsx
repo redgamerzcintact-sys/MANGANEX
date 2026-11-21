@@ -106,7 +106,7 @@ export const AdminDashboardPage: React.FC = () => {
         {[
           { label: 'Active Mines Monitored', val: '5 Concessions', sub: 'Balaghat, Dongri, Chikla, Ukwa, Munsar', icon: Server, color: '#54D8E8' },
           { label: 'Registered Enterprise Users', val: '5 Active Roles', sub: 'Zero security policy violations', icon: Users, color: '#A78BFA' },
-          { label: 'AI Intelligence Engines', val: '5 ML Models', sub: 'XGBoost, RF, SARIMA, SCIP, RAG', icon: Cpu, color: '#F4B860' },
+          { label: 'AI Intelligence Engines', val: '5 ML Models', sub: 'Random Forest, GB, Ridge, RAG', icon: Cpu, color: '#F4B860' },
           { label: 'Spatial Datasets Indexed', val: '18 Geopackages', sub: 'Boreholes, UNFC, Faults, Sentinel-2', icon: Database, color: '#43D6A0' }
         ].map((stat, i) => {
           const Icon = stat.icon;

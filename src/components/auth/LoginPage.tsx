@@ -94,7 +94,7 @@ const ROLES: RoleProfile[] = [
     icon: Layers,
     accentColor: '#168BFF',
     redirectUrl: '/analytics/dashboard',
-    permissionsList: ['Sentinel-2 Spectral', 'SHAP Explainability', 'Model Benchmarks']
+    permissionsList: ['Sentinel-2 Spectral', 'Feature Attribution', 'Model Benchmarks']
   },
   {
     id: 'VIEWER',
@@ -1037,7 +1037,7 @@ export const LoginPage: React.FC = () => {
               { step: '01', title: 'Data Acquisition', desc: 'Sentinel-2 Level-2A, Landsat-9, and ASTER GDEM elevation.' },
               { step: '02', title: 'Geological Processing', desc: 'Drillcore assays, fault fractures, and UNFC classifications.' },
               { step: '03', title: 'Spatial Analysis', desc: 'SWIR hydrothermal alteration, iron oxide, and moisture anomalies.' },
-              { step: '04', title: 'Machine Learning', desc: 'Ensemble XGBoost prospectivity with SHAP explainability.' },
+              { step: '04', title: 'Machine Learning', desc: 'Ensemble Random Forest & Gradient Boosting prospectivity with feature attribution.' },
               { step: '05', title: '3D Subsurface Twin', desc: 'Interactive WebGL lithological digital twin and depth cross-sections.' },
               { step: '06', title: 'Exploration Intelligence', desc: 'Ranked target anomaly maps with confidence interval bounds.' },
               { step: '07', title: 'Decision Support', desc: 'Google OR-Tools fleet allocation & predictive shortfall radar.' }
@@ -1115,7 +1115,7 @@ export const LoginPage: React.FC = () => {
               { name: 'Three.js / WebGL', role: '3D Subsurface Digital Twin' },
               { name: 'Spring Boot 3.3.3', role: 'Java Enterprise RBAC' },
               { name: 'FastAPI + Python', role: 'AI / ML Microservices' },
-              { name: 'XGBoost & SHAP', role: 'Explainable AI Models' },
+              { name: 'Random Forest & GB', role: 'Explainable AI Models (scikit-learn)' },
               { name: 'PostGIS + pgvector', role: 'Spatial & Vector Database' },
               { name: 'Sentence Transformers', role: 'RAG Knowledge Embeddings' },
               { name: 'Web Speech API', role: 'Multilingual STT / TTS' },

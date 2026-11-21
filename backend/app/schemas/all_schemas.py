@@ -2,11 +2,17 @@ from pydantic import BaseModel, Field
 from typing import List, Optional, Any, Dict
 import datetime
 
+class DataProvenance(BaseModel):
+    status: str = "SYNTHETIC"  # REAL | DERIVED | SYNTHETIC
+    source: str = "MOIL Exploratory & Production Cadastre"
+    retrieved_at: str = Field(default_factory=lambda: datetime.datetime.now(datetime.timezone.utc).isoformat())
+
 class ApiResponse(BaseModel):
     success: bool = True
     data: Any
+    data_provenance: Optional[DataProvenance] = Field(default_factory=DataProvenance)
     metadata: Dict[str, Any] = Field(default_factory=lambda: {
-        "timestamp": datetime.datetime.utcnow().isoformat(),
+        "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
         "source": "MOIL Cadastre & Satellite Ingestion",
         "model_version": "v2.4.0",
         "data_status": "VALIDATED_SYNTHETIC_DEMO"

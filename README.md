@@ -16,26 +16,28 @@ Built for the **Ministry of Steel National Mining Intelligence Initiative** & **
 
 ## 🏛️ Executive Architecture
 
-MANGANEX is an integrated three-tier enterprise mining intelligence platform:
+MANGANEX is an integrated mineral intelligence platform built with **React 19 + TypeScript** on the frontend and **Python FastAPI + SQLite** on the backend:
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                       MANGANEX MISSION WEB APPLICATION                      │
 │        React 19 • TypeScript • Tailwind CSS • Three.js WebGL • Recharts      │
-│      Google Maps JavaScript API v3 • MapLibre GL • Web Speech STT / TTS      │
-└───────────────────────▲─────────────────────────────▲───────────────────────┘
-                        │ HTTP / JSON                 │ SSE / WebSockets
-                        ▼                             ▼
-┌──────────────────────────────────────┐  ┌───────────────────────────────────┐
-│     JAVA SPRING BOOT ENTERPRISE      │  │        PYTHON FASTAPI AI          │
-│            (Port 8080)               │  │           (Port 8000)             │
-│ • Zero-Trust IAM & RBAC Security     │  │ • 17 Geospatial Application Tools │
-│ • BCrypt / Argon2 Password Hashing   │  │ • Multilingual NLP (26 Languages) │
-│ • Audit Logging & Regulatory Reports │  │ • Sentinel-2 SWIR / NDVI Pipeline │
-│ • UNFC 111/122 Resource Accounting   │  │ • XGBoost + RF Prospectivity AI   │
-│ • JPA / Hibernate / H2 & PostgreSQL  │  │ • Dense Vector RAG (pgvector)     │
-└──────────────────────────────────────┘  └───────────────────────────────────┘
+│      Leaflet & Google Maps API v3 • MapLibre GL • Web Speech STT / TTS      │
+└──────────────────────────────────────▲──────────────────────────────────────┘
+                                       │ HTTP / JSON & SSE
+                                       ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                     PYTHON FASTAPI BACKEND (Port 8000)                      │
+│ • Full IAM, BCrypt Authentication & Pre-Seeded 1-Click Demo Profiles         │
+│ • Random Forest + Gradient Boosting (scikit-learn) ML Engines               │
+│ • Real-time Production Shortfall Forecasting (Weather, Downtime, Blasting)   │
+│ • Subsurface Prospectivity from Borehole Core Assays & Fold Tectonics        │
+│ • Sentinel-2 Multi-Spectral Surface Reflectance (Surface Indicators Only)    │
+│ • NEXUS AI Multilingual Decision Copilot & RAG Knowledge Search              │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
+
+> **Note on Backend Architecture:** The active frontend connects directly to the Python FastAPI backend (`backend/app`, port 8000), which handles all authentication, SQLite persistence, machine learning, and decision intelligence. The Java service in `java-backend/` is an optional enterprise reference implementation and is **not used** by the frontend.
 
 ---
 
@@ -83,9 +85,14 @@ MANGANEX is an integrated three-tier enterprise mining intelligence platform:
 
 ---
 
-## 🔐 Demo Account Configuration
+## 🔐 1-Click Judge & Evaluator Demo Access
 
-Demo account passwords must be configured through local environment variables (`MANGANEX_DEMO_*_PASSWORD`). Never publish credentials in source files or documentation.
+For hackathon judges and evaluators, MANGANEX provides pre-seeded 1-click demo login buttons directly on the Landing Page (`/`) and Login page (`/login`):
+- **Admin**: Rajesh Sharma (`admin@moil.gov.in`) — Platform governance & security
+- **Geologist**: Dr. Priya Deshmukh (`geologist@moil.gov.in`) — Core drillhole assays, 3D stratigraphy, & prospectivity
+- **Mining Engineer**: Vikram Patil (`engineer@moil.gov.in`) — Production telemetry, fleet status, & winze dewatering
+- **Data Analyst**: Sunita Rao (`analyst@moil.gov.in`) — Sentinel-2 surface indicators & scikit-learn models
+- **Viewer**: Executive Read-Only (`viewer@moil.gov.in`) — UNFC resource overviews & management briefings
 
 ---
 

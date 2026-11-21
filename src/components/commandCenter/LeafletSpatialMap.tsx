@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 import { MINES_DATA } from '../../data/demoData';
 import {
   ActiveLayersConfig,
@@ -134,11 +135,13 @@ export const LeafletSpatialMap: React.FC<LeafletSpatialMapProps> = ({
     importedGroupRef.current = importedGroup;
 
     const rafId = requestAnimationFrame(() => map.invalidateSize());
+    const timeoutId = window.setTimeout(() => map.invalidateSize(), 300);
     const resizeObserver = new ResizeObserver(() => map.invalidateSize());
     resizeObserver.observe(container);
 
     return () => {
       cancelAnimationFrame(rafId);
+      window.clearTimeout(timeoutId);
       resizeObserver.disconnect();
       map.remove();
       mapInstanceRef.current = null;

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAppStore } from '../../stores/appStore';
 import { api } from '../../services/api';
+import { ProvenanceBadge } from '../common/ProvenanceBadge';
 import {
   Bot,
   Send,
@@ -401,15 +402,13 @@ Select your operating language (26 Indian & Global languages supported) or speak
 
   return (
     <div
-      className={`flex h-full w-full overflow-hidden select-none font-sans transition-colors duration-200 ${
-        isDark ? 'bg-[#060911] text-[#F2F6FA]' : 'bg-[#F5F7FA] text-[#172333]'
-      }`}
+      className={`flex h-full w-full overflow-hidden select-none font-sans transition-colors duration-200 ${isDark ? 'bg-[#060911] text-[#F2F6FA]' : 'bg-[#F5F7FA] text-[#172333]'
+        }`}
     >
       {/* ── LEFT SIDEBAR: SESSION HISTORY & MODEL STATUS ────────────────────────── */}
       <div
-        className={`w-80 h-full border-r flex flex-col justify-between shrink-0 transition-colors duration-200 ${
-          isDark ? 'border-[#1C3045] bg-[#090D16]' : 'border-[#DCE4EC] bg-white'
-        }`}
+        className={`w-80 h-full border-r flex flex-col justify-between shrink-0 transition-colors duration-200 ${isDark ? 'border-[#1C3045] bg-[#090D16]' : 'border-[#DCE4EC] bg-white'
+          }`}
       >
         <div className="flex-1 overflow-hidden flex flex-col">
           {/* Header & New Chat button */}
@@ -427,9 +426,15 @@ Select your operating language (26 Indian & Global languages supported) or speak
                 </div>
               </div>
 
-              <span className="px-2 py-0.5 rounded-full bg-[#43D6A0]/15 text-[#43D6A0] text-[9px] font-mono font-bold border border-[#43D6A0]/30">
-                LIVE
-              </span>
+              <div className="flex items-center gap-2">
+                <ProvenanceBadge
+                  status="DERIVED"
+                  source="NEXUS Geoscientific RAG + Tool Orchestration"
+                />
+                <span className="px-2 py-0.5 rounded-full bg-[#43D6A0]/15 text-[#43D6A0] text-[9px] font-mono font-bold border border-[#43D6A0]/30">
+                  LIVE
+                </span>
+              </div>
             </div>
 
             <button
@@ -450,11 +455,10 @@ Select your operating language (26 Indian & Global languages supported) or speak
                 value={searchFilter}
                 onChange={(e) => setSearchFilter(e.target.value)}
                 placeholder="Search conversations..."
-                className={`w-full h-8 pl-8 pr-3 rounded-lg text-xs font-mono border focus:outline-none ${
-                  isDark
+                className={`w-full h-8 pl-8 pr-3 rounded-lg text-xs font-mono border focus:outline-none ${isDark
                     ? 'bg-[#101927] border-[#1C3045] text-white placeholder-[#4C647D] focus:border-[#54D8E8]'
                     : 'bg-[#F8FAFC] border-[#DCE4EC] text-[#172333] placeholder-[#94A3B8] focus:border-[#087F9B]'
-                }`}
+                  }`}
               />
             </div>
           </div>
@@ -471,11 +475,10 @@ Select your operating language (26 Indian & Global languages supported) or speak
                 const found = SUPPORTED_LANGUAGES.find((l) => l.code === e.target.value);
                 if (found) setSelectedLang(found);
               }}
-              className={`w-full h-8 px-2.5 rounded-lg text-xs font-mono border focus:outline-none transition-colors cursor-pointer ${
-                isDark
+              className={`w-full h-8 px-2.5 rounded-lg text-xs font-mono border focus:outline-none transition-colors cursor-pointer ${isDark
                   ? 'bg-[#101927] border-[#1C3045] text-white focus:border-[#54D8E8]'
                   : 'bg-[#F8FAFC] border-[#DCE4EC] text-[#172333] focus:border-[#087F9B]'
-              }`}
+                }`}
             >
               <optgroup label="Indian Languages (13)">
                 {SUPPORTED_LANGUAGES.slice(0, 13).map((lang) => (
@@ -508,15 +511,14 @@ Select your operating language (26 Indian & Global languages supported) or speak
                     <div
                       key={sess.id}
                       onClick={() => setActiveSessionId(sess.id)}
-                      className={`p-2.5 rounded-xl border text-xs font-mono transition-all cursor-pointer flex items-center justify-between group ${
-                        isActive
+                      className={`p-2.5 rounded-xl border text-xs font-mono transition-all cursor-pointer flex items-center justify-between group ${isActive
                           ? isDark
                             ? 'bg-[#152235] border-[#54D8E8] text-white shadow-sm'
                             : 'bg-[#E0F2FE] border-[#0284C7] text-[#0369A1]'
                           : isDark
-                          ? 'bg-[#0E1726]/60 border-[#1C3045] text-[#9BAFC1] hover:border-[#2C4866] hover:text-white'
-                          : 'bg-[#FAFCFE] border-[#DCE4EC] text-[#64748B] hover:border-[#CBD5E1] hover:text-[#172333]'
-                      }`}
+                            ? 'bg-[#0E1726]/60 border-[#1C3045] text-[#9BAFC1] hover:border-[#2C4866] hover:text-white'
+                            : 'bg-[#FAFCFE] border-[#DCE4EC] text-[#64748B] hover:border-[#CBD5E1] hover:text-[#172333]'
+                        }`}
                     >
                       <div className="flex items-center gap-2 truncate">
                         <Pin className="h-3 w-3 text-[#F4B860] shrink-0" />
@@ -555,15 +557,14 @@ Select your operating language (26 Indian & Global languages supported) or speak
                   <div
                     key={sess.id}
                     onClick={() => setActiveSessionId(sess.id)}
-                    className={`p-2.5 rounded-xl border text-xs font-mono transition-all cursor-pointer flex items-center justify-between group ${
-                      isActive
+                    className={`p-2.5 rounded-xl border text-xs font-mono transition-all cursor-pointer flex items-center justify-between group ${isActive
                         ? isDark
                           ? 'bg-[#152235] border-[#54D8E8] text-white shadow-sm'
                           : 'bg-[#E0F2FE] border-[#0284C7] text-[#0369A1]'
                         : isDark
-                        ? 'bg-[#0E1726]/60 border-[#1C3045] text-[#9BAFC1] hover:border-[#2C4866] hover:text-white'
-                        : 'bg-[#FAFCFE] border-[#DCE4EC] text-[#64748B] hover:border-[#CBD5E1] hover:text-[#172333]'
-                    }`}
+                          ? 'bg-[#0E1726]/60 border-[#1C3045] text-[#9BAFC1] hover:border-[#2C4866] hover:text-white'
+                          : 'bg-[#FAFCFE] border-[#DCE4EC] text-[#64748B] hover:border-[#CBD5E1] hover:text-[#172333]'
+                      }`}
                   >
                     <div className="flex items-center gap-2 truncate">
                       <History className="h-3.5 w-3.5 text-[#54D8E8] shrink-0" />
@@ -611,7 +612,7 @@ Select your operating language (26 Indian & Global languages supported) or speak
 
       {/* ── MAIN WORKSPACE: CONVERSATION STREAM & ACTION DOCK ───────────────────── */}
       <div className="flex-1 h-full flex flex-col justify-between overflow-hidden">
-        
+
         {/* Messages Scroll View */}
         <div className="flex-1 overflow-y-auto p-6 space-y-5">
           {messages.map((m) => {
@@ -625,26 +626,24 @@ Select your operating language (26 Indian & Global languages supported) or speak
               >
                 {/* Avatar Icon */}
                 <div
-                  className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 shadow-sm ${
-                    isUser
+                  className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 shadow-sm ${isUser
                       ? 'bg-gradient-to-br from-[#168BFF] to-[#A78BFA] text-white'
                       : 'bg-gradient-to-br from-[#54D8E8] to-[#168BFF] text-[#080C12]'
-                  }`}
+                    }`}
                 >
                   {isUser ? <Flame className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
                 </div>
 
                 {/* Message Body */}
                 <div
-                  className={`p-4 rounded-2xl border text-xs leading-relaxed space-y-3 group ${
-                    isUser
+                  className={`p-4 rounded-2xl border text-xs leading-relaxed space-y-3 group ${isUser
                       ? isDark
                         ? 'bg-[#152235] border-[#168BFF]/50 text-white rounded-tr-none'
                         : 'bg-[#0284C7] text-white border-transparent rounded-tr-none'
                       : isDark
-                      ? 'bg-[#101927] border-[#1C3045] text-[#F2F6FA] rounded-tl-none'
-                      : 'bg-white border-[#DCE4EC] text-[#172333] rounded-tl-none shadow-sm'
-                  }`}
+                        ? 'bg-[#101927] border-[#1C3045] text-[#F2F6FA] rounded-tl-none'
+                        : 'bg-white border-[#DCE4EC] text-[#172333] rounded-tl-none shadow-sm'
+                    }`}
                 >
                   {/* Top Bar for Assistant */}
                   {!isUser && (
@@ -755,9 +754,8 @@ Select your operating language (26 Indian & Global languages supported) or speak
                         {m.sources.map((s, idx) => (
                           <div
                             key={idx}
-                            className={`p-2 rounded-lg border text-[10px] font-mono flex items-center justify-between ${
-                              isDark ? 'bg-[#080C12] border-[#1C3045] text-[#9BAFC1]' : 'bg-[#F8FAFC] border-[#DCE4EC] text-[#64748B]'
-                            }`}
+                            className={`p-2 rounded-lg border text-[10px] font-mono flex items-center justify-between ${isDark ? 'bg-[#080C12] border-[#1C3045] text-[#9BAFC1]' : 'bg-[#F8FAFC] border-[#DCE4EC] text-[#64748B]'
+                              }`}
                           >
                             <span className="truncate pr-2">{s.title}</span>
                             <span className="px-1 rounded bg-[#54D8E8]/10 text-[#54D8E8] shrink-0 text-[8.5px]">
@@ -780,11 +778,10 @@ Select your operating language (26 Indian & Global languages supported) or speak
                           <button
                             key={idx}
                             onClick={() => handleSend(rec)}
-                            className={`text-left text-[10.5px] font-mono px-2.5 py-1 rounded-lg border transition-all cursor-pointer ${
-                              isDark
+                            className={`text-left text-[10.5px] font-mono px-2.5 py-1 rounded-lg border transition-all cursor-pointer ${isDark
                                 ? 'bg-[#0A121E] border-[#1C3045] text-[#9BAFC1] hover:text-white hover:border-[#54D8E8]'
                                 : 'bg-[#F8FAFC] border-[#DCE4EC] text-[#64748B] hover:text-[#172333] hover:border-[#087F9B]'
-                            }`}
+                              }`}
                           >
                             &bull; {rec}
                           </button>
@@ -826,11 +823,10 @@ Select your operating language (26 Indian & Global languages supported) or speak
               <button
                 key={i}
                 onClick={() => handleSend(cmd)}
-                className={`px-2.5 py-1 rounded-lg border transition-colors whitespace-nowrap cursor-pointer shrink-0 ${
-                  isDark
+                className={`px-2.5 py-1 rounded-lg border transition-colors whitespace-nowrap cursor-pointer shrink-0 ${isDark
                     ? 'bg-[#101927] border-[#1C3045] text-[#9BAFC1] hover:text-white hover:border-[#54D8E8]'
                     : 'bg-[#F8FAFC] border-[#DCE4EC] text-[#64748B] hover:text-[#172333] hover:border-[#087F9B]'
-                }`}
+                  }`}
               >
                 {cmd}
               </button>
@@ -843,13 +839,12 @@ Select your operating language (26 Indian & Global languages supported) or speak
             <button
               onClick={handleVoiceToggle}
               title={isListening ? 'Stop listening' : `Speak in ${selectedLang.name}`}
-              className={`p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-center shrink-0 ${
-                isListening
+              className={`p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-center shrink-0 ${isListening
                   ? 'bg-[#FF6878] text-white border-[#FF6878] animate-pulse shadow-[0_0_20px_rgba(255,104,120,0.6)]'
                   : isDark
-                  ? 'bg-[#101927] border-[#1C3045] text-[#54D8E8] hover:border-[#54D8E8]'
-                  : 'bg-[#F8FAFC] border-[#DCE4EC] text-[#087F9B] hover:border-[#087F9B]'
-              }`}
+                    ? 'bg-[#101927] border-[#1C3045] text-[#54D8E8] hover:border-[#54D8E8]'
+                    : 'bg-[#F8FAFC] border-[#DCE4EC] text-[#087F9B] hover:border-[#087F9B]'
+                }`}
             >
               {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
             </button>
@@ -871,11 +866,10 @@ Select your operating language (26 Indian & Global languages supported) or speak
                     ? `Listening in ${selectedLang.name}... Speak now.`
                     : `Ask NEXUS anything in ${selectedLang.name} (e.g. "Forecast 30-day shortfall for Balaghat")...`
                 }
-                className={`w-full h-11 pl-4 pr-12 rounded-xl text-xs font-mono border focus:outline-none transition-colors ${
-                  isDark
+                className={`w-full h-11 pl-4 pr-12 rounded-xl text-xs font-mono border focus:outline-none transition-colors ${isDark
                     ? 'bg-[#080C12] border-[#1C3045] text-white placeholder-[#4C647D] focus:border-[#54D8E8]'
                     : 'bg-[#F8FAFC] border-[#DCE4EC] text-[#172333] placeholder-[#94A3B8] focus:border-[#087F9B]'
-                }`}
+                  }`}
               />
               <button
                 onClick={() => handleSend()}

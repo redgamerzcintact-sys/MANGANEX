@@ -50,7 +50,7 @@ export const IntelligencePage: React.FC = () => {
   const modelRegistry = [
     {
       name: 'Prospectivity Ensemble (MANGANEX-GEO-v4.8)',
-      type: 'RandomForest + XGBoost Stacking',
+      type: 'Random Forest + Gradient Boosting (scikit-learn)',
       target: 'Blind Mn Mineral Suitability Index',
       trainingSamples: '500 labeled drill/structural samples',
       metrics: { aucRoc: 0.942, f1: 0.891, precision: 0.912 },
@@ -59,7 +59,7 @@ export const IntelligencePage: React.FC = () => {
     },
     {
       name: 'Hydro-Mechanical Production Forecaster',
-      type: 'GradientBoosting Regressor + SARIMA Residuals',
+      type: 'Random Forest + Gradient Boosting (scikit-learn)',
       target: '30-Day TPD Output & Sump Inflow Loss',
       trainingSamples: '90-Day Telemetry Stream (2,187 Records)',
       metrics: { r2: 0.914, maeTonnes: 42.5, mapePercent: 4.8 },
@@ -110,7 +110,7 @@ export const IntelligencePage: React.FC = () => {
           <div className="flex items-center gap-2">
             <span className="px-2.5 py-1 rounded bg-[#A78BFA]/20 text-[#A78BFA] text-xs font-mono font-bold border border-[#A78BFA]/40 flex items-center gap-1.5">
               <Cpu className="h-3.5 w-3.5" />
-              SHAP INTERPRETER v4.8
+              MODEL INTERPRETER v2.4
             </span>
           </div>
         </div>

@@ -1,6 +1,6 @@
 """
 MANGANEX - Geological Prospectivity ML Engine
-Scikit-learn Random Forest + XGBoost ensemble with SHAP explanations
+Scikit-learn Random Forest + Gradient Boosting ensemble with feature attribution
 All data is VALIDATED_SYNTHETIC_DEMO — not verified mineral reserves.
 """
 import numpy as np

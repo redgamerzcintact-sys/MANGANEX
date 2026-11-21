@@ -8,7 +8,7 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 from app.database.session import get_db
 from app.models.entities import Mine, GeologicalProspect, RiskAssessment, Borehole
-from app.schemas.all_schemas import ApiResponse, NexusChatRequest
+from app.schemas.all_schemas import ApiResponse, NexusChatRequest, DataProvenance
 from app.ml.forecasting.model import run_production_forecast
 from app.ml.risk.engine import predict_mine_risks
 from app.ml.prospectivity.model import run_prospectivity_model
@@ -148,15 +148,19 @@ def tool_get_production_forecast(mine_id: str, db: Session) -> Dict[str, Any]:
     tgt = m.planned_monthly_target_tonnes if m else 30000.0
     act = m.actual_monthly_production_tonnes if m else 28000.0
     variance = act - tgt
+    forecast_data = run_production_forecast(mine_id=m.id if m else "mine-balaghat", horizon_days=30)
+    meta = forecast_data.get("model_metadata", {})
+    r2 = meta.get("r2_score", 0.85)
+    p50_total = forecast_data.get("summary", {}).get("forecast_total_tonnes", act * 0.96)
     return {
         "mine": m.mine_name if m else "Balaghat",
         "target_tonnes": tgt,
         "actual_tonnes": act,
         "shortfall_tonnes": abs(min(0, variance)),
         "variance_percent": f"{(variance / tgt) * 100:.1f}%",
-        "p50_forecast_30d": act * 0.96,
+        "p50_forecast_30d": p50_total,
         "primary_risk": "Level -180m haulage winze pumping failure during monsoon surge",
-        "confidence": "94.2% (ARIMA + XGBoost Ensemble)"
+        "confidence": f"{max(0.0, r2) * 100:.1f}% R² score (Random Forest + Gradient Boosting Ensemble)"
     }
 
 def tool_get_fleet_telemetry(mine_id: str) -> Dict[str, Any]:
@@ -294,7 +298,7 @@ MULTILINGUAL_INTENTS: Dict[str, Dict[str, str]] = {
     "hi": {  # Hindi
         "greeting": "नमस्ते! मैं NEXUS AI हूँ, मॉयल (MOIL) और इस्पात मंत्रालय का भूवैज्ञानिक और खनन बुद्धिमत्ता सहायक।",
         "manganex_def": "मैंगनेक्स (MANGANEX) एक स्वायत्त AI-संचालित भूवैज्ञानिक अन्वेषण और खनन बुद्धिमत्ता मंच है। यह उपग्रह संवेदन, 3D डिजिटल ट्विन, बोरहोल डेटा और उत्पादन पूर्वानुमान को जोड़ता है।",
-        "prospectivity_def": "मैंगनीज संभावना विश्लेषण (Prospectivity Analysis) मशीन लर्निंग (XGBoost/Random Forest) का उपयोग करके भूवैज्ञानिक डेटा और सेंटिनल-2 उपग्रह सूचकांकों से नए मैंगनीज अयस्क क्षेत्रों की भविष्यवाणी करता है।",
+        "prospectivity_def": "मैंगनीज संभावना विश्लेषण (Prospectivity Analysis) मशीन लर्निंग (Random Forest/Gradient Boosting) का उपयोग करके भूवैज्ञानिक डेटा और सेंटिनल-2 उपग्रह सूचकांकों से नए मैंगनीज अयस्क क्षेत्रों की भविष्यवाणी करता है।",
         "lithology_diff": "भू-संरचना (Lithology) मेजबान चट्टान (जैसे मानसर शिस्ट, तिरोड़ी नीस) के गुणों को दर्शाती है, जबकि खनिजकरण (Mineralization) उस चट्टान में आर्थिक मैंगनीज अयस्क (जैसे ब्रौनाइट) के जमाव को कहते हैं।",
         "shortfall": "उत्पादन में कमी के मुख्य कारण: भारी मानसूनी वर्षा, खान के गहरे स्तरों में पानी का रिसाव, और एलएचडी (LHD) वाहनों का रखरखाव।"
     },
@@ -378,7 +382,7 @@ MULTILINGUAL_INTENTS: Dict[str, Dict[str, str]] = {
     "es": {  # Spanish
         "greeting": "¡Saludos! Soy NEXUS AI, el asistente de inteligencia geológica para MOIL y el Ministerio de Acero.",
         "manganex_def": "MANGANEX es una plataforma autónoma de exploración geológica e inteligencia minera basada en IA.",
-        "prospectivity_def": "El análisis de prospectividad de manganeso predice zonas de alta probabilidad usando Sentinel-2 y XGBoost.",
+        "prospectivity_def": "El análisis de prospectividad de manganeso predice zonas de alta probabilidad usando geología estructural, sondeos y Sentinel-2.",
         "lithology_diff": "La litología describe las rocas hospedantes (esquisto Mansar, gneis Tirodi) y la mineralización representa el depósito económico de braunita.",
         "shortfall": "Déficit debido a precipitaciones monzónicas, filtraciones en niveles profundos y mantenimiento de cargadores LHD."
     },
@@ -399,14 +403,14 @@ MULTILINGUAL_INTENTS: Dict[str, Dict[str, str]] = {
     "ja": {  # Japanese
         "greeting": "こんにちは！私はMOILおよびインド鉄鋼省向けの地質・鉱業AIアシスタント、NEXUS AIです。",
         "manganex_def": "MANGANEXは、衛星観測、3D地下モデル、機械学習を融合した地質探査プラットフォームです。",
-        "prospectivity_def": "マンガン有望性分析は、Sentinel-2の分光指標とXGBoostを用いて高品位鉱床を予測します。",
+        "prospectivity_def": "マンガン有望性分析は、地質構造、試錐孔データ、およびSentinel-2の分光指標を機械学習アンサンブルで統合して有望鉱床を予測します。",
         "lithology_diff": "岩相（リソロジー）は母岩の性質を指し、鉱化作用は母岩内の経済的マンガン濃集を示します。",
         "shortfall": "主な減産要因は、モンスーンによる湧水とLHD車両のメンテナンス遅延です。"
     },
     "zh": {  # Chinese
         "greeting": "您好！我是NEXUS AI，服务于MOIL和印度钢铁部的地质与矿业智能助手。",
         "manganex_def": "MANGANEX是一个融合卫星遥感、三维地质孪生和机器学习的智能矿业地质勘探平台。",
-        "prospectivity_def": "锰矿找矿潜力分析利用Sentinel-2多光谱指标与XGBoost算法预测地下矿体概率。",
+        "prospectivity_def": "锰矿找矿潜力分析利用地质构造、钻孔数据与Sentinel-2地表指标，通过随机森林与梯度提升算法预测矿体概率。",
         "lithology_diff": "岩性（Lithology）代表赋矿围岩特征，而成矿作用（Mineralization）则指高品位褐锰矿的富集过程。",
         "shortfall": "减产主要由强季风降雨导致深层积水以及重型铲运机检修所致。"
     },
@@ -473,7 +477,7 @@ def resolve_multilingual_response(query: str, lang: str, context: Dict[str, Any]
                 "### Key Platform Pillars:\n"
                 "1. **Satellite Earth Observation:** Sentinel-2 MSI multi-spectral SWIR alteration (B11/B12 > 1.30) & radar moisture ingress.\n"
                 "2. **3D Subsurface Digital Twin:** Data-driven WebGL visualization of Sauser Belt strata (Mansar Schist, Braunite Reef, Tirodi Basement).\n"
-                "3. **Manganese Prospectivity AI:** Ensemble XGBoost + Random Forest spatial classifiers evaluating undiscovered ore reefs.\n"
+                "3. **Manganese Prospectivity AI:** Ensemble Random Forest + Gradient Boosting spatial classifiers evaluating undiscovered ore reefs.\n"
                 "4. **Production Forecasting & Shortfall Radar:** 30-day predictive extraction models anticipating monsoon winze flooding.\n"
                 f"5. **Resource Classification:** UNFC-111 Proved Reserves: **{unfc['unfc_111_proved_reserves_mt']} MT** ({unfc['average_head_grade_mn_pct']}% Mn)."
             )
@@ -750,7 +754,6 @@ def chat_with_nexus(req: NexusChatRequest, db: Session = Depends(get_db)):
 
     return ApiResponse(
         success=True,
-        message="NEXUS AI response synthesized.",
         data={
             "answer": resolved["answer"],
             "intent": resolved["intent"],
@@ -762,7 +765,11 @@ def chat_with_nexus(req: NexusChatRequest, db: Session = Depends(get_db)):
             "supporting_data": resolved["supporting_data"],
             "conversation_id": conv_id,
             "message_id": asst_msg_id
-        }
+        },
+        data_provenance=DataProvenance(
+            status="DERIVED",
+            source="NEXUS Geoscientific RAG + Multilingual Tool Orchestration",
+        )
     )
 
 # ── STREAMING SSE CHAT ENDPOINT ───────────────────────────────────────────────
