@@ -50,23 +50,22 @@ const LITHOLOGY_DISTRIBUTION = [
 export const GeologistDashboardPage: React.FC = () => {
   const { theme, selectedMine } = useAppStore();
   const { user } = useAuthStore();
-  const isDark = theme === 'dark';
 
   return (
-    <div className={`p-6 space-y-6 max-w-7xl mx-auto ${isDark ? 'text-[#F2F6FA]' : 'text-[#172333]'}`}>
+    <div className="p-6 space-y-6 max-w-7xl mx-auto text-[#FFF8F0] font-sans">
       {/* ── TOP HEADER ─────────────────────────────────────────────────────────── */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-[#1C3045]">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-[#4D4037]">
         <div>
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[#A78BFA]/15 border border-[#A78BFA]/40 flex items-center justify-center text-[#A78BFA]">
+            <div className="w-8 h-8 rounded-lg bg-[#FB923C]/15 border border-[#FB923C]/40 flex items-center justify-center text-[#FB923C]">
               <Compass className="w-5 h-5" />
             </div>
             <div>
-              <h1 className="text-xl sm:text-2xl font-heading font-extrabold tracking-tight">
+              <h1 className="text-xl sm:text-2xl font-heading font-extrabold tracking-tight text-[#FFF8F0]">
                 Geological Exploration Workspace
               </h1>
-              <p className="text-xs font-mono text-[#657A90]">
-                SAUSER BELT STRATIGRAPHY, BOREHOLE ASSAYS & PROSPECTIVITY — {user?.fullName || 'Chief Geologist'}
+              <p className="text-xs font-mono text-[#DEC8B7]">
+                SAUSER BELT STRATIGRAPHY, DRILL TARGETS & PROSPECTIVITY — {user?.fullName || 'Chief Geologist'}
               </p>
             </div>
           </div>
@@ -74,44 +73,42 @@ export const GeologistDashboardPage: React.FC = () => {
 
         <div className="flex items-center gap-3">
           <NavLink
-            to="/subsurface"
-            className="px-3 py-1.5 rounded-lg bg-[#152235] hover:bg-[#1E2F46] border border-[#1C3045] text-xs font-mono font-semibold transition-all flex items-center gap-1.5"
+            to="/prospectivity"
+            className="px-3 py-1.5 rounded-lg bg-[#241E1A] hover:bg-[#2F2722] border border-[#4D4037] hover:border-[#FB923C] text-xs font-mono font-semibold text-[#FB923C] transition-all flex items-center gap-1.5 shadow-sm"
           >
-            <Box className="w-3.5 h-3.5 text-[#54D8E8]" />
-            Earth X-Ray 3D
+            <Sparkles className="w-3.5 h-3.5" />
+            Prospectivity AI
           </NavLink>
           <NavLink
             to="/command-center"
-            className="px-3 py-1.5 rounded-lg bg-[#A78BFA] hover:bg-[#906fe8] text-[#080C12] text-xs font-bold transition-all shadow-md flex items-center gap-1.5"
+            className="px-3 py-1.5 rounded-lg bg-[#FB923C] hover:bg-[#ea7e26] text-[#120F0D] text-xs font-bold transition-all shadow-md flex items-center gap-1.5"
           >
             <MapPin className="w-3.5 h-3.5" />
-            Launch Map Explorer
+            Cadastral GIS Map
           </NavLink>
         </div>
       </div>
 
       {/* ── 1. GEOLOGICAL KPI STATS ROW ─────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 font-mono">
         {[
-          { label: 'Proven Reserves (UNFC-111)', val: '48.2 Mt', sub: 'Average In-Situ Grade 43.8% Mn', icon: Layers, color: '#A78BFA' },
-          { label: 'Logged Borehole Collars', val: '142 Boreholes', sub: 'Total cored depth: 38,420m', icon: Compass, color: '#54D8E8' },
-          { label: 'Active Exploration Prospects', val: '6 Target Zones', sub: 'Sauser North, Bharweli Deep, Ukwa East', icon: Cpu, color: '#F4B860' },
-          { label: 'Mapped Fault Displacements', val: '14 Structures', sub: 'Hydrothermal gouge & winze ingress', icon: Activity, color: '#43D6A0' }
+          { label: 'Proven Reserves (UNFC-111)', val: '48.2 Mt', sub: 'Average In-Situ Grade 43.8% Mn', icon: Layers, color: '#FB923C' },
+          { label: 'Logged Borehole Collars', val: '142 Boreholes', sub: 'Total cored depth: 38,420m', icon: Compass, color: '#E8B298' },
+          { label: 'Active Exploration Prospects', val: '6 Target Zones', sub: 'Sauser North, Bharweli Deep, Ukwa East', icon: Cpu, color: '#F59E0B' },
+          { label: 'Mapped Fault Displacements', val: '14 Structures', sub: 'Hydrothermal gouge & winze ingress', icon: Activity, color: '#10B981' }
         ].map((stat, i) => {
           const Icon = stat.icon;
           return (
             <div
               key={i}
-              className={`p-4 rounded-xl border ${
-                isDark ? 'bg-[#0E1724] border-[#1C3045]' : 'bg-white border-[#DCE4EC] shadow-sm'
-              }`}
+              className="p-4 rounded-xl border bg-[#1A1613] border-[#4D4037] shadow-sm hover:border-[#FB923C]/50 transition-colors"
             >
               <div className="flex items-center justify-between">
-                <span className="text-xs font-mono text-[#657A90] uppercase">{stat.label}</span>
+                <span className="text-xs text-[#DEC8B7] uppercase">{stat.label}</span>
                 <Icon className="w-4 h-4" style={{ color: stat.color }} />
               </div>
-              <div className="text-xl font-bold font-heading mt-2">{stat.val}</div>
-              <div className="text-[11px] text-[#8297AA] mt-1">{stat.sub}</div>
+              <div className="text-xl font-bold font-heading text-[#FFF8F0] mt-2">{stat.val}</div>
+              <div className="text-[11px] text-[#A69282] mt-1">{stat.sub}</div>
             </div>
           );
         })}
@@ -119,46 +116,39 @@ export const GeologistDashboardPage: React.FC = () => {
 
       {/* ── 2. LITHOLOGY & STRATIGRAPHIC SUCCESSION ─────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div
-          className={`lg:col-span-2 p-5 rounded-2xl border ${
-            isDark ? 'bg-[#0B111C] border-[#1C3045]' : 'bg-white border-[#DCE4EC] shadow-sm'
-          }`}
-        >
+        <div className="lg:col-span-2 p-5 rounded-2xl border bg-[#1A1613] border-[#4D4037] shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 className="font-heading font-bold text-sm">Lithological Reserve Allocation (Mt)</h3>
-              <p className="text-xs text-[#657A90]">Economic braunite-pyrolusite reef vs sub-economic gondite horizons</p>
+              <h3 className="font-heading font-bold text-sm text-[#FFF8F0]">Lithological Reserve Allocation (Mt)</h3>
+              <p className="text-xs text-[#DEC8B7]">Economic braunite-pyrolusite reef vs sub-economic gondite horizons</p>
             </div>
-            <span className="text-xs font-mono text-[#A78BFA]">Total: 100 Mt Measured</span>
+            <span className="text-xs font-mono text-[#FB923C] font-bold">Total: 100 Mt Measured</span>
           </div>
 
           <div className="h-60 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={LITHOLOGY_DISTRIBUTION} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" stroke={isDark ? '#1C3045' : '#E2E8F0'} horizontal={false} />
-                <XAxis type="number" stroke="#657A90" fontSize={11} unit=" Mt" />
-                <YAxis dataKey="name" type="category" stroke="#657A90" fontSize={10} width={150} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#4D4037" horizontal={false} />
+                <XAxis type="number" stroke="#DEC8B7" fontSize={11} unit=" Mt" />
+                <YAxis dataKey="name" type="category" stroke="#DEC8B7" fontSize={10} width={150} />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: isDark ? '#090D16' : '#FFFFFF',
-                    borderColor: '#1C3045',
-                    borderRadius: 8
+                    backgroundColor: '#120F0D',
+                    borderColor: '#4D4037',
+                    borderRadius: 8,
+                    color: '#FFF8F0'
                   }}
                 />
-                <Bar dataKey="tonnes" fill="#A78BFA" radius={[0, 6, 6, 0]} name="Reserve (Mt)" />
+                <Bar dataKey="tonnes" fill="#FB923C" radius={[0, 6, 6, 0]} name="Reserve (Mt)" />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
 
         {/* Stratigraphic Formations & Sauser Group Hierarchy */}
-        <div
-          className={`p-5 rounded-2xl border space-y-3 ${
-            isDark ? 'bg-[#0B111C] border-[#1C3045]' : 'bg-white border-[#DCE4EC] shadow-sm'
-          }`}
-        >
-          <h3 className="font-heading font-bold text-sm flex items-center gap-2">
-            <Layers className="w-4 h-4 text-[#A78BFA]" />
+        <div className="p-5 rounded-2xl border bg-[#1A1613] border-[#4D4037] shadow-sm space-y-3">
+          <h3 className="font-heading font-bold text-sm text-[#FFF8F0] flex items-center gap-2">
+            <Layers className="w-4 h-4 text-[#FB923C]" />
             Sauser Group Stratigraphy
           </h3>
 
@@ -173,15 +163,15 @@ export const GeologistDashboardPage: React.FC = () => {
                 key={i}
                 className={`p-2.5 rounded-lg border ${
                   st.highlight
-                    ? 'bg-[#A78BFA]/10 border-[#A78BFA]/40 text-white'
-                    : 'bg-[#152235]/40 border-[#1C3045]/60 text-[#9BAFC1]'
+                    ? 'bg-[#FB923C]/10 border-[#FB923C]/50 text-[#FFF8F0]'
+                    : 'bg-[#241E1A] border-[#4D4037] text-[#DEC8B7]'
                 }`}
               >
                 <div className="flex justify-between font-bold">
                   <span>{st.unit}</span>
-                  <span className="text-[10px] text-[#A78BFA]">{st.depth}</span>
+                  <span className="text-[10px] text-[#FB923C]">{st.depth}</span>
                 </div>
-                <div className="text-[11px] mt-0.5">{st.rock}</div>
+                <div className="text-[11px] mt-0.5 text-[#A69282]">{st.rock}</div>
               </div>
             ))}
           </div>
@@ -189,28 +179,24 @@ export const GeologistDashboardPage: React.FC = () => {
       </div>
 
       {/* ── 3. BOREHOLE CORE RECOVERY & ASSAY LOGS ───────────────────────────────── */}
-      <div
-        className={`p-5 rounded-2xl border ${
-          isDark ? 'bg-[#0B111C] border-[#1C3045]' : 'bg-white border-[#DCE4EC] shadow-sm'
-        }`}
-      >
+      <div className="p-5 rounded-2xl border bg-[#1A1613] border-[#4D4037] shadow-sm">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h3 className="font-heading font-bold text-sm flex items-center gap-2">
-              <Compass className="w-4 h-4 text-[#54D8E8]" />
+            <h3 className="font-heading font-bold text-sm text-[#FFF8F0] flex items-center gap-2">
+              <Compass className="w-4 h-4 text-[#FB923C]" />
               Active Exploratory Drillholes & Assay Registry
             </h3>
-            <p className="text-xs text-[#657A90]">Diamond wireline core recoveries and atomic absorption assay grades</p>
+            <p className="text-xs text-[#DEC8B7]">Diamond wireline core recoveries and atomic absorption assay grades</p>
           </div>
-          <NavLink to="/exploration" className="text-xs font-mono text-[#54D8E8] hover:underline flex items-center gap-1">
-            View All Boreholes <ArrowRight className="w-3 h-3" />
+          <NavLink to="/prospectivity" className="text-xs font-mono text-[#FB923C] hover:underline flex items-center gap-1 font-bold">
+            Next-Drill Targets <ArrowRight className="w-3 h-3" />
           </NavLink>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs font-mono">
             <thead>
-              <tr className="border-b border-[#1C3045] text-[#657A90] uppercase text-[10px]">
+              <tr className="border-b border-[#4D4037] text-[#DEC8B7] uppercase text-[10px]">
                 <th className="py-2.5 px-3">Borehole Collar</th>
                 <th className="py-2.5 px-3">Concession</th>
                 <th className="py-2.5 px-3">Drilled Depth</th>
@@ -220,17 +206,17 @@ export const GeologistDashboardPage: React.FC = () => {
                 <th className="py-2.5 px-3">UNFC Code</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#1C3045]/40">
+            <tbody className="divide-y divide-[#4D4037]/60">
               {BOREHOLES_SUMMARY.map((bh) => (
-                <tr key={bh.id} className="hover:bg-[#152235]/30">
-                  <td className="py-2.5 px-3 font-bold text-[#A78BFA]">{bh.id}</td>
-                  <td className="py-2.5 px-3">{bh.mine}</td>
-                  <td className="py-2.5 px-3">{bh.depth}m</td>
-                  <td className="py-2.5 px-3 text-[#43D6A0]">{bh.recovery}</td>
-                  <td className="py-2.5 px-3 font-bold text-white">{bh.grade}</td>
-                  <td className="py-2.5 px-3 text-[#9BAFC1]">{bh.lithology}</td>
+                <tr key={bh.id} className="hover:bg-[#241E1A]/60">
+                  <td className="py-2.5 px-3 font-bold text-[#FB923C]">{bh.id}</td>
+                  <td className="py-2.5 px-3 text-[#FFF8F0]">{bh.mine}</td>
+                  <td className="py-2.5 px-3 text-[#DEC8B7]">{bh.depth}m</td>
+                  <td className="py-2.5 px-3 text-[#10B981] font-bold">{bh.recovery}</td>
+                  <td className="py-2.5 px-3 font-bold text-[#FFF8F0]">{bh.grade}</td>
+                  <td className="py-2.5 px-3 text-[#DEC8B7]">{bh.lithology}</td>
                   <td className="py-2.5 px-3">
-                    <span className="px-2 py-0.5 rounded text-[9px] font-bold bg-[#54D8E8]/15 text-[#54D8E8] border border-[#54D8E8]/30">
+                    <span className="px-2 py-0.5 rounded text-[9px] font-bold bg-[#E8B298]/15 text-[#E8B298] border border-[#E8B298]/30">
                       {bh.unfc}
                     </span>
                   </td>

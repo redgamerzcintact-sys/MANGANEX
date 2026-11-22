@@ -132,21 +132,85 @@ export const TopBar: React.FC<TopBarProps> = ({ onToggleSidebar }) => {
         </div>
       </div>
 
-      {/* 2. CENTER: GLOBAL SEARCH PALETTE TRIGGER */}
-      <div className="flex-1 max-w-md mx-4 hidden lg:block">
-        <div
-          onClick={() => setCommandPaletteOpen(true)}
-          className="w-full flex items-center justify-between px-3.5 py-1.5 rounded-xl bg-[#241E1A] border border-[#4D4037] text-xs font-mono text-[#DEC8B7] cursor-pointer hover:border-[#FB923C]/60 hover:bg-[#2F2722] transition-all shadow-sm"
-          title="Click or press Ctrl+K to open Global Search"
-        >
-          <div className="flex items-center gap-2">
-            <Search className="w-3.5 h-3.5 text-[#A69282]" />
-            <span>Search drillholes, faults, minerals, or AI models...</span>
-          </div>
-          <kbd className="px-1.5 py-0.5 rounded bg-[#1A1613] text-[10px] text-[#DEC8B7] border border-[#4D4037]">
-            Ctrl + K
-          </kbd>
+      {/* 2. CENTER: JUDGE FAST-TRACK PILLS & GLOBAL SEARCH */}
+      <div className="flex-1 flex items-center justify-center gap-2 max-w-3xl mx-2 hidden lg:flex">
+        <div className="flex items-center gap-1 bg-[#241E1A] p-1 rounded-xl border border-[#4D4037] text-[11px] font-mono shadow-sm">
+          <NavLink
+            to="/command-center"
+            className={({ isActive }) =>
+              `px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
+                isActive
+                  ? 'bg-[#FB923C] text-[#120F0D] font-bold shadow-sm'
+                  : 'text-[#DEC8B7] hover:text-[#FFF8F0] hover:bg-[#2F2722]'
+              }`
+            }
+          >
+            1. GIS Map
+          </NavLink>
+          <NavLink
+            to="/prospectivity"
+            className={({ isActive }) =>
+              `px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
+                isActive
+                  ? 'bg-[#FB923C] text-[#120F0D] font-bold shadow-sm'
+                  : 'text-[#DEC8B7] hover:text-[#FFF8F0] hover:bg-[#2F2722]'
+              }`
+            }
+          >
+            2. Prospectivity AI
+          </NavLink>
+          <NavLink
+            to="/production"
+            className={({ isActive }) =>
+              `px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
+                isActive
+                  ? 'bg-[#FB923C] text-[#120F0D] font-bold shadow-sm'
+                  : 'text-[#DEC8B7] hover:text-[#FFF8F0] hover:bg-[#2F2722]'
+              }`
+            }
+          >
+            3. Shortfall Forecast
+          </NavLink>
+          <NavLink
+            to="/scenario-lab"
+            className={({ isActive }) =>
+              `px-2.5 py-1 rounded-lg transition-all cursor-pointer flex items-center gap-1 ${
+                isActive
+                  ? 'bg-[#FB923C] text-[#120F0D] font-bold shadow-sm'
+                  : 'text-[#DEC8B7] hover:text-[#FFF8F0] hover:bg-[#2F2722]'
+              }`
+            }
+          >
+            <span>4. Scenario Lab</span>
+            <span className="text-[8px] font-bold px-1 rounded bg-[#F59E0B]/25 text-[#F59E0B] border border-[#F59E0B]/40">
+              HERO
+            </span>
+          </NavLink>
+          <NavLink
+            to="/nexus"
+            className={({ isActive }) =>
+              `px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
+                isActive
+                  ? 'bg-[#FB923C] text-[#120F0D] font-bold shadow-sm'
+                  : 'text-[#DEC8B7] hover:text-[#FFF8F0] hover:bg-[#2F2722]'
+              }`
+            }
+          >
+            5. NEXUS AI
+          </NavLink>
         </div>
+
+        {/* Global Search palette button */}
+        <button
+          onClick={() => setCommandPaletteOpen(true)}
+          className="p-1.5 px-2.5 rounded-xl bg-[#241E1A] border border-[#4D4037] text-[#DEC8B7] hover:text-[#FB923C] hover:border-[#FB923C]/60 transition-all cursor-pointer shadow-sm flex items-center gap-1.5 text-xs font-mono"
+          title="Search drillholes, models, faults (Ctrl+K)"
+        >
+          <Search className="w-3.5 h-3.5 text-[#FB923C]" />
+          <kbd className="text-[9px] px-1 py-0.5 rounded bg-[#1A1613] text-[#A69282] border border-[#4D4037]">
+            Ctrl+K
+          </kbd>
+        </button>
       </div>
 
       {/* 3. RIGHT CONTROLS: NOTIFICATIONS, LIVE FEED, THEME, PROFILE */}

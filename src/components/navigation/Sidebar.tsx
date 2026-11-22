@@ -55,142 +55,57 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed, onToggle }) => {
 
   const role = (user?.role || 'ROLE_ADMIN') as UserRole;
 
-  // Build role-tailored sections
+  // Build clean, judge-focused role-tailored sections
   const getSectionsForRole = (userRole: UserRole): NavSection[] => {
-    switch (userRole) {
-      case 'ROLE_GEOLOGIST':
-        return [
-          {
-            group: 'WORKSPACE',
-            items: [
-              { to: '/geologist/dashboard', label: 'Geologist Dashboard', icon: LayoutDashboard },
-            ],
-          },
-          {
-            group: 'GEOLOGICAL EXPLORATION',
-            items: [
-              { to: '/command-center', label: 'Map Explorer', icon: Compass, badge: 'GIS' },
-              { to: '/exploration', label: 'Geological Layers', icon: MapPin },
-              { to: '/subsurface', label: '3D Subsurface Twin', icon: Box },
-              { to: '/prospectivity', label: 'Mn Prospectivity', icon: Cpu, badge: 'AI' },
-            ],
-          },
-          {
-            group: 'EARTH OBSERVATION',
-            items: [
-              { to: '/satellite', label: 'Satellite Intelligence', icon: Satellite },
-            ],
-          },
-          {
-            group: 'INTELLIGENCE & REPORTS',
-            items: [
-              { to: '/nexus', label: 'NEXUS AI Copilot', icon: BrainCircuit, badge: 'RAG' },
-              { to: '/reports', label: 'Geological Reports', icon: FileText },
-            ],
-          },
-        ];
+    // 1. Role's default dashboard
+    const roleDashboardMap: Record<UserRole, { to: string; label: string }> = {
+      ROLE_GEOLOGIST: { to: '/geologist/dashboard', label: 'Geologist Workspace' },
+      ROLE_ENGINEER: { to: '/operations/dashboard', label: 'Operations Command' },
+      ROLE_ANALYST: { to: '/analyst/dashboard', label: 'Data Analytics Center' },
+      ROLE_VIEWER: { to: '/viewer/dashboard', label: 'Executive Portal' },
+      ROLE_ADMIN: { to: '/admin/dashboard', label: 'Platform Control Center' },
+    };
 
-      case 'ROLE_ENGINEER':
-        return [
-          {
-            group: 'OPERATIONS',
-            items: [
-              { to: '/operations/dashboard', label: 'Operations Dashboard', icon: LayoutDashboard },
-              { to: '/command-center', label: 'Mine Spatial Hub', icon: Compass, badge: 'GIS' },
-              { to: '/production', label: 'Production Forecast', icon: Activity, badge: 'AI' },
-              { to: '/equipment', label: 'Equipment Telemetry', icon: Wrench },
-            ],
-          },
-          {
-            group: 'DECISION LAB',
-            items: [
-              { to: '/scenario-lab', label: 'Scenario Lab', icon: GitFork, badge: 'HERO' },
-              { to: '/risk-center', label: 'Operational Risk Center', icon: AlertTriangle, badge: 'ALERT' },
-            ],
-          },
-          {
-            group: 'INTELLIGENCE & AUDIT',
-            items: [
-              { to: '/nexus', label: 'NEXUS Assistant', icon: BrainCircuit, badge: 'RAG' },
-              { to: '/reports', label: 'Shift Logs & Reports', icon: FileText },
-            ],
-          },
-        ];
+    const myDashboard = roleDashboardMap[userRole] || roleDashboardMap.ROLE_ADMIN;
 
-      case 'ROLE_ANALYST':
-        return [
-          {
-            group: 'ANALYTICS',
-            items: [
-              { to: '/analyst/dashboard', label: 'Data Analyst Dashboard', icon: LayoutDashboard },
-              { to: '/production', label: 'Production Intelligence', icon: Activity, badge: 'AI' },
-              { to: '/prospectivity', label: 'Reserve Prospectivity', icon: Cpu, badge: 'AI' },
-              { to: '/scenario-lab', label: 'Scenario Lab', icon: GitFork, badge: 'HERO' },
-            ],
-          },
-          {
-            group: 'DATA PIPELINES',
-            items: [
-              { to: '/data-hub', label: 'Spatial Ingestion Hub', icon: Database },
-              { to: '/environmental', label: 'Environmental Telemetry', icon: Trees },
-              { to: '/reports', label: 'Generated Insights', icon: FileText },
-            ],
-          },
-        ];
-
-      case 'ROLE_VIEWER':
-        return [
-          {
-            group: 'EXECUTIVE OVERVIEW',
-            items: [
-              { to: '/viewer/dashboard', label: 'Executive Dashboard', icon: LayoutDashboard },
-              { to: '/command-center', label: 'Central Belt Map', icon: Compass, badge: 'GIS' },
-              { to: '/production', label: 'Production Output', icon: Activity, badge: 'READ' },
-              { to: '/prospectivity', label: 'Reserve Overview', icon: Cpu, badge: 'READ' },
-              { to: '/reports', label: 'Official MOIL Reports', icon: FileText },
-            ],
-          },
-        ];
-
-      case 'ROLE_ADMIN':
-      default:
-        return [
-          {
-            group: 'OVERVIEW',
-            items: [
-              { to: '/dashboard', label: 'National Command Center', icon: LayoutDashboard },
-              { to: '/command-center', label: 'GIS Map Explorer', icon: Compass, badge: 'GIS' },
-            ],
-          },
-          {
-            group: 'GEOLOGICAL AI',
-            items: [
-              { to: '/exploration', label: 'Exploration & Drill Targets', icon: MapPin },
-              { to: '/subsurface', label: '3D Subsurface Twin', icon: Box },
-              { to: '/prospectivity', label: 'Reserve Prospectivity', icon: Cpu, badge: 'AI' },
-              { to: '/satellite', label: 'Satellite Intelligence', icon: Satellite },
-            ],
-          },
-          {
-            group: 'PRODUCTION & RISK',
-            items: [
-              { to: '/production', label: 'Shortfall Forecasting', icon: Activity, badge: 'AI' },
-              { to: '/scenario-lab', label: 'Scenario Lab', icon: GitFork, badge: 'HERO' },
-              { to: '/risk-center', label: 'Risk Anomaly Center', icon: AlertTriangle, badge: 'LIVE' },
-              { to: '/equipment', label: 'Fleet & Pumps Telemetry', icon: Wrench },
-            ],
-          },
-          {
-            group: 'INTELLIGENCE & ADMIN',
-            items: [
-              { to: '/nexus', label: 'NEXUS AI Copilot', icon: BrainCircuit, badge: 'RAG' },
-              { to: '/reports', label: 'Geological Reports', icon: FileText },
-              { to: '/users', label: 'RBAC User Management', icon: Users },
-              { to: '/settings', label: 'Platform Settings', icon: Settings },
-            ],
-          },
-        ];
-    }
+    return [
+      {
+        group: 'ROLE WORKSPACE',
+        items: [
+          { to: myDashboard.to, label: myDashboard.label, icon: LayoutDashboard },
+        ],
+      },
+      {
+        group: 'CORE HACKATHON PILLARS',
+        items: [
+          { to: '/command-center', label: 'Cadastral GIS Map', icon: Compass, badge: 'GIS' },
+          { to: '/prospectivity', label: 'Reserve Prospectivity', icon: Cpu, badge: 'AI' },
+          { to: '/production', label: 'Shortfall Forecasting', icon: Activity, badge: 'AI' },
+          { to: '/scenario-lab', label: 'Scenario Lab (Mitigation)', icon: GitFork, badge: 'HERO' },
+        ],
+      },
+      {
+        group: 'GEOSPATIAL & TWIN',
+        items: [
+          { to: '/subsurface', label: '3D Subsurface Twin', icon: Box },
+          { to: '/satellite', label: 'Satellite Alteration Indices', icon: Satellite },
+          { to: '/equipment', label: 'Equipment & Pump Fleet', icon: Wrench },
+        ],
+      },
+      {
+        group: 'INTELLIGENCE & AUDIT',
+        items: [
+          { to: '/nexus', label: 'NEXUS AI Copilot', icon: BrainCircuit, badge: 'RAG' },
+          { to: '/reports', label: 'Audit Reports & Logs', icon: FileText },
+          ...(userRole === 'ROLE_ADMIN'
+            ? [
+                { to: '/admin/users', label: 'User Management', icon: Users },
+                { to: '/settings', label: 'System Configuration', icon: Settings },
+              ]
+            : []),
+        ],
+      },
+    ];
   };
 
   const sections = getSectionsForRole(role);

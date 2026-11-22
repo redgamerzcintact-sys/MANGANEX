@@ -293,20 +293,20 @@ export const ScenarioLabPage: React.FC = () => {
   }, [activeScenarioTab, scenarios, baselineMonthly, simulatedMonthly, shortfallP50, estimatedRecovery]);
 
   return (
-    <div className="flex h-full w-full overflow-hidden bg-[#060911] text-[#F2F6FA] select-none font-sans print:bg-white print:text-black">
+    <div className="flex h-full w-full overflow-hidden bg-[#120F0D] text-[#FFF8F0] select-none font-sans print:bg-white print:text-black">
       {/* ── LEFT COLUMN: CONTROLS & PRESETS (Hidden on Print) ─────────────────── */}
-      <div className="w-[380px] h-full border-r border-[#1C3045] bg-[#090D16] flex flex-col shrink-0 print:hidden">
+      <div className="w-[380px] h-full border-r border-[#4D4037] bg-[#1A1613] flex flex-col shrink-0 print:hidden">
         {/* Header */}
-        <div className="p-4 border-b border-[#1C3045] bg-[#0B0F19]">
+        <div className="p-4 border-b border-[#4D4037] bg-[#241E1A]">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <GitFork className="h-5 w-5 text-[#54D8E8]" />
-              <h1 className="font-heading font-bold text-base text-[#F2F6FA]">
+              <GitFork className="h-5 w-5 text-[#FB923C]" />
+              <h1 className="font-heading font-bold text-base text-[#FFF8F0]">
                 Scenario Lab
               </h1>
             </div>
             {isSimulating ? (
-              <RefreshCw className="h-4 w-4 text-[#54D8E8] animate-spin" />
+              <RefreshCw className="h-4 w-4 text-[#FB923C] animate-spin" />
             ) : (
               <div className="flex items-center gap-2">
                 <ProvenanceBadge
@@ -317,12 +317,12 @@ export const ScenarioLabPage: React.FC = () => {
               </div>
             )}
           </div>
-          <p className="text-xs text-[#9BAFC1] mt-0.5 font-mono">
+          <p className="text-xs text-[#DEC8B7] mt-0.5 font-mono">
             Parametric Production Shortfall Forecasting for {selectedMine.name}
           </p>
 
           {weatherDefaulted && (
-            <div className="mt-2 flex items-center justify-between px-2.5 py-1 rounded bg-[#54D8E8]/10 border border-[#54D8E8]/30 text-[10px] font-mono text-[#54D8E8]">
+            <div className="mt-2 flex items-center justify-between px-2.5 py-1 rounded-lg bg-[#FB923C]/10 border border-[#FB923C]/30 text-[10px] font-mono text-[#FB923C]">
               <span>Real 16D Weather Default: {rainfallMm} mm</span>
               <span>Peak: {forecastMaxRain.toFixed(1)} mm</span>
             </div>
@@ -332,13 +332,13 @@ export const ScenarioLabPage: React.FC = () => {
         {/* Sliders Container */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4 text-xs font-mono">
           {/* Slider 1: 24h Rainfall */}
-          <div className="p-3 rounded-lg bg-[#101B2A] border border-[#1C3045] space-y-2">
-            <div className="flex justify-between items-center text-[#F2F6FA]">
-              <span className="text-[#54D8E8] font-bold flex items-center gap-1.5">
+          <div className="p-3 rounded-xl bg-[#241E1A] border border-[#4D4037] space-y-2">
+            <div className="flex justify-between items-center text-[#FFF8F0]">
+              <span className="text-[#FB923C] font-bold flex items-center gap-1.5">
                 <Droplets size={13} />
                 1. Rainfall Inflow:
               </span>
-              <span className="text-sm font-bold text-[#F2F6FA]">{rainfallMm} mm/24h</span>
+              <span className="text-sm font-bold text-[#FFF8F0]">{rainfallMm} mm/24h</span>
             </div>
             <input
               type="range"
@@ -347,9 +347,9 @@ export const ScenarioLabPage: React.FC = () => {
               step="5"
               value={rainfallMm}
               onChange={(e) => setRainfallMm(parseInt(e.target.value))}
-              className="w-full accent-[#54D8E8] h-1.5 bg-[#060911] rounded cursor-pointer"
+              className="w-full accent-[#FB923C] h-1.5 bg-[#120F0D] rounded cursor-pointer"
             />
-            <div className="flex justify-between text-[9.5px] text-[#9BAFC1]">
+            <div className="flex justify-between text-[9.5px] text-[#DEC8B7]">
               <span>Dry (0 mm)</span>
               <span>Forecast ({forecastMaxRain.toFixed(0)} mm)</span>
               <span>Deluge (200 mm)</span>
@@ -357,13 +357,13 @@ export const ScenarioLabPage: React.FC = () => {
           </div>
 
           {/* Slider 2: Fleet Availability */}
-          <div className="p-3 rounded-lg bg-[#101B2A] border border-[#1C3045] space-y-2">
-            <div className="flex justify-between items-center text-[#F2F6FA]">
-              <span className="text-[#43D6A0] font-bold flex items-center gap-1.5">
+          <div className="p-3 rounded-xl bg-[#241E1A] border border-[#4D4037] space-y-2">
+            <div className="flex justify-between items-center text-[#FFF8F0]">
+              <span className="text-[#10B981] font-bold flex items-center gap-1.5">
                 <Truck size={13} />
                 2. Fleet Availability:
               </span>
-              <span className="text-sm font-bold text-[#F2F6FA]">{fleetAvailabilityPercent}%</span>
+              <span className="text-sm font-bold text-[#FFF8F0]">{fleetAvailabilityPercent}%</span>
             </div>
             <input
               type="range"
@@ -372,9 +372,9 @@ export const ScenarioLabPage: React.FC = () => {
               step="2"
               value={fleetAvailabilityPercent}
               onChange={(e) => setFleetAvailabilityPercent(parseInt(e.target.value))}
-              className="w-full accent-[#43D6A0] h-1.5 bg-[#060911] rounded cursor-pointer"
+              className="w-full accent-[#10B981] h-1.5 bg-[#120F0D] rounded cursor-pointer"
             />
-            <div className="flex justify-between text-[9.5px] text-[#9BAFC1]">
+            <div className="flex justify-between text-[9.5px] text-[#DEC8B7]">
               <span>Degraded (30%)</span>
               <span>Standard (85%)</span>
               <span>Full (100%)</span>
@@ -382,13 +382,13 @@ export const ScenarioLabPage: React.FC = () => {
           </div>
 
           {/* Slider 3: Dewatering Capacity */}
-          <div className="p-3 rounded-lg bg-[#101B2A] border border-[#1C3045] space-y-2">
-            <div className="flex justify-between items-center text-[#F2F6FA]">
-              <span className="text-[#A78BFA] font-bold flex items-center gap-1.5">
+          <div className="p-3 rounded-xl bg-[#241E1A] border border-[#4D4037] space-y-2">
+            <div className="flex justify-between items-center text-[#FFF8F0]">
+              <span className="text-[#E8B298] font-bold flex items-center gap-1.5">
                 <Layers size={13} />
                 3. Pump Dewatering:
               </span>
-              <span className="text-sm font-bold text-[#F2F6FA]">{dewateringCapacityPercent}% Rating</span>
+              <span className="text-sm font-bold text-[#FFF8F0]">{dewateringCapacityPercent}% Rating</span>
             </div>
             <input
               type="range"
@@ -397,9 +397,9 @@ export const ScenarioLabPage: React.FC = () => {
               step="5"
               value={dewateringCapacityPercent}
               onChange={(e) => setDewateringCapacityPercent(parseInt(e.target.value))}
-              className="w-full accent-[#A78BFA] h-1.5 bg-[#060911] rounded cursor-pointer"
+              className="w-full accent-[#E8B298] h-1.5 bg-[#120F0D] rounded cursor-pointer"
             />
-            <div className="flex justify-between text-[9.5px] text-[#9BAFC1]">
+            <div className="flex justify-between text-[9.5px] text-[#DEC8B7]">
               <span>Base (20%)</span>
               <span>Nominal (100%)</span>
               <span>Booster (180%)</span>
@@ -407,13 +407,13 @@ export const ScenarioLabPage: React.FC = () => {
           </div>
 
           {/* Slider 4: Equipment Downtime */}
-          <div className="p-3 rounded-lg bg-[#101B2A] border border-[#1C3045] space-y-2">
-            <div className="flex justify-between items-center text-[#F2F6FA]">
-              <span className="text-[#FFB020] font-bold flex items-center gap-1.5">
+          <div className="p-3 rounded-xl bg-[#241E1A] border border-[#4D4037] space-y-2">
+            <div className="flex justify-between items-center text-[#FFF8F0]">
+              <span className="text-[#F59E0B] font-bold flex items-center gap-1.5">
                 <Clock size={13} />
                 4. Equipment Downtime:
               </span>
-              <span className="text-sm font-bold text-[#F2F6FA]">{downtimeHours} Hours</span>
+              <span className="text-sm font-bold text-[#FFF8F0]">{downtimeHours} Hours</span>
             </div>
             <input
               type="range"
@@ -422,9 +422,9 @@ export const ScenarioLabPage: React.FC = () => {
               step="1"
               value={downtimeHours}
               onChange={(e) => setDowntimeHours(parseInt(e.target.value))}
-              className="w-full accent-[#FFB020] h-1.5 bg-[#060911] rounded cursor-pointer"
+              className="w-full accent-[#F59E0B] h-1.5 bg-[#120F0D] rounded cursor-pointer"
             />
-            <div className="flex justify-between text-[9.5px] text-[#9BAFC1]">
+            <div className="flex justify-between text-[9.5px] text-[#DEC8B7]">
               <span>Zero (0h)</span>
               <span>Shift Maint (8h)</span>
               <span>Severe (48h)</span>
@@ -432,13 +432,13 @@ export const ScenarioLabPage: React.FC = () => {
           </div>
 
           {/* Slider 5: Blasting Delays */}
-          <div className="p-3 rounded-lg bg-[#101B2A] border border-[#1C3045] space-y-2">
-            <div className="flex justify-between items-center text-[#F2F6FA]">
-              <span className="text-[#FF6878] font-bold flex items-center gap-1.5">
+          <div className="p-3 rounded-xl bg-[#241E1A] border border-[#4D4037] space-y-2">
+            <div className="flex justify-between items-center text-[#FFF8F0]">
+              <span className="text-[#EF4444] font-bold flex items-center gap-1.5">
                 <Zap size={13} />
                 5. Blasting Delay:
               </span>
-              <span className="text-sm font-bold text-[#F2F6FA]">{blastingDelayHours} Hours</span>
+              <span className="text-sm font-bold text-[#FFF8F0]">{blastingDelayHours} Hours</span>
             </div>
             <input
               type="range"
@@ -447,9 +447,9 @@ export const ScenarioLabPage: React.FC = () => {
               step="1"
               value={blastingDelayHours}
               onChange={(e) => setBlastingDelayHours(parseInt(e.target.value))}
-              className="w-full accent-[#FF6878] h-1.5 bg-[#060911] rounded cursor-pointer"
+              className="w-full accent-[#EF4444] h-1.5 bg-[#120F0D] rounded cursor-pointer"
             />
-            <div className="flex justify-between text-[9.5px] text-[#9BAFC1]">
+            <div className="flex justify-between text-[9.5px] text-[#DEC8B7]">
               <span>Zero (0h)</span>
               <span>Normal Window (2h)</span>
               <span>Long Weather Delay (24h)</span>
@@ -458,28 +458,28 @@ export const ScenarioLabPage: React.FC = () => {
 
           {/* Presets & Slot Saving */}
           <div className="pt-1 space-y-2.5">
-            <div className="text-[10px] uppercase text-[#9BAFC1] font-bold">
+            <div className="text-[10px] uppercase text-[#DEC8B7] font-bold">
               QUICK PRESETS:
             </div>
             <div className="grid grid-cols-2 gap-2 text-[10.5px]">
               <button
                 onClick={() => applyPreset('monsoon')}
-                className="p-2 rounded bg-[#0B0F19] border border-[#FF6878]/40 text-[#FF6878] hover:bg-[#FF6878]/10 transition-colors text-left flex items-center justify-between"
+                className="p-2 rounded-xl bg-[#241E1A] border border-[#EF4444]/40 text-[#EF4444] hover:bg-[#EF4444]/15 transition-colors text-left flex items-center justify-between cursor-pointer"
               >
-                <span>Monsoon Surge</span>
+                <span className="font-bold">Monsoon Surge</span>
                 <span>⛈</span>
               </button>
               <button
                 onClick={() => applyPreset('equipment')}
-                className="p-2 rounded bg-[#0B0F19] border border-[#FFB020]/40 text-[#FFB020] hover:bg-[#FFB020]/10 transition-colors text-left flex items-center justify-between"
+                className="p-2 rounded-xl bg-[#241E1A] border border-[#F59E0B]/40 text-[#F59E0B] hover:bg-[#F59E0B]/15 transition-colors text-left flex items-center justify-between cursor-pointer"
               >
-                <span>Equipment Failure</span>
+                <span className="font-bold">Equipment Failure</span>
                 <span>⚙</span>
               </button>
             </div>
 
-            <div className="pt-2 border-t border-[#1C3045]">
-              <div className="text-[10px] uppercase text-[#9BAFC1] font-bold mb-1.5">
+            <div className="pt-2 border-t border-[#4D4037]">
+              <div className="text-[10px] uppercase text-[#DEC8B7] font-bold mb-1.5">
                 SAVE CURRENT TO SCENARIO SLOT:
               </div>
               <div className="grid grid-cols-3 gap-1.5">
@@ -487,10 +487,10 @@ export const ScenarioLabPage: React.FC = () => {
                   <button
                     key={scen.id}
                     onClick={() => saveToScenarioSlot(idx)}
-                    className={`py-1.5 px-2 rounded text-[10.5px] border text-center transition-all ${
+                    className={`py-1.5 px-2 rounded-xl text-[10.5px] border text-center transition-all cursor-pointer ${
                       selectedSlot === idx
-                        ? 'bg-[#54D8E8] text-[#080C12] font-bold border-[#54D8E8]'
-                        : 'bg-[#0B0F19] text-[#9BAFC1] border-[#1C3045] hover:border-[#54D8E8]'
+                        ? 'bg-[#FB923C] text-[#120F0D] font-bold border-[#FB923C] shadow-sm'
+                        : 'bg-[#241E1A] text-[#DEC8B7] border-[#4D4037] hover:border-[#FB923C]'
                     }`}
                   >
                     Slot {idx + 1}
@@ -503,53 +503,53 @@ export const ScenarioLabPage: React.FC = () => {
       </div>
 
       {/* ── RIGHT MAIN WORKSPACE: HERO OUTPUTS & COMPARISON ────────────────────── */}
-      <div className="flex-1 h-full overflow-y-auto p-6 space-y-6 print:p-0 print:overflow-visible">
+      <div className="flex-1 h-full overflow-y-auto p-6 space-y-6 print:p-0 print:overflow-visible bg-[#120F0D]">
         {/* Header Bar with Action Controls */}
-        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#1C3045] pb-4 print:border-none">
+        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#4D4037] pb-4 print:border-none">
           <div>
             <div className="flex items-center gap-2">
               <span
-                className={`px-2.5 py-0.5 rounded text-xs font-mono font-bold border ${
+                className={`px-2.5 py-0.5 rounded-lg text-xs font-mono font-bold border ${
                   riskIndex === 'CRITICAL'
-                    ? 'bg-[#FF6878]/20 text-[#FF6878] border-[#FF6878]/40'
+                    ? 'bg-[#EF4444]/20 text-[#EF4444] border-[#EF4444]/40'
                     : riskIndex === 'WARNING'
-                    ? 'bg-[#FFB020]/20 text-[#FFB020] border-[#FFB020]/40'
-                    : 'bg-[#00E676]/20 text-[#00E676] border-[#00E676]/40'
+                    ? 'bg-[#F59E0B]/20 text-[#F59E0B] border-[#F59E0B]/40'
+                    : 'bg-[#10B981]/20 text-[#10B981] border-[#10B981]/40'
                 }`}
               >
                 SHORTFALL RISK: {riskIndex}
               </span>
-              <span className="text-xs font-mono text-[#54D8E8]">
+              <span className="text-xs font-mono text-[#FB923C] font-bold">
                 Capacity Utilization: {utilization}%
               </span>
             </div>
-            <h2 className="text-2xl font-heading font-extrabold text-[#F2F6FA] mt-1 print:text-xl print:text-black">
-              {selectedMine.name} // Shortfall Risk Assessment & Recovery
+            <h2 className="text-2xl font-heading font-extrabold text-[#FFF8F0] mt-1 print:text-xl print:text-black">
+              {selectedMine.name} // Shortfall Risk Assessment &amp; Recovery
             </h2>
-            <p className="text-xs text-[#9BAFC1] font-mono mt-0.5 print:text-gray-600">
+            <p className="text-xs text-[#DEC8B7] font-mono mt-0.5 print:text-gray-600">
               Deterministic Physics Simulation Engine v2.5 • Linked to Open-Meteo ERA5 / 16D Forecast
             </p>
           </div>
 
           <div className="flex items-center gap-2.5 print:hidden">
             {/* View switcher */}
-            <div className="flex items-center rounded-lg bg-[#0E1A26] border border-[#1C3045] p-0.5 text-xs font-mono">
+            <div className="flex items-center rounded-xl bg-[#241E1A] border border-[#4D4037] p-1 text-xs font-mono">
               <button
                 onClick={() => setActiveScenarioTab('single')}
-                className={`px-3 py-1.5 rounded transition-all ${
+                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer font-bold ${
                   activeScenarioTab === 'single'
-                    ? 'bg-[#54D8E8] text-[#080C12] font-bold'
-                    : 'text-[#9BAFC1] hover:text-white'
+                    ? 'bg-[#FB923C] text-[#120F0D] shadow-sm'
+                    : 'text-[#DEC8B7] hover:text-[#FFF8F0]'
                 }`}
               >
                 Active Scenario
               </button>
               <button
                 onClick={() => setActiveScenarioTab('compare')}
-                className={`px-3 py-1.5 rounded transition-all ${
+                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer font-bold ${
                   activeScenarioTab === 'compare'
-                    ? 'bg-[#54D8E8] text-[#080C12] font-bold'
-                    : 'text-[#9BAFC1] hover:text-white'
+                    ? 'bg-[#FB923C] text-[#120F0D] shadow-sm'
+                    : 'text-[#DEC8B7] hover:text-[#FFF8F0]'
                 }`}
               >
                 Compare 3 Scenarios
@@ -559,7 +559,7 @@ export const ScenarioLabPage: React.FC = () => {
             {/* Export PDF Report Button */}
             <button
               onClick={handlePrintPdfReport}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#54D8E8] hover:bg-[#38b2c2] text-[#080C12] font-mono font-bold text-xs transition-all shadow-md cursor-pointer"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#FB923C] hover:bg-[#F59E0B] text-[#120F0D] font-mono font-bold text-xs transition-all shadow-[0_0_12px_rgba(251,146,60,0.3)] cursor-pointer"
             >
               <Printer className="w-3.5 h-3.5" />
               <span>Export PDF Report</span>
@@ -570,57 +570,57 @@ export const ScenarioLabPage: React.FC = () => {
         {/* ── 1. HERO SHORTFALL METRIC CARDS (P10 / P50 / P90) ──────────────────── */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {/* Card 1: P50 Expected Shortfall */}
-          <div className="p-4 rounded-xl bg-[#101B2A] border border-[#FF6878]/50 shadow-md">
-            <div className="text-[10px] font-mono text-[#9BAFC1] uppercase tracking-wider flex items-center justify-between">
+          <div className="p-4 rounded-xl bg-[#1A1613] border border-[#EF4444]/50 shadow-md">
+            <div className="text-[10px] font-mono text-[#DEC8B7] uppercase tracking-wider flex items-center justify-between">
               <span>P50 Median Shortfall</span>
-              <span className="text-[#FF6878] font-bold">EXPECTED</span>
+              <span className="text-[#EF4444] font-bold">EXPECTED</span>
             </div>
-            <div className="text-2xl font-heading font-extrabold text-[#FF6878] mt-1">
+            <div className="text-2xl font-heading font-extrabold text-[#EF4444] mt-1 font-mono">
               -{shortfallP50.toLocaleString()} T
             </div>
-            <div className="text-[11px] font-mono text-[#9BAFC1] mt-1">
+            <div className="text-[11px] font-mono text-[#DEC8B7] mt-1">
               Monthly Target: {(baselineMonthly / 1000).toFixed(0)}K T
             </div>
           </div>
 
           {/* Card 2: P10 Optimistic Shortfall */}
-          <div className="p-4 rounded-xl bg-[#101B2A] border border-[#1C3045] shadow-sm">
-            <div className="text-[10px] font-mono text-[#9BAFC1] uppercase tracking-wider flex items-center justify-between">
+          <div className="p-4 rounded-xl bg-[#1A1613] border border-[#4D4037] shadow-sm">
+            <div className="text-[10px] font-mono text-[#DEC8B7] uppercase tracking-wider flex items-center justify-between">
               <span>P10 Upside Shortfall</span>
-              <span className="text-[#00E676] font-bold">BEST-CASE</span>
+              <span className="text-[#10B981] font-bold">BEST-CASE</span>
             </div>
-            <div className="text-2xl font-heading font-extrabold text-[#00E676] mt-1">
+            <div className="text-2xl font-heading font-extrabold text-[#10B981] mt-1 font-mono">
               -{shortfallP10.toLocaleString()} T
             </div>
-            <div className="text-[11px] font-mono text-[#9BAFC1] mt-1">
-              Dry bench & minimal stoppages
+            <div className="text-[11px] font-mono text-[#A69282] mt-1">
+              Dry bench &amp; minimal stoppages
             </div>
           </div>
 
           {/* Card 3: P90 Downside Shortfall */}
-          <div className="p-4 rounded-xl bg-[#101B2A] border border-[#1C3045] shadow-sm">
-            <div className="text-[10px] font-mono text-[#9BAFC1] uppercase tracking-wider flex items-center justify-between">
+          <div className="p-4 rounded-xl bg-[#1A1613] border border-[#4D4037] shadow-sm">
+            <div className="text-[10px] font-mono text-[#DEC8B7] uppercase tracking-wider flex items-center justify-between">
               <span>P90 Downside Shortfall</span>
-              <span className="text-[#FF5252] font-bold">WORST-CASE</span>
+              <span className="text-[#EF4444] font-bold">WORST-CASE</span>
             </div>
-            <div className="text-2xl font-heading font-extrabold text-[#FF5252] mt-1">
+            <div className="text-2xl font-heading font-extrabold text-[#EF4444] mt-1 font-mono">
               -{shortfallP90.toLocaleString()} T
             </div>
-            <div className="text-[11px] font-mono text-[#9BAFC1] mt-1">
-              Rain peak & delayed blast clearing
+            <div className="text-[11px] font-mono text-[#A69282] mt-1">
+              Rain peak &amp; delayed blast clearing
             </div>
           </div>
 
           {/* Card 4: Top Action Recovery */}
-          <div className="p-4 rounded-xl bg-[#101B2A] border border-[#43D6A0]/50 shadow-md">
-            <div className="text-[10px] font-mono text-[#9BAFC1] uppercase tracking-wider flex items-center justify-between">
+          <div className="p-4 rounded-xl bg-[#1A1613] border border-[#10B981]/50 shadow-md">
+            <div className="text-[10px] font-mono text-[#DEC8B7] uppercase tracking-wider flex items-center justify-between">
               <span>Max Recoverable Volume</span>
-              <span className="text-[#43D6A0] font-bold">MITIGATION</span>
+              <span className="text-[#10B981] font-bold">MITIGATION</span>
             </div>
-            <div className="text-2xl font-heading font-extrabold text-[#43D6A0] mt-1">
+            <div className="text-2xl font-heading font-extrabold text-[#10B981] mt-1 font-mono">
               +{estimatedRecovery.toLocaleString()} T
             </div>
-            <div className="text-[11px] font-mono text-[#9BAFC1] mt-1">
+            <div className="text-[11px] font-mono text-[#DEC8B7] mt-1">
               Dynamic Counterfactual Re-run
             </div>
           </div>
@@ -628,13 +628,13 @@ export const ScenarioLabPage: React.FC = () => {
 
         {/* ── 2. SCENARIOS SIDE-BY-SIDE MATRIX (WHEN IN COMPARE TAB) ─────────────── */}
         {activeScenarioTab === 'compare' ? (
-          <div className="p-5 rounded-xl bg-[#101B2A] border border-[#1C3045] space-y-4">
+          <div className="p-5 rounded-2xl bg-[#1A1613] border border-[#4D4037] space-y-4 shadow-md">
             <div className="flex items-center justify-between">
-              <span className="font-heading font-bold text-sm text-[#F2F6FA] flex items-center gap-2">
-                <GitFork className="h-4 w-4 text-[#54D8E8]" />
+              <span className="font-heading font-bold text-sm text-[#FFF8F0] flex items-center gap-2">
+                <GitFork className="h-4 w-4 text-[#FB923C]" />
                 Side-by-Side 3-Scenario Comparison Matrix
               </span>
-              <span className="text-xs font-mono text-[#9BAFC1]">Multi-parameter sensitivity</span>
+              <span className="text-xs font-mono text-[#DEC8B7]">Multi-parameter sensitivity</span>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 font-mono text-xs">
@@ -645,56 +645,56 @@ export const ScenarioLabPage: React.FC = () => {
                 return (
                   <div
                     key={scen.id}
-                    className="p-4 rounded-xl bg-[#0B0F19] border border-[#1C3045] space-y-3"
+                    className="p-4 rounded-xl bg-[#241E1A] border border-[#4D4037] space-y-3"
                   >
-                    <div className="flex items-center justify-between pb-2 border-b border-[#1C3045]">
-                      <span className="font-bold text-sm text-[#54D8E8]">{scen.name}</span>
+                    <div className="flex items-center justify-between pb-2 border-b border-[#4D4037]">
+                      <span className="font-bold text-sm text-[#FB923C]">{scen.name}</span>
                       <span
                         className={`px-2 py-0.5 rounded text-[10px] font-bold ${
                           sRisk === 'CRITICAL'
-                            ? 'bg-[#FF6878]/20 text-[#FF6878]'
+                            ? 'bg-[#EF4444]/20 text-[#EF4444] border border-[#EF4444]/40'
                             : sRisk === 'WARNING'
-                            ? 'bg-[#FFB020]/20 text-[#FFB020]'
-                            : 'bg-[#00E676]/20 text-[#00E676]'
+                            ? 'bg-[#F59E0B]/20 text-[#F59E0B] border border-[#F59E0B]/40'
+                            : 'bg-[#10B981]/20 text-[#10B981] border border-[#10B981]/40'
                         }`}
                       >
                         {sRisk}
                       </span>
                     </div>
 
-                    <div className="space-y-1.5 text-[11px] text-[#9BAFC1]">
+                    <div className="space-y-1.5 text-[11px] text-[#DEC8B7]">
                       <div className="flex justify-between">
                         <span>Rainfall Inflow:</span>
-                        <strong className="text-white">{scen.rainfallMm} mm/24h</strong>
+                        <strong className="text-[#FFF8F0]">{scen.rainfallMm} mm/24h</strong>
                       </div>
                       <div className="flex justify-between">
                         <span>Fleet Availability:</span>
-                        <strong className="text-white">{scen.fleetAvailabilityPercent}%</strong>
+                        <strong className="text-[#FFF8F0]">{scen.fleetAvailabilityPercent}%</strong>
                       </div>
                       <div className="flex justify-between">
                         <span>Dewatering Capacity:</span>
-                        <strong className="text-white">{scen.dewateringCapacityPercent}%</strong>
+                        <strong className="text-[#FFF8F0]">{scen.dewateringCapacityPercent}%</strong>
                       </div>
                       <div className="flex justify-between">
                         <span>Downtime Hours:</span>
-                        <strong className="text-white">{scen.downtimeHours} h</strong>
+                        <strong className="text-[#FFF8F0]">{scen.downtimeHours} h</strong>
                       </div>
                       <div className="flex justify-between">
                         <span>Blasting Delays:</span>
-                        <strong className="text-white">{scen.blastingDelayHours} h</strong>
+                        <strong className="text-[#FFF8F0]">{scen.blastingDelayHours} h</strong>
                       </div>
                     </div>
 
-                    <div className="pt-2 border-t border-[#1C3045] flex items-center justify-between">
+                    <div className="pt-2 border-t border-[#4D4037] flex items-center justify-between">
                       <div>
-                        <div className="text-[10px] text-[#9BAFC1]">Projected Shortfall:</div>
-                        <div className="text-base font-bold text-[#FF6878]">
+                        <div className="text-[10px] text-[#A69282]">Projected Shortfall:</div>
+                        <div className="text-base font-bold text-[#EF4444]">
                           -{sShortfall.toLocaleString()} T
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="text-[10px] text-[#9BAFC1]">Recoverable:</div>
-                        <div className="text-base font-bold text-[#43D6A0]">
+                        <div className="text-[10px] text-[#A69282]">Recoverable:</div>
+                        <div className="text-base font-bold text-[#10B981]">
                           +{sRecovery.toLocaleString()} T
                         </div>
                       </div>
@@ -709,9 +709,9 @@ export const ScenarioLabPage: React.FC = () => {
                         setBlastingDelayHours(scen.blastingDelayHours);
                         setActiveScenarioTab('single');
                       }}
-                      className="w-full py-1.5 rounded bg-[#152235] hover:bg-[#1E2F46] border border-[#1C3045] text-[11px] text-[#54D8E8] transition-colors"
+                      className="w-full py-1.5 rounded-xl bg-[#2F2722] hover:bg-[#3C322B] border border-[#4D4037] text-[11px] text-[#FB923C] font-bold transition-colors cursor-pointer"
                     >
-                      Load into Active Solver →
+                      Load into Active Solver &rarr;
                     </button>
                   </div>
                 );
@@ -721,40 +721,40 @@ export const ScenarioLabPage: React.FC = () => {
         ) : null}
 
         {/* ── 3. COMPARISON BAR CHART ───────────────────────────────────────────── */}
-        <div className="p-5 rounded-xl bg-[#101B2A] border border-[#1C3045] space-y-3">
+        <div className="p-5 rounded-2xl bg-[#1A1613] border border-[#4D4037] space-y-3 shadow-md">
           <div className="flex items-center justify-between">
-            <span className="font-heading font-bold text-sm text-[#F2F6FA] flex items-center gap-2">
-              <Activity className="h-4 w-4 text-[#54D8E8]" />
-              Monthly Extraction Forecast & Deficit Recovery Comparison
+            <span className="font-heading font-bold text-sm text-[#FFF8F0] flex items-center gap-2">
+              <Activity className="h-4 w-4 text-[#FB923C]" />
+              Monthly Extraction Forecast &amp; Deficit Recovery Comparison
             </span>
-            <span className="text-xs font-mono text-[#9BAFC1]">Metric Tonnes / Month</span>
+            <span className="text-xs font-mono text-[#DEC8B7]">Metric Tonnes / Month</span>
           </div>
 
           <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={comparisonChartData} margin={{ top: 10, right: 30, left: 20, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1C3045" />
-                <XAxis dataKey="name" stroke="#9BAFC1" tick={{ fontSize: 11 }} />
-                <YAxis stroke="#9BAFC1" tick={{ fontSize: 11 }} />
-                <Tooltip contentStyle={{ backgroundColor: '#090D16', borderColor: '#1C3045', fontSize: 12 }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#4D4037" />
+                <XAxis dataKey="name" stroke="#DEC8B7" tick={{ fontSize: 11 }} />
+                <YAxis stroke="#DEC8B7" tick={{ fontSize: 11 }} />
+                <Tooltip contentStyle={{ backgroundColor: '#1A1613', borderColor: '#4D4037', borderRadius: '10px', fontSize: 12, color: '#FFF8F0' }} />
                 <Legend wrapperStyle={{ fontSize: 12 }} />
-                <Bar dataKey="Target" fill="#54D8E8" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="Simulated" fill="#A78BFA" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="Shortfall" fill="#FF6878" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="Recovery" fill="#43D6A0" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="Target" fill="#FB923C" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="Simulated" fill="#E8B298" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="Shortfall" fill="#EF4444" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="Recovery" fill="#10B981" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
 
         {/* ── 4. RANKED MITIGATION ACTIONS (Dynamically Re-evaluated via Model) ── */}
-        <div className="p-5 rounded-xl bg-[#101B2A] border border-[#1C3045] space-y-3.5">
-          <div className="flex items-center justify-between pb-2 border-b border-[#1C3045]">
-            <span className="font-heading font-bold text-sm text-[#F2F6FA] flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-[#43D6A0]" />
+        <div className="p-5 rounded-2xl bg-[#1A1613] border border-[#4D4037] space-y-3.5 shadow-md">
+          <div className="flex items-center justify-between pb-2 border-b border-[#4D4037]">
+            <span className="font-heading font-bold text-sm text-[#FFF8F0] flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-[#10B981]" />
               Ranked Mitigation Actions // Evaluated by Re-running Forecasting Model
             </span>
-            <span className="text-[10px] font-mono text-[#43D6A0]">
+            <span className="text-[10px] font-mono text-[#10B981] font-bold">
               STRICTLY COMPUTED DELTA TONNES
             </span>
           </div>
@@ -763,27 +763,27 @@ export const ScenarioLabPage: React.FC = () => {
             {rankedActions.map((action: any, i: number) => (
               <div
                 key={action.id || i}
-                className="p-4 rounded-xl bg-[#090D16] border border-[#1C3045] hover:border-[#43D6A0]/50 transition-colors flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 font-mono"
+                className="p-4 rounded-xl bg-[#241E1A] border border-[#4D4037] hover:border-[#10B981]/50 transition-colors flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 font-mono"
               >
                 <div className="space-y-1 max-w-xl">
                   <div className="flex items-center gap-2">
-                    <span className="w-5 h-5 rounded-full bg-[#43D6A0]/20 text-[#43D6A0] text-xs font-bold flex items-center justify-center">
+                    <span className="w-5 h-5 rounded-full bg-[#10B981]/20 text-[#10B981] text-xs font-bold flex items-center justify-center">
                       #{i + 1}
                     </span>
-                    <h4 className="font-bold text-sm text-[#F2F6FA]">{action.title}</h4>
+                    <h4 className="font-bold text-sm text-[#FFF8F0]">{action.title}</h4>
                   </div>
-                  <p className="text-xs text-[#9BAFC1] pl-7 leading-relaxed">
+                  <p className="text-xs text-[#DEC8B7] pl-7 leading-relaxed">
                     {action.description}
                   </p>
                 </div>
 
                 <div className="flex items-center gap-3 shrink-0 pl-7 sm:pl-0">
                   <div className="text-right">
-                    <div className="text-[10px] text-[#9BAFC1]">Recoverable</div>
-                    <div className="text-lg font-bold text-[#43D6A0]">
+                    <div className="text-[10px] text-[#A69282]">Recoverable</div>
+                    <div className="text-lg font-bold text-[#10B981]">
                       +{action.tonnes_recovered?.toLocaleString()} T
                     </div>
-                    <div className="text-[9.5px] text-[#54D8E8]">
+                    <div className="text-[9.5px] text-[#FB923C]">
                       Shortfall: {action.new_projected_shortfall?.toLocaleString()} T
                     </div>
                   </div>
@@ -799,7 +799,7 @@ export const ScenarioLabPage: React.FC = () => {
                         setDowntimeHours((d) => Math.max(0, Math.round(d * 0.6)));
                       }
                     }}
-                    className="px-3 py-1.5 rounded-lg bg-[#43D6A0]/15 hover:bg-[#43D6A0]/30 border border-[#43D6A0] text-xs font-bold text-[#43D6A0] transition-all cursor-pointer"
+                    className="px-3 py-1.5 rounded-xl bg-[#10B981]/15 hover:bg-[#10B981]/30 border border-[#10B981] text-xs font-bold text-[#10B981] transition-all cursor-pointer"
                   >
                     Apply Action
                   </button>
@@ -810,13 +810,13 @@ export const ScenarioLabPage: React.FC = () => {
         </div>
 
         {/* ── 5. SIMULATION ASSUMPTIONS & PROVENANCE (Visible on Print) ─────────── */}
-        <div className="p-5 rounded-xl bg-[#101B2A] border border-[#1C3045] space-y-3 font-mono text-xs">
-          <div className="flex items-center justify-between pb-2 border-b border-[#1C3045]">
-            <span className="font-heading font-bold text-sm text-[#F2F6FA] flex items-center gap-2">
-              <Cpu className="h-4 w-4 text-[#54D8E8]" />
-              Simulation Assumptions & Physics Engine Specifications
+        <div className="p-5 rounded-2xl bg-[#1A1613] border border-[#4D4037] space-y-3 font-mono text-xs shadow-md">
+          <div className="flex items-center justify-between pb-2 border-b border-[#4D4037]">
+            <span className="font-heading font-bold text-sm text-[#FFF8F0] flex items-center gap-2">
+              <Cpu className="h-4 w-4 text-[#FB923C]" />
+              Simulation Assumptions &amp; Physics Engine Specifications
             </span>
-            <span className="text-[10px] text-[#54D8E8]">docs/simulation.md</span>
+            <span className="text-[10px] text-[#FB923C] font-bold">docs/simulation.md</span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
@@ -827,18 +827,18 @@ export const ScenarioLabPage: React.FC = () => {
               `Equipment mechanical downtime set to ${downtimeHours} hrs`,
               `Blasting clearance & delay window set to ${blastingDelayHours} hrs`,
             ]).map((asm: string, i: number) => (
-              <div key={i} className="p-2.5 rounded bg-[#090D16] border border-[#1C3045] flex items-start gap-2">
-                <CheckCircle2 className="h-3.5 w-3.5 text-[#54D8E8] shrink-0 mt-0.5" />
-                <span className="text-[#F2F6FA]/90 text-[11px]">{asm}</span>
+              <div key={i} className="p-2.5 rounded-xl bg-[#241E1A] border border-[#4D4037] flex items-start gap-2">
+                <CheckCircle2 className="h-3.5 w-3.5 text-[#10B981] shrink-0 mt-0.5" />
+                <span className="text-[#FFF8F0] text-[11px]">{asm}</span>
               </div>
             ))}
           </div>
 
-          <div className="p-3 rounded bg-[#090D16] border border-[#1C3045] flex items-center justify-between text-[10.5px]">
-            <span className="text-[#9BAFC1]">
+          <div className="p-3 rounded-xl bg-[#241E1A] border border-[#4D4037] flex items-center justify-between text-[10.5px]">
+            <span className="text-[#DEC8B7]">
               Data Provenance: Weather is REAL (Open-Meteo ERA5 / 16D Forecast). Production is SYNTHETIC (calibrated physics model).
             </span>
-            <span className="text-[#00E676] font-bold">MOIL HACKATHON VERIFIED</span>
+            <span className="text-[#10B981] font-bold">MOIL HACKATHON VERIFIED</span>
           </div>
         </div>
       </div>

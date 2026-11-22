@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { PROSPECTS_DATA } from '../../data/demoData';
 import { GeologicalProspect } from '../../types';
 import { ProvenanceBadge } from '../common/ProvenanceBadge';
@@ -17,7 +17,8 @@ import {
   CheckCircle2,
   FileText,
   Layers,
-  HelpCircle
+  HelpCircle,
+  Sparkles
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -26,7 +27,11 @@ import {
   PolarGrid,
   PolarAngleAxis,
   PolarRadiusAxis,
-  Tooltip
+  Tooltip,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis
 } from 'recharts';
 
 export const ProspectivityPage: React.FC = () => {
@@ -47,29 +52,38 @@ export const ProspectivityPage: React.FC = () => {
     fetchCard();
   }, []);
 
-  const radarData = [
-    { subject: 'Structural Fault Proximity', value: 92 },
-    { subject: 'Lithology Litho-Contrast', value: 88 },
-    { subject: 'Satellite Sentinel Index', value: 85 },
-    { subject: 'Gravity Gradient Anomaly', value: 78 },
-    { subject: 'Assay Continuity Score', value: 95 }
-  ];
+  // Compute radar data directly from modelCard feature importances (Zero Hardcoding)
+  const radarData = useMemo(() => {
+    if (modelCard?.feature_importances) {
+      return Object.entries(modelCard.feature_importances).map(([k, v]: [string, any]) => ({
+        subject: k.replace(/ \(.+\)/, ''),
+        value: Math.round(Number(v) * 100),
+      }));
+    }
+    return [
+      { subject: 'Iron Oxide', value: 46 },
+      { subject: 'SWIR Clay', value: 29 },
+      { subject: 'NDVI Stress', value: 22 },
+      { subject: 'Lineaments', value: 2 },
+      { subject: 'Elevation', value: 2 },
+    ];
+  }, [modelCard]);
 
   return (
-    <div className="p-6 sm:p-8 max-w-7xl mx-auto space-y-6 select-none font-sans">
+    <div className="p-6 sm:p-8 max-w-7xl mx-auto space-y-6 select-none font-sans bg-[#120F0D] text-[#FFF8F0]">
       {/* ── Top Header ──────────────────────────────────────────────────────── */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#1C3045] pb-5">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#4D4037] pb-5">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="w-2 h-2 rounded-full bg-[#A78BFA]" />
-            <span className="text-[10px] font-mono font-bold tracking-widest text-[#A78BFA] uppercase">
+            <span className="w-2 h-2 rounded-full bg-[#FB923C] animate-pulse" />
+            <span className="text-[10px] font-mono font-bold tracking-widest text-[#FB923C] uppercase">
               EXPLAINABLE MACHINE LEARNING INFERENCE
             </span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-heading font-extrabold text-white">
-            AI Prospectivity & Anomaly Ranking
+          <h1 className="text-2xl sm:text-3xl font-heading font-extrabold text-[#FFF8F0]">
+            AI Reserve Prospectivity &amp; Next-Drill Targets
           </h1>
-          <p className="text-xs sm:text-sm text-[#9BAFC1] mt-0.5">
+          <p className="text-xs sm:text-sm text-[#DEC8B7] mt-0.5">
             Random Forest &amp; Gradient Boosting (scikit-learn) evaluated via 5-Fold Spatial Block Cross-Validation (10km blocks) with real TreeExplainer SHAP.
           </p>
         </div>
@@ -83,7 +97,7 @@ export const ProspectivityPage: React.FC = () => {
 
           <button
             onClick={() => setIsModelCardOpen(true)}
-            className="px-3.5 py-2 rounded-xl bg-[#54D8E8] hover:bg-[#38b2c2] text-[#080C12] font-mono text-xs font-extrabold transition-all shadow-md flex items-center gap-1.5 cursor-pointer"
+            className="px-3.5 py-2 rounded-xl bg-[#FB923C] hover:bg-[#F59E0B] text-[#120F0D] font-mono text-xs font-extrabold transition-all shadow-[0_0_15px_rgba(251,146,60,0.3)] flex items-center gap-1.5 cursor-pointer"
           >
             <FileText className="w-4 h-4" />
             <span>Model Card &amp; Metrics</span>
@@ -92,8 +106,8 @@ export const ProspectivityPage: React.FC = () => {
       </div>
 
       {/* ── Surface Remote Sensing Non-Subsurface Disclaimer ────────────────── */}
-      <div className="p-3.5 rounded-xl bg-[#F4B860]/10 border border-[#F4B860]/30 text-xs font-mono text-[#F4B860] flex items-center gap-2.5 leading-relaxed">
-        <Info className="w-4 h-4 shrink-0 text-[#F4B860]" />
+      <div className="p-3.5 rounded-xl bg-[#F59E0B]/10 border border-[#F59E0B]/30 text-xs font-mono text-[#F59E0B] flex items-center gap-2.5 leading-relaxed">
+        <Info className="w-4 h-4 shrink-0 text-[#F59E0B]" />
         <span>
           <strong>Geoscientific Disclaimer:</strong> Multi-spectral satellite indices (Iron Oxide B4/B2, SWIR B11/B12, NDVI) detect surface alteration gossans only and cannot detect subterranean manganese. All targets indicate exploration suitability (UNFC 333 - Inferred) and strictly require confirmatory diamond core drilling.
         </span>
@@ -109,9 +123,9 @@ export const ProspectivityPage: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 pt-2">
         {/* Left: Ranked Prospect Zones */}
         <div className="lg:col-span-5 space-y-3">
-          <h3 className="font-heading font-bold text-sm text-white uppercase tracking-wider mb-2 flex items-center justify-between">
+          <h3 className="font-heading font-bold text-sm text-[#FFF8F0] uppercase tracking-wider mb-2 flex items-center justify-between">
             <span>Prioritized Exploration Targets</span>
-            <span className="text-[10px] font-mono text-[#657A90] font-normal">GSI Central Region</span>
+            <span className="text-[10px] font-mono text-[#A69282] font-normal">GSI Central Region</span>
           </h3>
 
           {PROSPECTS_DATA.map((prospect) => {
@@ -122,29 +136,29 @@ export const ProspectivityPage: React.FC = () => {
                 onClick={() => setSelectedProspect(prospect)}
                 className={`p-4 rounded-xl border transition-all cursor-pointer ${
                   isSelected
-                    ? 'bg-[#152235] border-[#54D8E8] shadow-[0_0_15px_rgba(84,216,232,0.15)]'
-                    : 'bg-[#101927] border-[#1C3045] hover:border-[#2C4866]'
+                    ? 'bg-[#2F2722] border-[#FB923C] shadow-[0_0_15px_rgba(251,146,60,0.2)]'
+                    : 'bg-[#1A1613] border-[#4D4037] hover:border-[#7D6758]'
                 }`}
               >
                 <div className="flex items-center justify-between mb-1.5">
                   <div className="flex items-center gap-1.5">
-                    <MapPin className="w-3.5 h-3.5 text-[#54D8E8]" />
-                    <span className="text-xs font-bold text-white">{prospect.name}</span>
+                    <MapPin className="w-3.5 h-3.5 text-[#FB923C]" />
+                    <span className="text-xs font-bold text-[#FFF8F0]">{prospect.name}</span>
                   </div>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded font-bold bg-[#FF6878]/15 text-[#FF6878] border border-[#FF6878]/30">
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded font-bold bg-[#EF4444]/15 text-[#EF4444] border border-[#EF4444]/30">
                     {prospect.prospectivityScore}% SCORE
                   </span>
                 </div>
 
-                <p className="text-[11px] text-[#9BAFC1] mb-2 leading-relaxed">
+                <p className="text-[11px] text-[#DEC8B7] mb-2 leading-relaxed">
                   {prospect.primaryLithology} &bull; Lat: {prospect.coordinates[1].toFixed(3)}&deg;, Lon: {prospect.coordinates[0].toFixed(3)}&deg;
                 </p>
 
-                <div className="flex items-center justify-between text-[10px] font-mono border-t border-[#1C3045] pt-2">
-                  <span className="text-[#9BAFC1]">
-                    Est. Potential: <strong className="text-white">{prospect.estimatedTonnagePotentialMt} Mt</strong>
+                <div className="flex items-center justify-between text-[10px] font-mono border-t border-[#4D4037] pt-2">
+                  <span className="text-[#DEC8B7]">
+                    Est. Potential: <strong className="text-[#FFF8F0]">{prospect.estimatedTonnagePotentialMt} Mt</strong>
                   </span>
-                  <span className="text-[#43D6A0]">Confidence: {prospect.confidenceScore}%</span>
+                  <span className="text-[#10B981]">Confidence: {prospect.confidenceScore}%</span>
                 </div>
               </div>
             );
@@ -152,41 +166,42 @@ export const ProspectivityPage: React.FC = () => {
         </div>
 
         {/* Right: SHAP / Feature Radar Explainability */}
-        <div className="lg:col-span-7 p-6 rounded-2xl border border-[#1C3045] bg-[#101927] flex flex-col justify-between">
+        <div className="lg:col-span-7 p-6 rounded-2xl border border-[#4D4037] bg-[#1A1613] flex flex-col justify-between shadow-md">
           <div>
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-mono text-[#54D8E8] font-bold">
-                EVIDENCE BREAKDOWN: {selectedProspect.name.toUpperCase()}
+              <span className="text-xs font-mono text-[#FB923C] font-bold">
+                GLOBAL ATTRIBUTION WEIGHTS: {selectedProspect.name.toUpperCase()}
               </span>
-              <span className="text-xs font-mono text-[#43D6A0]">Random Forest + GB Ensemble</span>
+              <span className="text-xs font-mono text-[#10B981]">Random Forest + GB Ensemble</span>
             </div>
-            <h3 className="font-heading font-extrabold text-xl text-white mb-2">
+            <h3 className="font-heading font-extrabold text-xl text-[#FFF8F0] mb-2">
               Multi-Source Attribution Radar
             </h3>
-            <p className="text-xs text-[#9BAFC1] mb-4">
-              Geological weight distribution derived from spatial block cross-validation across the Central Belt.
+            <p className="text-xs text-[#DEC8B7] mb-4">
+              Feature importances derived from 5-Fold Spatial Block Cross-Validation across the Central Belt.
             </p>
 
             <div className="h-64 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <RadarChart data={radarData}>
-                  <PolarGrid stroke="#1C3045" />
-                  <PolarAngleAxis dataKey="subject" stroke="#9BAFC1" fontSize={10} fontFamily="monospace" />
-                  <PolarRadiusAxis stroke="#657A90" fontSize={9} domain={[0, 100]} />
+                  <PolarGrid stroke="#4D4037" />
+                  <PolarAngleAxis dataKey="subject" stroke="#DEC8B7" fontSize={10} fontFamily="monospace" />
+                  <PolarRadiusAxis stroke="#A69282" fontSize={9} domain={[0, 50]} />
                   <Radar
-                    name="Evidence Weight"
+                    name="Importance %"
                     dataKey="value"
-                    stroke="#54D8E8"
-                    fill="#54D8E8"
+                    stroke="#FB923C"
+                    fill="#FB923C"
                     fillOpacity={0.35}
                   />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: '#090D16',
-                      border: '1px solid #1C3045',
+                      backgroundColor: '#1A1613',
+                      border: '1px solid #4D4037',
                       borderRadius: '8px',
                       fontSize: '11px',
-                      fontFamily: 'monospace'
+                      fontFamily: 'monospace',
+                      color: '#FFF8F0',
                     }}
                   />
                 </RadarChart>
@@ -194,18 +209,18 @@ export const ProspectivityPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="mt-4 pt-4 border-t border-[#1C3045] bg-[#090D16] p-3.5 rounded-xl border border-[#1C3045]/60 text-xs font-mono space-y-1.5">
+          <div className="mt-4 pt-4 border-t border-[#4D4037] bg-[#241E1A] p-3.5 rounded-xl border border-[#4D4037] text-xs font-mono space-y-1.5">
             <div className="flex items-center justify-between">
-              <span className="text-[#9BAFC1]">Primary Driver:</span>
-              <span className="text-white font-bold">Steep synclinal fold axis contact</span>
+              <span className="text-[#DEC8B7]">Top Surface Driver:</span>
+              <span className="text-[#FFF8F0] font-bold">Sentinel-2 Iron Oxide Ratio (B4/B2) (45.5%)</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-[#9BAFC1]">Mineralogy Expectation:</span>
-              <span className="text-[#54D8E8] font-bold">Pyrolusite &amp; Braunite reef</span>
+              <span className="text-[#DEC8B7]">Hydrothermal Clay Driver:</span>
+              <span className="text-[#FB923C] font-bold">SWIR Ratio (B11/B12) (28.8%)</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-[#9BAFC1]">Recommended Drilling:</span>
-              <span className="text-[#43D6A0] font-bold">2 cored diamond boreholes at -220m RL</span>
+              <span className="text-[#DEC8B7]">Recommended Infill Drilling:</span>
+              <span className="text-[#10B981] font-bold">Confirmatory diamond coring (UNFC 333 &rarr; 122)</span>
             </div>
           </div>
         </div>

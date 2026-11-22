@@ -107,17 +107,17 @@ export const WeatherTelemetryPanel: React.FC<WeatherTelemetryPanelProps> = ({
       : '#00E69A';
 
   return (
-    <div className="rounded-2xl border border-[#1C3045] bg-[#0A1220] p-5 shadow-xl space-y-4 font-sans text-white">
+    <div className="rounded-2xl border border-[#4D4037] bg-[#1A1613] p-5 shadow-xl space-y-4 font-sans text-[#FFF8F0]">
       {/* ── Top Header Bar ─────────────────────────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#1C3045] pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#4D4037] pb-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="w-2 h-2 rounded-full bg-[#00E69A] animate-pulse" />
-            <span className="text-[10px] font-mono font-bold tracking-widest text-[#54D8E8] uppercase">
-              OPEN-METEO INGESTION • ERA5 & 16-DAY FORECAST
+            <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse" />
+            <span className="text-[10px] font-mono font-bold tracking-widest text-[#FB923C] uppercase">
+              OPEN-METEO TELEMETRY • ERA5 REANALYSIS &amp; 16-DAY FORECAST
             </span>
           </div>
-          <h3 className="text-lg font-heading font-extrabold text-white flex items-center gap-2">
+          <h3 className="text-lg font-heading font-extrabold text-[#FFF8F0] flex items-center gap-2">
             <span>{title}</span>
             <ProvenanceBadge
               status={provenance.status || 'REAL'}
@@ -132,7 +132,7 @@ export const WeatherTelemetryPanel: React.FC<WeatherTelemetryPanelProps> = ({
           <select
             value={selectedMineId}
             onChange={(e) => setSelectedMineId(e.target.value)}
-            className="px-3 py-1.5 rounded-xl bg-[#101927] border border-[#1C3045] text-xs font-mono text-white focus:outline-none focus:border-[#54D8E8] transition-colors cursor-pointer"
+            className="px-3 py-1.5 rounded-xl bg-[#241E1A] border border-[#4D4037] text-xs font-mono text-[#FFF8F0] focus:outline-none focus:border-[#FB923C] transition-colors cursor-pointer"
           >
             {MINES.map((m) => (
               <option key={m.id} value={m.id}>
@@ -144,9 +144,9 @@ export const WeatherTelemetryPanel: React.FC<WeatherTelemetryPanelProps> = ({
           <button
             onClick={() => fetchWeather(selectedMineId)}
             title="Refresh Open-Meteo Telemetry"
-            className="p-2 rounded-xl bg-[#101927] hover:bg-[#1C3045] border border-[#1C3045] text-[#9BAFC1] hover:text-white transition-colors cursor-pointer"
+            className="p-2 rounded-xl bg-[#241E1A] hover:bg-[#2F2722] border border-[#4D4037] text-[#DEC8B7] hover:text-[#FFF8F0] transition-colors cursor-pointer"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-[#54D8E8]' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-[#FB923C]' : ''}`} />
           </button>
         </div>
       </div>
@@ -154,66 +154,66 @@ export const WeatherTelemetryPanel: React.FC<WeatherTelemetryPanelProps> = ({
       {/* ── Current Metric Cards ────────────────────────────────────────────── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 font-mono">
         {/* Card 1: 24h Precipitation */}
-        <div className="p-3.5 rounded-xl border border-[#1C3045] bg-[#101927] space-y-1">
-          <div className="flex items-center justify-between text-[11px] text-[#9BAFC1]">
+        <div className="p-3.5 rounded-xl border border-[#4D4037] bg-[#241E1A] space-y-1">
+          <div className="flex items-center justify-between text-[11px] text-[#DEC8B7]">
             <span>24H PRECIPITATION</span>
-            <CloudRain className="w-4 h-4 text-[#54D8E8]" />
+            <CloudRain className="w-4 h-4 text-[#FB923C]" />
           </div>
-          <div className="text-2xl font-bold text-white">
-            {current.rainfall_24h_mm ?? 0} <span className="text-xs font-normal text-[#9BAFC1]">mm</span>
+          <div className="text-2xl font-bold text-[#FFF8F0]">
+            {current.rainfall_24h_mm ?? 0} <span className="text-xs font-normal text-[#DEC8B7]">mm</span>
           </div>
-          <div className="text-[10px] text-[#54D8E8] truncate">
+          <div className="text-[10px] text-[#FB923C] truncate">
             Next 7D Forecast: {current.next_7d_rainfall_mm ?? 0} mm
           </div>
         </div>
 
         {/* Card 2: Soil Moisture (0-7cm) */}
-        <div className="p-3.5 rounded-xl border border-[#1C3045] bg-[#101927] space-y-1">
-          <div className="flex items-center justify-between text-[11px] text-[#9BAFC1]">
+        <div className="p-3.5 rounded-xl border border-[#4D4037] bg-[#241E1A] space-y-1">
+          <div className="flex items-center justify-between text-[11px] text-[#DEC8B7]">
             <span>SOIL MOISTURE</span>
-            <Droplets className="w-4 h-4 text-[#38BDF8]" />
+            <Droplets className="w-4 h-4 text-[#E8B298]" />
           </div>
-          <div className="text-2xl font-bold text-white">
+          <div className="text-2xl font-bold text-[#FFF8F0]">
             {current.soil_moisture_m3m3 ? (current.soil_moisture_m3m3 * 100).toFixed(1) : 32.0}%
           </div>
           <div className="flex items-center gap-1.5 text-[10px]">
             <span
               className="px-1.5 py-0.2 rounded font-bold uppercase text-[9px]"
               style={{
-                backgroundColor: current.soil_moisture_status === 'SATURATED' ? 'rgba(255,82,82,0.15)' : 'rgba(0,230,154,0.15)',
-                color: current.soil_moisture_status === 'SATURATED' ? '#FF5252' : '#00E69A',
+                backgroundColor: current.soil_moisture_status === 'SATURATED' ? 'rgba(239,68,68,0.2)' : 'rgba(16,185,129,0.2)',
+                color: current.soil_moisture_status === 'SATURATED' ? '#EF4444' : '#10B981',
               }}
             >
               {current.soil_moisture_status || 'NORMAL'}
             </span>
-            <span className="text-[#9BAFC1] text-[9.5px]">0-7cm Infiltration</span>
+            <span className="text-[#A69282] text-[9.5px]">0-7cm Infiltration</span>
           </div>
         </div>
 
         {/* Card 3: Ambient Temperature */}
-        <div className="p-3.5 rounded-xl border border-[#1C3045] bg-[#101927] space-y-1">
-          <div className="flex items-center justify-between text-[11px] text-[#9BAFC1]">
+        <div className="p-3.5 rounded-xl border border-[#4D4037] bg-[#241E1A] space-y-1">
+          <div className="flex items-center justify-between text-[11px] text-[#DEC8B7]">
             <span>TEMPERATURE</span>
             <Thermometer className="w-4 h-4 text-[#F59E0B]" />
           </div>
-          <div className="text-2xl font-bold text-white">
-            {current.temperature_c ?? 26.5} <span className="text-xs font-normal text-[#9BAFC1]">°C</span>
+          <div className="text-2xl font-bold text-[#FFF8F0]">
+            {current.temperature_c ?? 26.5} <span className="text-xs font-normal text-[#DEC8B7]">°C</span>
           </div>
-          <div className="text-[10px] text-[#9BAFC1]">
+          <div className="text-[10px] text-[#A69282]">
             Max: {current.temp_max_c ?? 31}°C • Min: {current.temp_min_c ?? 19}°C
           </div>
         </div>
 
         {/* Card 4: Shortfall / Weather Risk */}
-        <div className="p-3.5 rounded-xl border border-[#1C3045] bg-[#101927] space-y-1">
-          <div className="flex items-center justify-between text-[11px] text-[#9BAFC1]">
+        <div className="p-3.5 rounded-xl border border-[#4D4037] bg-[#241E1A] space-y-1">
+          <div className="flex items-center justify-between text-[11px] text-[#DEC8B7]">
             <span>SHORTFALL RISK</span>
             <AlertTriangle className="w-4 h-4" style={{ color: riskColor }} />
           </div>
           <div className="text-2xl font-bold" style={{ color: riskColor }}>
             {current.risk_level || 'LOW'}
           </div>
-          <div className="text-[9.5px] text-[#CBD5E1] truncate" title={current.impact_warning}>
+          <div className="text-[9.5px] text-[#DEC8B7] truncate" title={current.impact_warning}>
             {current.impact_warning || 'Normal operational conditions'}
           </div>
         </div>
@@ -221,12 +221,12 @@ export const WeatherTelemetryPanel: React.FC<WeatherTelemetryPanelProps> = ({
 
       {/* ── Time Series Chart: 30-Day Window (Past Observations + 16-Day Forecast) ──── */}
       {!compact && chartData.length > 0 && (
-        <div className="p-4 rounded-xl border border-[#1C3045] bg-[#101927] space-y-2">
+        <div className="p-4 rounded-xl border border-[#4D4037] bg-[#241E1A] space-y-2">
           <div className="flex items-center justify-between text-xs font-mono">
-            <span className="font-bold text-white">
-              Precipitation (mm) & Soil Moisture Index (Last 14D + 16D Forecast)
+            <span className="font-bold text-[#FFF8F0]">
+              Precipitation (mm) &amp; Soil Moisture Index (Last 14D + 16D Forecast)
             </span>
-            <span className="text-[#657A90] text-[10.5px]">
+            <span className="text-[#A69282] text-[10.5px]">
               Dashed area = Open-Meteo 16-Day Forecast Horizon
             </span>
           </div>

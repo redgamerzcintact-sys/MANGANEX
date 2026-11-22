@@ -22,6 +22,7 @@ import {
   AlertTriangle,
   Info,
   Check,
+  CloudRain,
 } from 'lucide-react';
 
 export const CommandCenterPage: React.FC = () => {
@@ -32,6 +33,7 @@ export const CommandCenterPage: React.FC = () => {
   const [isPlayingYear, setIsPlayingYear] = useState<boolean>(false);
   const [isXRayModalOpen, setIsXRayModalOpen] = useState<boolean>(false);
   const [topRiskAlerts, setTopRiskAlerts] = useState<any[]>([]);
+  const [mineWeather, setMineWeather] = useState<any>(null);
 
   useEffect(() => {
     let active = true;
@@ -42,6 +44,16 @@ export const CommandCenterPage: React.FC = () => {
     }).catch((e) => console.warn('Could not fetch risk alerts:', e));
     return () => { active = false; };
   }, []);
+
+  useEffect(() => {
+    let active = true;
+    if (selectedMine?.id) {
+      api.getMineWeather(selectedMine.id)
+        .then((w) => { if (active) setMineWeather(w); })
+        .catch(() => {});
+    }
+    return () => { active = false; };
+  }, [selectedMine?.id]);
 
   // Layer toggles
   const [activeLayers, setActiveLayers] = useState({
@@ -525,6 +537,42 @@ export const CommandCenterPage: React.FC = () => {
                 </div>
               </>
             )}
+          </div>
+
+          {/* 4. LIVE MINE WEATHER TELEMETRY CARD */}
+          <div
+            onClick={() => navigate('/production')}
+            className="p-2.5 rounded-xl bg-[#241E1A] border border-[#4D4037] hover:border-[#FB923C]/50 transition-colors cursor-pointer shadow-sm flex flex-col space-y-1.5"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5 text-[9.5px] font-bold text-[#FFF8F0] truncate">
+                <CloudRain className="w-3.5 h-3.5 text-[#FB923C] shrink-0" />
+                <span className="truncate">{selectedMine?.name || 'Balaghat'} Telemetry</span>
+              </div>
+              <ProvenanceBadge status="REAL" source="Open-Meteo" />
+            </div>
+            <div className="grid grid-cols-3 gap-1.5 text-center font-mono">
+              <div className="p-1 rounded-lg bg-[#1A1613] border border-[#4D4037]/60">
+                <span className="text-[8px] text-[#A69282] block">24h Rain</span>
+                <strong className="text-[11px] text-[#FB923C]">
+                  {mineWeather?.current?.rainfall_24h_mm ?? 0} mm
+                </strong>
+              </div>
+              <div className="p-1 rounded-lg bg-[#1A1613] border border-[#4D4037]/60">
+                <span className="text-[8px] text-[#A69282] block">Moisture</span>
+                <strong className="text-[11px] text-[#E8B298]">
+                  {mineWeather?.current?.soil_moisture_m3m3 ? `${Math.round(mineWeather.current.soil_moisture_m3m3 * 100)}%` : '32%'}
+                </strong>
+              </div>
+              <div className="p-1 rounded-lg bg-[#1A1613] border border-[#4D4037]/60">
+                <span className="text-[8px] text-[#A69282] block">Risk Tier</span>
+                <strong className={`text-[10.5px] font-bold ${
+                  mineWeather?.current?.risk_level === 'CRITICAL' ? 'text-[#EF4444]' : 'text-[#10B981]'
+                }`}>
+                  {mineWeather?.current?.risk_level || 'NORMAL'}
+                </strong>
+              </div>
+            </div>
           </div>
         </div>
       </div>

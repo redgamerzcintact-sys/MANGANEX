@@ -56,30 +56,29 @@ const PLATFORM_TRAFFIC_DATA = [
 export const AdminDashboardPage: React.FC = () => {
   const { theme } = useAppStore();
   const { user } = useAuthStore();
-  const isDark = theme === 'dark';
 
   const [systemStatus, setSystemStatus] = useState<any>({
-    javaBackend: 'ONLINE (Port 8080)',
-    pythonAI: 'ONLINE (Port 8000)',
-    database: 'CONNECTED (PostgreSQL/H2)',
-    spatialIndex: 'READY (PostGIS)',
-    ragStatus: 'ACTIVE (4 Docs Index)'
+    fastapiBackend: 'ONLINE (FastAPI 0.110)',
+    database: 'CONNECTED (SQLite Cadastre)',
+    pythonAI: 'ONLINE (scikit-learn + SHAP)',
+    spatialIndex: 'READY (GeoJSON 500m Grid)',
+    ragStatus: 'ACTIVE (RAG Provenance Engine)'
   });
 
   return (
-    <div className={`p-6 space-y-6 max-w-7xl mx-auto ${isDark ? 'text-[#F2F6FA]' : 'text-[#172333]'}`}>
+    <div className="p-6 space-y-6 max-w-7xl mx-auto text-[#FFF8F0] font-sans">
       {/* ── TOP HEADER ─────────────────────────────────────────────────────────── */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-[#1C3045]">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-[#4D4037]">
         <div>
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[#54D8E8]/15 border border-[#54D8E8]/40 flex items-center justify-center text-[#54D8E8]">
+            <div className="w-8 h-8 rounded-lg bg-[#FB923C]/15 border border-[#FB923C]/40 flex items-center justify-center text-[#FB923C]">
               <ShieldCheck className="w-5 h-5" />
             </div>
             <div>
-              <h1 className="text-xl sm:text-2xl font-heading font-extrabold tracking-tight">
+              <h1 className="text-xl sm:text-2xl font-heading font-extrabold tracking-tight text-[#FFF8F0]">
                 Platform Control Center
               </h1>
-              <p className="text-xs font-mono text-[#657A90]">
+              <p className="text-xs font-mono text-[#DEC8B7]">
                 ENTERPRISE GOVERNANCE & SECURITY AUDIT — {user?.fullName || 'Administrator'} ({user?.organization || 'MOIL Limited'})
               </p>
             </div>
@@ -87,13 +86,13 @@ export const AdminDashboardPage: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-3">
-          <span className="px-3 py-1 rounded-full bg-[#43D6A0]/15 border border-[#43D6A0]/30 text-[#43D6A0] text-xs font-mono font-bold flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-[#43D6A0] animate-pulse" />
+          <span className="px-3 py-1 rounded-full bg-[#10B981]/15 border border-[#10B981]/30 text-[#10B981] text-xs font-mono font-bold flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse" />
             ALL ENGINES OPERATIONAL
           </span>
           <NavLink
             to="/admin/users"
-            className="px-3 py-1.5 rounded-lg bg-[#54D8E8] hover:bg-[#38b2c2] text-[#080C12] text-xs font-bold transition-all shadow-md flex items-center gap-1.5"
+            className="px-3 py-1.5 rounded-lg bg-[#FB923C] hover:bg-[#ea7e26] text-[#120F0D] text-xs font-bold transition-all shadow-md flex items-center gap-1.5"
           >
             <Users className="w-3.5 h-3.5" />
             Manage Users
@@ -102,27 +101,25 @@ export const AdminDashboardPage: React.FC = () => {
       </div>
 
       {/* ── 1. KPI STATS ROW ────────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 font-mono">
         {[
-          { label: 'Active Mines Monitored', val: '5 Concessions', sub: 'Balaghat, Dongri, Chikla, Ukwa, Munsar', icon: Server, color: '#54D8E8' },
-          { label: 'Registered Enterprise Users', val: '5 Active Roles', sub: 'Zero security policy violations', icon: Users, color: '#A78BFA' },
-          { label: 'AI Intelligence Engines', val: '5 ML Models', sub: 'Random Forest, GB, Ridge, RAG', icon: Cpu, color: '#F4B860' },
-          { label: 'Spatial Datasets Indexed', val: '18 Geopackages', sub: 'Boreholes, UNFC, Faults, Sentinel-2', icon: Database, color: '#43D6A0' }
+          { label: 'Active Mines Monitored', val: '7 Concessions', sub: 'Balaghat, Dongri, Chikla, Ukwa, Munsar, Kandri, Tirodi', icon: Server, color: '#FB923C' },
+          { label: 'Registered Enterprise Users', val: '5 Active Roles', sub: 'Geologist, Engineer, Analyst, Admin, Viewer', icon: Users, color: '#E8B298' },
+          { label: 'AI Intelligence Engines', val: '4 ML Pipelines', sub: 'Random Forest + GB, Quantile Shortfall, SHAP', icon: Cpu, color: '#F59E0B' },
+          { label: 'Spatial Datasets Indexed', val: '18 Cadastral Layers', sub: 'Boreholes, UNFC, Faults, Sentinel-2 SWIR', icon: Database, color: '#10B981' }
         ].map((stat, i) => {
           const Icon = stat.icon;
           return (
             <div
               key={i}
-              className={`p-4 rounded-xl border ${
-                isDark ? 'bg-[#0E1724] border-[#1C3045]' : 'bg-white border-[#DCE4EC] shadow-sm'
-              }`}
+              className="p-4 rounded-xl border bg-[#1A1613] border-[#4D4037] shadow-sm hover:border-[#FB923C]/50 transition-colors"
             >
               <div className="flex items-center justify-between">
-                <span className="text-xs font-mono text-[#657A90] uppercase">{stat.label}</span>
+                <span className="text-xs text-[#DEC8B7] uppercase">{stat.label}</span>
                 <Icon className="w-4 h-4" style={{ color: stat.color }} />
               </div>
-              <div className="text-xl font-bold font-heading mt-2">{stat.val}</div>
-              <div className="text-[11px] text-[#8297AA] mt-1">{stat.sub}</div>
+              <div className="text-xl font-bold font-heading text-[#FFF8F0] mt-2">{stat.val}</div>
+              <div className="text-[11px] text-[#A69282] mt-1">{stat.sub}</div>
             </div>
           );
         })}
@@ -130,17 +127,13 @@ export const AdminDashboardPage: React.FC = () => {
 
       {/* ── 2. SYSTEM TELEMETRY & GATEWAYS ──────────────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div
-          className={`lg:col-span-2 p-5 rounded-2xl border ${
-            isDark ? 'bg-[#0B111C] border-[#1C3045]' : 'bg-white border-[#DCE4EC] shadow-sm'
-          }`}
-        >
+        <div className="lg:col-span-2 p-5 rounded-2xl border bg-[#1A1613] border-[#4D4037] shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 className="font-heading font-bold text-sm">Enterprise API Traffic & Ingestion Latency</h3>
-              <p className="text-xs text-[#657A90]">Real-time request throughput across Java and Python microservices</p>
+              <h3 className="font-heading font-bold text-sm text-[#FFF8F0]">Enterprise API Ingestion & Gateway Telemetry</h3>
+              <p className="text-xs text-[#DEC8B7]">Real-time request throughput across FastAPI backend & ML pipelines</p>
             </div>
-            <span className="text-xs font-mono text-[#54D8E8]">Mean: 34ms</span>
+            <span className="text-xs font-mono text-[#FB923C] font-bold">Mean Latency: 28ms</span>
           </div>
 
           <div className="h-60 w-full">
@@ -148,50 +141,47 @@ export const AdminDashboardPage: React.FC = () => {
               <AreaChart data={PLATFORM_TRAFFIC_DATA}>
                 <defs>
                   <linearGradient id="reqGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#54D8E8" stopOpacity={0.4} />
-                    <stop offset="95%" stopColor="#54D8E8" stopOpacity={0} />
+                    <stop offset="5%" stopColor="#FB923C" stopOpacity={0.4} />
+                    <stop offset="95%" stopColor="#FB923C" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke={isDark ? '#1C3045' : '#E2E8F0'} />
-                <XAxis dataKey="hour" stroke="#657A90" fontSize={11} />
-                <YAxis stroke="#657A90" fontSize={11} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#4D4037" />
+                <XAxis dataKey="hour" stroke="#DEC8B7" fontSize={11} />
+                <YAxis stroke="#DEC8B7" fontSize={11} />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: isDark ? '#090D16' : '#FFFFFF',
-                    borderColor: '#1C3045',
-                    borderRadius: 8
+                    backgroundColor: '#120F0D',
+                    borderColor: '#4D4037',
+                    borderRadius: 8,
+                    color: '#FFF8F0'
                   }}
                 />
-                <Area type="monotone" dataKey="requests" stroke="#54D8E8" strokeWidth={2} fill="url(#reqGrad)" name="Requests/min" />
+                <Area type="monotone" dataKey="requests" stroke="#FB923C" strokeWidth={2} fill="url(#reqGrad)" name="Requests/min" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
         </div>
 
         {/* Microservice Gateway Health Matrix */}
-        <div
-          className={`p-5 rounded-2xl border space-y-4 ${
-            isDark ? 'bg-[#0B111C] border-[#1C3045]' : 'bg-white border-[#DCE4EC] shadow-sm'
-          }`}
-        >
-          <h3 className="font-heading font-bold text-sm flex items-center gap-2">
-            <Server className="w-4 h-4 text-[#54D8E8]" />
+        <div className="p-5 rounded-2xl border bg-[#1A1613] border-[#4D4037] shadow-sm space-y-4">
+          <h3 className="font-heading font-bold text-sm text-[#FFF8F0] flex items-center gap-2">
+            <Server className="w-4 h-4 text-[#FB923C]" />
             Gateway Health Matrix
           </h3>
 
-          <div className="space-y-3">
+          <div className="space-y-3 font-mono">
             {[
-              { name: 'Java Spring Boot Core (8080)', status: 'HEALTHY', ping: '12ms', color: '#43D6A0' },
-              { name: 'Python AI Engine (8000)', status: 'HEALTHY', ping: '18ms', color: '#43D6A0' },
-              { name: 'PostgreSQL / PostGIS Spatial DB', status: 'CONNECTED', ping: '4ms', color: '#43D6A0' },
-              { name: 'Vite Frontend Web Server (3000)', status: 'SERVING', ping: '2ms', color: '#54D8E8' },
-              { name: 'Copernicus Sentinel-2 Client', status: 'POLLING', ping: '120ms', color: '#F4B860' },
-              { name: 'NEXUS Vector Knowledge Base', status: 'SYNCHRONIZED', ping: '8ms', color: '#43D6A0' }
+              { name: 'FastAPI Analytics Engine (8000)', status: 'HEALTHY', ping: '14ms', color: '#10B981' },
+              { name: 'SQLite Cadastre & Spatial DB', status: 'CONNECTED', ping: '2ms', color: '#10B981' },
+              { name: 'Open-Meteo Ingestion Cache', status: 'SYNCHRONIZED', ping: '42ms', color: '#10B981' },
+              { name: 'Vite Frontend Bundle (Client)', status: 'SERVING', ping: '1ms', color: '#FB923C' },
+              { name: 'Sentinel-2 MSI Surface Ratio Engine', status: 'ACTIVE', ping: '65ms', color: '#F59E0B' },
+              { name: 'NEXUS RAG Vector Knowledge Base', status: 'ONLINE', ping: '8ms', color: '#10B981' }
             ].map((node, i) => (
-              <div key={i} className="flex items-center justify-between p-2.5 rounded-lg bg-[#152235]/40 border border-[#1C3045]/60 text-xs font-mono">
+              <div key={i} className="flex items-center justify-between p-2.5 rounded-lg bg-[#241E1A] border border-[#4D4037] text-xs">
                 <div>
-                  <div className="font-semibold text-white">{node.name}</div>
-                  <div className="text-[10px] text-[#657A90]">Latency: {node.ping}</div>
+                  <div className="font-semibold text-[#FFF8F0]">{node.name}</div>
+                  <div className="text-[10px] text-[#A69282]">Latency: {node.ping}</div>
                 </div>
                 <span className="px-2 py-0.5 rounded text-[10px] font-bold" style={{ backgroundColor: `${node.color}20`, color: node.color }}>
                   {node.status}
@@ -203,26 +193,22 @@ export const AdminDashboardPage: React.FC = () => {
       </div>
 
       {/* ── 3. AUDIT LOG & RECENT SECURITY ACTIONS ───────────────────────────────── */}
-      <div
-        className={`p-5 rounded-2xl border ${
-          isDark ? 'bg-[#0B111C] border-[#1C3045]' : 'bg-white border-[#DCE4EC] shadow-sm'
-        }`}
-      >
+      <div className="p-5 rounded-2xl border bg-[#1A1613] border-[#4D4037] shadow-sm">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h3 className="font-heading font-bold text-sm flex items-center gap-2">
-              <Clock className="w-4 h-4 text-[#F4B860]" />
+            <h3 className="font-heading font-bold text-sm text-[#FFF8F0] flex items-center gap-2">
+              <Clock className="w-4 h-4 text-[#F59E0B]" />
               Immutable Platform Audit Log
             </h3>
-            <p className="text-xs text-[#657A90]">Security and administrative access events across Ministry of Steel network</p>
+            <p className="text-xs text-[#DEC8B7]">Security, telemetry ingestion, and administrative access events</p>
           </div>
-          <span className="text-xs font-mono text-[#657A90]">ISO-27001 Compliance Active</span>
+          <span className="text-xs font-mono text-[#A69282]">ISO-27001 Compliance Active</span>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs font-mono">
             <thead>
-              <tr className="border-b border-[#1C3045] text-[#657A90] uppercase text-[10px]">
+              <tr className="border-b border-[#4D4037] text-[#DEC8B7] uppercase text-[10px]">
                 <th className="py-2.5 px-3">Event ID</th>
                 <th className="py-2.5 px-3">Operator</th>
                 <th className="py-2.5 px-3">Action</th>
@@ -232,17 +218,17 @@ export const AdminDashboardPage: React.FC = () => {
                 <th className="py-2.5 px-3">Verification</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#1C3045]/40">
+            <tbody className="divide-y divide-[#4D4037]/60">
               {AUDIT_LOGS.map((log) => (
-                <tr key={log.id} className="hover:bg-[#152235]/30">
-                  <td className="py-2.5 px-3 font-bold text-[#54D8E8]">{log.id}</td>
-                  <td className="py-2.5 px-3">{log.user}</td>
-                  <td className="py-2.5 px-3 font-semibold text-white">{log.action}</td>
-                  <td className="py-2.5 px-3 text-[#9BAFC1]">{log.target}</td>
-                  <td className="py-2.5 px-3 text-[#657A90]">{log.ip}</td>
-                  <td className="py-2.5 px-3 text-[#657A90]">{log.time}</td>
+                <tr key={log.id} className="hover:bg-[#241E1A]/60">
+                  <td className="py-2.5 px-3 font-bold text-[#FB923C]">{log.id}</td>
+                  <td className="py-2.5 px-3 text-[#DEC8B7]">{log.user}</td>
+                  <td className="py-2.5 px-3 font-semibold text-[#FFF8F0]">{log.action}</td>
+                  <td className="py-2.5 px-3 text-[#DEC8B7]">{log.target}</td>
+                  <td className="py-2.5 px-3 text-[#A69282]">{log.ip}</td>
+                  <td className="py-2.5 px-3 text-[#A69282]">{log.time}</td>
                   <td className="py-2.5 px-3">
-                    <span className="px-2 py-0.5 rounded text-[9px] font-bold bg-[#43D6A0]/15 text-[#43D6A0] border border-[#43D6A0]/30">
+                    <span className="px-2 py-0.5 rounded text-[9px] font-bold bg-[#10B981]/15 text-[#10B981] border border-[#10B981]/30">
                       {log.status}
                     </span>
                   </td>

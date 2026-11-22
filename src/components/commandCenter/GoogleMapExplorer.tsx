@@ -1,4 +1,5 @@
 import React, { useMemo, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Compass,
   Search,
@@ -38,6 +39,7 @@ export const GoogleMapExplorer: React.FC<GoogleMapExplorerProps> = ({
 }) => {
   const storeSelectedMine = useAppStore((s) => s.selectedMine);
   const storeSetSelectedMineId = useAppStore((s) => s.setSelectedMineId);
+  const navigate = useNavigate();
 
   const effectiveMine = selectedMineProp ?? storeSelectedMine;
   const selectMine = onSelectMine ?? storeSetSelectedMineId;
@@ -219,20 +221,50 @@ export const GoogleMapExplorer: React.FC<GoogleMapExplorerProps> = ({
 
       {/* ── 2. TOP FLOATING HUD & SEARCH BAR ────────────────────────────────────── */}
       <div className="absolute top-4 left-4 right-4 z-20 flex flex-wrap items-center justify-between gap-3 pointer-events-none">
-        <form
-          onSubmit={handleSearch}
-          className="pointer-events-auto flex items-center gap-2 bg-[#1A1613]/92 backdrop-blur-md px-3.5 py-1.5 rounded-xl border border-[#4D4037] shadow-lg w-full sm:w-80"
-        >
-          <Search className="w-3.5 h-3.5 text-[#FB923C] shrink-0" />
-          <input
-            ref={searchInputRef}
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search mine, borehole, or lat,lng..."
-            className="w-full bg-transparent text-xs font-mono text-[#FFF8F0] placeholder-[#A69282] outline-none"
-          />
-        </form>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 pointer-events-auto">
+          <form
+            onSubmit={handleSearch}
+            className="flex items-center gap-2 bg-[#1A1613]/92 backdrop-blur-md px-3.5 py-1.5 rounded-xl border border-[#4D4037] shadow-lg w-full sm:w-72"
+          >
+            <Search className="w-3.5 h-3.5 text-[#FB923C] shrink-0" />
+            <input
+              ref={searchInputRef}
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search mine, borehole, or lat,lng..."
+              className="w-full bg-transparent text-xs font-mono text-[#FFF8F0] placeholder-[#A69282] outline-none"
+            />
+          </form>
+
+          {/* Quick Mine Focus Pills */}
+          <div className="hidden xl:flex items-center gap-1 bg-[#1A1613]/92 backdrop-blur-md p-1 rounded-xl border border-[#4D4037] shadow-lg text-[10.5px] font-mono">
+            <span className="text-[9px] text-[#A69282] uppercase px-1.5 font-bold">Focus:</span>
+            {[
+              { id: 'mine-balaghat', name: 'Balaghat', coords: [21.8749, 80.1983] as [number, number] },
+              { id: 'mine-dongri', name: 'Dongri', coords: [21.5485, 79.6975] as [number, number] },
+              { id: 'mine-ukwa', name: 'Ukwa', coords: [21.9680, 80.4680] as [number, number] },
+              { id: 'mine-kandri', name: 'Kandri', coords: [21.3985, 79.4115] as [number, number] },
+              { id: 'mine-munsar', name: 'Munsar', coords: [21.4012, 79.2941] as [number, number] },
+            ].map((m) => (
+              <button
+                key={m.id}
+                type="button"
+                onClick={() => {
+                  selectMine(m.id);
+                  issueZoomCommand('focus', m.coords, 14);
+                }}
+                className={`px-2 py-0.5 rounded-lg transition-all cursor-pointer ${
+                  effectiveMine?.id === m.id
+                    ? 'bg-[#FB923C] text-[#120F0D] font-bold shadow-sm'
+                    : 'text-[#DEC8B7] hover:text-[#FFF8F0] hover:bg-[#241E1A]'
+                }`}
+              >
+                {m.name}
+              </button>
+            ))}
+          </div>
+        </div>
 
         {/* Map Type Switcher */}
         <div className="pointer-events-auto flex items-center gap-1 bg-[#1A1613]/92 backdrop-blur-md p-1 rounded-xl border border-[#4D4037] text-[11px] font-mono shadow-lg">
@@ -240,7 +272,7 @@ export const GoogleMapExplorer: React.FC<GoogleMapExplorerProps> = ({
             <button
               key={t}
               onClick={() => handleMapTypeChange(t)}
-              className={`px-3 py-1 rounded-lg uppercase font-bold transition-all ${
+              className={`px-3 py-1 rounded-lg uppercase font-bold transition-all cursor-pointer ${
                 mapType === t
                   ? 'bg-[#FB923C] text-[#120F0D] shadow-sm'
                   : 'text-[#DEC8B7] hover:text-[#FFF8F0] hover:bg-[#241E1A]'
@@ -256,7 +288,7 @@ export const GoogleMapExplorer: React.FC<GoogleMapExplorerProps> = ({
           <button
             onClick={() => setShowInfoModal(true)}
             title="Spatial GIS Engine Information"
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold text-[#10B981] bg-[#10B981]/15 border border-[#10B981]/30 hover:bg-[#10B981]/25 transition-colors"
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold text-[#10B981] bg-[#10B981]/15 border border-[#10B981]/30 hover:bg-[#10B981]/25 transition-colors cursor-pointer"
           >
             <Globe className="w-3 h-3 text-[#10B981]" />
             <span className="hidden sm:inline">ESRI SATELLITE GIS</span>
@@ -264,7 +296,7 @@ export const GoogleMapExplorer: React.FC<GoogleMapExplorerProps> = ({
           <button
             onClick={handleExportGeoJSON}
             title="Export Concession Cadastre as GeoJSON"
-            className="p-1.5 rounded-lg text-[#DEC8B7] hover:text-[#FB923C] hover:bg-[#241E1A] transition-colors"
+            className="p-1.5 rounded-lg text-[#DEC8B7] hover:text-[#FB923C] hover:bg-[#241E1A] transition-colors cursor-pointer"
           >
             <Download className="w-4 h-4" />
           </button>
@@ -333,6 +365,20 @@ export const GoogleMapExplorer: React.FC<GoogleMapExplorerProps> = ({
           <p className="text-[11px] text-[#DEC8B7]">{selectedFeature.details}</p>
           <div className="text-[10px] text-[#A69282] pt-1 border-t border-[#4D4037]">
             {selectedFeature.location}
+          </div>
+          <div className="pt-2 flex items-center gap-2 border-t border-[#4D4037]">
+            <button
+              onClick={() => navigate('/scenario-lab')}
+              className="px-2.5 py-1 rounded-lg bg-[#FB923C] hover:bg-[#F59E0B] text-[#120F0D] text-[10px] font-mono font-bold transition-all cursor-pointer shadow-sm"
+            >
+              Simulate in Scenario Lab &rarr;
+            </button>
+            <button
+              onClick={() => navigate('/prospectivity')}
+              className="px-2.5 py-1 rounded-lg bg-[#241E1A] hover:bg-[#2F2722] text-[#DEC8B7] border border-[#4D4037] text-[10px] font-mono transition-all cursor-pointer"
+            >
+              Prospectivity AI
+            </button>
           </div>
         </div>
       )}

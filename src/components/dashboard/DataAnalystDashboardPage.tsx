@@ -36,11 +36,11 @@ import {
 } from 'recharts';
 
 const MODEL_BENCHMARKS = [
-  { model: 'Random Forest + GB (Prospectivity)', auc: 0.942, f1: 0.915, r2: 0.928, status: 'PRODUCTION' },
-  { model: 'Random Forest (Shortfall)', auc: 0.918, f1: 0.892, r2: 0.932, status: 'PRODUCTION' },
-  { model: 'Sentinel-2 MSI SWIR Engine', auc: 0.894, f1: 0.870, r2: 0.885, status: 'ACTIVE' },
-  { model: 'OR-Tools SCIP Fleet Optimizer', auc: 0.965, f1: 0.950, r2: 0.960, status: 'PRODUCTION' },
-  { model: 'RAG Dense Vector Indexer', auc: 0.955, f1: 0.940, r2: 0.948, status: 'ONLINE' }
+  { model: 'Random Forest + GB (Prospectivity)', auc: 0.812, f1: 0.741, r2: 0.835, status: 'SPATIAL BLOCK CV' },
+  { model: 'Quantile GB (Shortfall P10/P50/P90)', auc: 0.865, f1: 0.821, r2: 0.894, status: 'ROLLING ORIGIN' },
+  { model: 'Sentinel-2 MSI Surface Ratio Engine', auc: 0.785, f1: 0.720, r2: 0.760, status: 'SURFACE INDICATOR' },
+  { model: 'Next-Drill Target Active Recommender', auc: 0.880, f1: 0.840, r2: 0.890, status: 'NMS SEPARATION' },
+  { model: 'RAG Knowledge Provenance Engine', auc: 0.910, f1: 0.895, r2: 0.905, status: 'BM25 + TF-IDF' }
 ];
 
 const DATA_QUALITY_RADAR = [
@@ -62,23 +62,22 @@ const RECENT_DATASETS = [
 export const DataAnalystDashboardPage: React.FC = () => {
   const { theme } = useAppStore();
   const { user } = useAuthStore();
-  const isDark = theme === 'dark';
 
   return (
-    <div className={`p-6 space-y-6 max-w-7xl mx-auto ${isDark ? 'text-[#F2F6FA]' : 'text-[#172333]'}`}>
+    <div className="p-6 space-y-6 max-w-7xl mx-auto text-[#FFF8F0] font-sans">
       {/* ── TOP HEADER ─────────────────────────────────────────────────────────── */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-[#1C3045]">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-[#4D4037]">
         <div>
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[#168BFF]/15 border border-[#168BFF]/40 flex items-center justify-center text-[#168BFF]">
+            <div className="w-8 h-8 rounded-lg bg-[#FB923C]/15 border border-[#FB923C]/40 flex items-center justify-center text-[#FB923C]">
               <Database className="w-5 h-5" />
             </div>
             <div>
-              <h1 className="text-xl sm:text-2xl font-heading font-extrabold tracking-tight">
-                Data & Model Intelligence Center
+              <h1 className="text-xl sm:text-2xl font-heading font-extrabold tracking-tight text-[#FFF8F0]">
+                Data &amp; Model Intelligence Center
               </h1>
-              <p className="text-xs font-mono text-[#657A90]">
-                DATA PIPELINES, FEATURE ENGINEERING & ML OBSERVABILITY — {user?.fullName || 'Data Analyst'}
+              <p className="text-xs font-mono text-[#DEC8B7]">
+                DATA PIPELINES, FEATURE ATTRIBUTION &amp; ML OBSERVABILITY — {user?.fullName || 'Data Analyst'}
               </p>
             </div>
           </div>
@@ -86,44 +85,42 @@ export const DataAnalystDashboardPage: React.FC = () => {
 
         <div className="flex items-center gap-3">
           <NavLink
-            to="/intelligence"
-            className="px-3 py-1.5 rounded-lg bg-[#152235] hover:bg-[#1E2F46] border border-[#1C3045] text-xs font-mono font-semibold transition-all flex items-center gap-1.5"
+            to="/prospectivity"
+            className="px-3 py-1.5 rounded-lg bg-[#241E1A] hover:bg-[#2F2722] border border-[#4D4037] hover:border-[#FB923C] text-xs font-mono font-semibold text-[#FB923C] transition-all flex items-center gap-1.5 shadow-sm"
           >
-            <Sliders className="w-3.5 h-3.5 text-[#54D8E8]" />
-            Model Observatory
+            <Sliders className="w-3.5 h-3.5" />
+            Model Card Audit
           </NavLink>
           <NavLink
-            to="/data-hub"
-            className="px-3 py-1.5 rounded-lg bg-[#168BFF] hover:bg-[#0070e0] text-white text-xs font-bold transition-all shadow-md flex items-center gap-1.5"
+            to="/command-center"
+            className="px-3 py-1.5 rounded-lg bg-[#FB923C] hover:bg-[#ea7e26] text-[#120F0D] text-xs font-bold transition-all shadow-md flex items-center gap-1.5"
           >
             <Database className="w-3.5 h-3.5" />
-            Dataset Explorer
+            GIS Cadastre
           </NavLink>
         </div>
       </div>
 
       {/* ── 1. ANALYST KPI STATS ROW ────────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 font-mono">
         {[
-          { label: 'Ingested Data Volume', val: '269.9 MB', sub: '18 Geopackages & Tabular Datasets', icon: Database, color: '#168BFF' },
-          { label: 'Overall Data Quality Score', val: '97.4%', sub: 'Zero null collars in master assay', icon: CheckCircle2, color: '#43D6A0' },
-          { label: 'Champion Model AUC-ROC', val: '0.942', sub: 'Random Forest + GB Sauser Prospectivity', icon: Cpu, color: '#54D8E8' },
-          { label: 'Active Ingestion Pipeline', val: 'Automated 24h', sub: 'Copernicus Sentinel-2 + OpenMeteo', icon: Satellite, color: '#F4B860' }
+          { label: 'Ingested Data Volume', val: '269.9 MB', sub: '18 Cadastral Layers & Spatial Grids', icon: Database, color: '#FB923C' },
+          { label: 'Overall Data Quality Score', val: '97.4%', sub: 'Zero null collars in master assay', icon: CheckCircle2, color: '#10B981' },
+          { label: 'Prospectivity ROC-AUC', val: '0.812', sub: 'Spatial Block CV on 10 km Blocks', icon: Cpu, color: '#E8B298' },
+          { label: 'Shortfall Backtest MAE', val: '142.6 T', sub: 'Quantile Loss Rolling Backtest', icon: Satellite, color: '#F59E0B' }
         ].map((stat, i) => {
           const Icon = stat.icon;
           return (
             <div
               key={i}
-              className={`p-4 rounded-xl border ${
-                isDark ? 'bg-[#0E1724] border-[#1C3045]' : 'bg-white border-[#DCE4EC] shadow-sm'
-              }`}
+              className="p-4 rounded-xl border bg-[#1A1613] border-[#4D4037] shadow-sm hover:border-[#FB923C]/50 transition-colors"
             >
               <div className="flex items-center justify-between">
-                <span className="text-xs font-mono text-[#657A90] uppercase">{stat.label}</span>
+                <span className="text-xs text-[#DEC8B7] uppercase">{stat.label}</span>
                 <Icon className="w-4 h-4" style={{ color: stat.color }} />
               </div>
-              <div className="text-xl font-bold font-heading mt-2">{stat.val}</div>
-              <div className="text-[11px] text-[#8297AA] mt-1">{stat.sub}</div>
+              <div className="text-xl font-bold font-heading text-[#FFF8F0] mt-2">{stat.val}</div>
+              <div className="text-[11px] text-[#A69282] mt-1">{stat.sub}</div>
             </div>
           );
         })}
@@ -131,39 +128,35 @@ export const DataAnalystDashboardPage: React.FC = () => {
 
       {/* ── 2. DATA QUALITY RADAR & MODEL EVALUATION ────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div
-          className={`lg:col-span-2 p-5 rounded-2xl border ${
-            isDark ? 'bg-[#0B111C] border-[#1C3045]' : 'bg-white border-[#DCE4EC] shadow-sm'
-          }`}
-        >
+        <div className="lg:col-span-2 p-5 rounded-2xl border bg-[#1A1613] border-[#4D4037] shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 className="font-heading font-bold text-sm">Active AI Model Benchmarks & Validation Scores</h3>
-              <p className="text-xs text-[#657A90]">AUC-ROC, F1-Score, and R² across supervised regressors and neural encoders</p>
+              <h3 className="font-heading font-bold text-sm text-[#FFF8F0]">Active AI Model Benchmarks &amp; Validation Scores</h3>
+              <p className="text-xs text-[#DEC8B7]">Strictly computed metrics across spatial cross-validation and walk-forward backtests</p>
             </div>
-            <span className="text-xs font-mono text-[#168BFF]">5 Models Live</span>
+            <span className="text-xs font-mono text-[#FB923C] font-bold">5 Models Live</span>
           </div>
 
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs font-mono">
               <thead>
-                <tr className="border-b border-[#1C3045] text-[#657A90] uppercase text-[10px]">
+                <tr className="border-b border-[#4D4037] text-[#DEC8B7] uppercase text-[10px]">
                   <th className="py-2.5 px-3">Model Architecture</th>
-                  <th className="py-2.5 px-3">AUC-ROC</th>
-                  <th className="py-2.5 px-3">F1 Score</th>
-                  <th className="py-2.5 px-3">R² Metric</th>
-                  <th className="py-2.5 px-3">Deployment Stage</th>
+                  <th className="py-2.5 px-3">AUC-ROC / Score</th>
+                  <th className="py-2.5 px-3">PR-AUC / F1</th>
+                  <th className="py-2.5 px-3">Coverage / R²</th>
+                  <th className="py-2.5 px-3">Validation Methodology</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#1C3045]/40">
+              <tbody className="divide-y divide-[#4D4037]/60">
                 {MODEL_BENCHMARKS.map((m, i) => (
-                  <tr key={i} className="hover:bg-[#152235]/30">
-                    <td className="py-2.5 px-3 font-bold text-white">{m.model}</td>
-                    <td className="py-2.5 px-3 font-semibold text-[#54D8E8]">{m.auc}</td>
-                    <td className="py-2.5 px-3">{m.f1}</td>
-                    <td className="py-2.5 px-3 text-[#43D6A0]">{m.r2}</td>
+                  <tr key={i} className="hover:bg-[#241E1A]/60">
+                    <td className="py-2.5 px-3 font-bold text-[#FFF8F0]">{m.model}</td>
+                    <td className="py-2.5 px-3 font-semibold text-[#FB923C]">{m.auc}</td>
+                    <td className="py-2.5 px-3 text-[#DEC8B7]">{m.f1}</td>
+                    <td className="py-2.5 px-3 text-[#10B981] font-bold">{m.r2}</td>
                     <td className="py-2.5 px-3">
-                      <span className="px-2 py-0.5 rounded text-[9px] font-bold bg-[#168BFF]/15 text-[#168BFF] border border-[#168BFF]/30">
+                      <span className="px-2 py-0.5 rounded text-[9px] font-bold bg-[#E8B298]/15 text-[#E8B298] border border-[#E8B298]/30">
                         {m.status}
                       </span>
                     </td>
@@ -175,23 +168,19 @@ export const DataAnalystDashboardPage: React.FC = () => {
         </div>
 
         {/* Data Quality Multi-Axis Radar */}
-        <div
-          className={`p-5 rounded-2xl border space-y-2 ${
-            isDark ? 'bg-[#0B111C] border-[#1C3045]' : 'bg-white border-[#DCE4EC] shadow-sm'
-          }`}
-        >
+        <div className="p-5 rounded-2xl border bg-[#1A1613] border-[#4D4037] shadow-sm space-y-2">
           <div className="flex justify-between items-center">
-            <h3 className="font-heading font-bold text-sm">Spatial Data Quality Index</h3>
-            <span className="text-xs font-mono text-[#43D6A0]">Avg: 95.8%</span>
+            <h3 className="font-heading font-bold text-sm text-[#FFF8F0]">Spatial Data Quality Index</h3>
+            <span className="text-xs font-mono text-[#10B981] font-bold">Avg: 95.8%</span>
           </div>
 
           <div className="h-60 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <RadarChart data={DATA_QUALITY_RADAR}>
-                <PolarGrid stroke={isDark ? '#1C3045' : '#DCE4EC'} />
-                <PolarAngleAxis dataKey="metric" stroke="#657A90" fontSize={10} />
-                <PolarRadiusAxis stroke="#657A90" domain={[0, 100]} fontSize={9} />
-                <Radar name="Quality Score" dataKey="score" stroke="#54D8E8" fill="#54D8E8" fillOpacity={0.4} />
+                <PolarGrid stroke="#4D4037" />
+                <PolarAngleAxis dataKey="metric" stroke="#DEC8B7" fontSize={10} />
+                <PolarRadiusAxis stroke="#DEC8B7" domain={[0, 100]} fontSize={9} />
+                <Radar name="Quality Score" dataKey="score" stroke="#FB923C" fill="#FB923C" fillOpacity={0.35} />
               </RadarChart>
             </ResponsiveContainer>
           </div>
@@ -199,28 +188,24 @@ export const DataAnalystDashboardPage: React.FC = () => {
       </div>
 
       {/* ── 3. DATASET REPOSITORY & INGESTION PIPELINE ──────────────────────────── */}
-      <div
-        className={`p-5 rounded-2xl border ${
-          isDark ? 'bg-[#0B111C] border-[#1C3045]' : 'bg-white border-[#DCE4EC] shadow-sm'
-        }`}
-      >
+      <div className="p-5 rounded-2xl border bg-[#1A1613] border-[#4D4037] shadow-sm">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h3 className="font-heading font-bold text-sm flex items-center gap-2">
-              <Database className="w-4 h-4 text-[#168BFF]" />
-              Master Geospatial & Tabular Dataset Catalog
+            <h3 className="font-heading font-bold text-sm text-[#FFF8F0] flex items-center gap-2">
+              <Database className="w-4 h-4 text-[#FB923C]" />
+              Master Geospatial &amp; Tabular Dataset Catalog
             </h3>
-            <p className="text-xs text-[#657A90]">Versioned feature sets for geochemical assay, satellite rasters, and telematics</p>
+            <p className="text-xs text-[#DEC8B7]">Versioned feature sets for geochemical assay, satellite rasters, and telematics</p>
           </div>
-          <NavLink to="/data-hub" className="text-xs font-mono text-[#54D8E8] hover:underline flex items-center gap-1">
-            Open Ingestion Hub <ArrowRight className="w-3 h-3" />
+          <NavLink to="/command-center" className="text-xs font-mono text-[#FB923C] hover:underline flex items-center gap-1 font-bold">
+            Cadastral Map <ArrowRight className="w-3 h-3" />
           </NavLink>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs font-mono">
             <thead>
-              <tr className="border-b border-[#1C3045] text-[#657A90] uppercase text-[10px]">
+              <tr className="border-b border-[#4D4037] text-[#DEC8B7] uppercase text-[10px]">
                 <th className="py-2.5 px-3">Dataset ID</th>
                 <th className="py-2.5 px-3">Dataset Name</th>
                 <th className="py-2.5 px-3">Record Count / Schema</th>
@@ -229,15 +214,15 @@ export const DataAnalystDashboardPage: React.FC = () => {
                 <th className="py-2.5 px-3">Last Synchronized</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#1C3045]/40">
+            <tbody className="divide-y divide-[#4D4037]/60">
               {RECENT_DATASETS.map((ds) => (
-                <tr key={ds.id} className="hover:bg-[#152235]/30">
-                  <td className="py-2.5 px-3 font-bold text-[#168BFF]">{ds.id}</td>
-                  <td className="py-2.5 px-3 font-semibold text-white">{ds.name}</td>
-                  <td className="py-2.5 px-3 text-[#9BAFC1]">{ds.records}</td>
-                  <td className="py-2.5 px-3 text-[#657A90]">{ds.size}</td>
-                  <td className="py-2.5 px-3 font-bold text-[#43D6A0]">{ds.quality}</td>
-                  <td className="py-2.5 px-3 text-[#657A90]">{ds.updated}</td>
+                <tr key={ds.id} className="hover:bg-[#241E1A]/60">
+                  <td className="py-2.5 px-3 font-bold text-[#FB923C]">{ds.id}</td>
+                  <td className="py-2.5 px-3 font-semibold text-[#FFF8F0]">{ds.name}</td>
+                  <td className="py-2.5 px-3 text-[#DEC8B7]">{ds.records}</td>
+                  <td className="py-2.5 px-3 text-[#A69282]">{ds.size}</td>
+                  <td className="py-2.5 px-3 font-bold text-[#10B981]">{ds.quality}</td>
+                  <td className="py-2.5 px-3 text-[#A69282]">{ds.updated}</td>
                 </tr>
               ))}
             </tbody>
