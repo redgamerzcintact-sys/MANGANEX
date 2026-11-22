@@ -416,3 +416,4 @@ def get_weather_summary() -> Dict[str, Any]:
             "retrieved_at": now_utc
         }
     }
+

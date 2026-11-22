@@ -79,3 +79,4 @@ def test_run_prospectivity_model_attribution():
     assert "shap_contributions" in res
     assert len(res["shap_contributions"]) >= 5
     assert "uncertainty_score" in res
+

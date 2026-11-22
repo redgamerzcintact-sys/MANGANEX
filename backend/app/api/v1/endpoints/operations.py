@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from app.database.session import get_db
 from app.models.entities import RiskAssessment, Mine
 from app.schemas.all_schemas import ApiResponse, ScenarioInput, DataProvenance
+from app.ml.forecasting.model import evaluate_scenario_counterfactuals
 
 router = APIRouter()
 
@@ -32,48 +33,52 @@ def get_risk_alerts(db: Session = Depends(get_db)):
 @router.post("/scenarios/simulate", response_model=ApiResponse)
 def simulate_future_fork(input_data: ScenarioInput, db: Session = Depends(get_db)):
     mine = db.query(Mine).filter(Mine.id == input_data.mineId).first()
-    baseline = mine.planned_monthly_target_tonnes if mine else 45000.0
+    
+    dt_h = getattr(input_data, "downtimeHours", 0.0) or 0.0
+    blast_h = getattr(input_data, "blastingDelayHours", 0.0) or 0.0
 
-    # Deterministic Engineering Simulation Logic:
-    # Rainfall degradation: >50mm causes haul road & pump stress
-    rain_penalty = max(0.0, (input_data.rainfallMm - 20.0) * 85.0)
-    # Fleet availability effect
-    fleet_factor = input_data.fleetAvailabilityPercent / 100.0
-    # Dewatering capacity factor
-    dewatering_factor = input_data.dewateringCapacityPercent / 100.0
-    # Shift hours factor (standard = 8h)
-    shift_factor = input_data.shiftHours / 8.0
+    eval_result = evaluate_scenario_counterfactuals(
+        mine_id=input_data.mineId,
+        rainfall_mm=input_data.rainfallMm,
+        fleet_availability_pct=input_data.fleetAvailabilityPercent,
+        pump_capacity_pct=input_data.dewateringCapacityPercent,
+        downtime_hours=dt_h,
+        blasting_delay_hours=blast_h,
+        shift_hours=input_data.shiftHours,
+        horizon_days=30  # evaluate on monthly baseline
+    )
 
-    simulated_tonnes = baseline * fleet_factor * min(1.0, (0.5 + 0.5 * dewatering_factor)) * shift_factor - rain_penalty
-    simulated_tonnes = max(5000.0, round(simulated_tonnes, 0))
+    baseline = mine.planned_monthly_target_tonnes if mine else eval_result["target_tonnes"]
+    simulated_tonnes = eval_result["simulated_production_p50"]
+    shortfall = eval_result["projected_shortfall_p50"]
+    top_recovery = eval_result["ranked_mitigation_actions"][0]["tonnes_recovered"] if eval_result["ranked_mitigation_actions"] else 0.0
 
-    shortfall = max(0.0, round(baseline - simulated_tonnes, 0))
-    recovery = round(shortfall * 0.72, 0)
-
-    utilization = round((simulated_tonnes / baseline) * 100.0, 1)
-    risk_level = "Critical" if shortfall > 6000 else "Moderate" if shortfall > 2000 else "Low"
+    risk_title = "Critical" if eval_result["risk_level"] == "CRITICAL" else "Moderate" if eval_result["risk_level"] == "WARNING" else "Low"
 
     data = {
         "mineId": input_data.mineId,
         "baselineMonthlyTonnes": baseline,
         "simulatedMonthlyTonnes": simulated_tonnes,
         "projectedShortfallTonnes": shortfall,
-        "estimatedRecoveryTonnes": recovery,
-        "capacityUtilizationPercent": min(100.0, utilization),
-        "riskIndex": risk_level,
-        "assumptionsApplied": [
-            f"Precipitation inflow calculated at {input_data.rainfallMm} mm/24h",
-            f"Fleet availability constrained to {input_data.fleetAvailabilityPercent}%",
-            f"Sump dewatering pump station operating at {input_data.dewateringCapacityPercent}% rating",
-            f"Active underground face extraction scheduled across {input_data.shiftHours} hr shifts"
-        ],
-        "calculationEngineVersion": "Manganex-SimEngine-v2.1"
+        "projectedShortfallP10": eval_result["projected_shortfall_p10"],
+        "projectedShortfallP50": eval_result["projected_shortfall_p50"],
+        "projectedShortfallP90": eval_result["projected_shortfall_p90"],
+        "simulatedProductionP10": eval_result["simulated_production_p10"],
+        "simulatedProductionP50": eval_result["simulated_production_p50"],
+        "simulatedProductionP90": eval_result["simulated_production_p90"],
+        "estimatedRecoveryTonnes": top_recovery,
+        "capacityUtilizationPercent": eval_result["capacity_utilization_percent"],
+        "riskIndex": risk_title,
+        "riskLevel": eval_result["risk_level"],
+        "rankedMitigationActions": eval_result["ranked_mitigation_actions"],
+        "assumptionsApplied": eval_result["assumptions_applied"],
+        "calculationEngineVersion": "MANGANEX-Quantile-SimEngine-v2.5"
     }
+
     return ApiResponse(
         data=data,
         data_provenance=DataProvenance(
             status="DERIVED",
-            source="Parametric Physics-Based Mine Simulator (Rainfall / Fleet / Dewatering)",
+            source="Parametric Counterfactual Mine Simulator (docs/simulation.md)",
         )
     )
-

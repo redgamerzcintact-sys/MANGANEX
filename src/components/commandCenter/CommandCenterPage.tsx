@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '../../stores/appStore';
+import { api } from '../../services/api';
 import { InteractiveMap } from './InteractiveMap';
 import { EarthXRayModal } from './EarthXRayModal';
 import { ProvenanceBadge } from '../common/ProvenanceBadge';
@@ -37,6 +38,17 @@ export const CommandCenterPage: React.FC = () => {
   const [selectedYear, setSelectedYear] = useState<number>(2022);
   const [isPlayingYear, setIsPlayingYear] = useState<boolean>(false);
   const [isXRayModalOpen, setIsXRayModalOpen] = useState<boolean>(false);
+  const [topRiskAlerts, setTopRiskAlerts] = useState<any[]>([]);
+
+  useEffect(() => {
+    let active = true;
+    api.getAlerts().then((res) => {
+      if (active && res?.top_risk_mines?.length) {
+        setTopRiskAlerts(res.top_risk_mines);
+      }
+    }).catch((e) => console.warn('Could not fetch risk alerts:', e));
+    return () => { active = false; };
+  }, []);
 
   // Layer toggles
   const [activeLayers, setActiveLayers] = useState({
@@ -466,48 +478,90 @@ export const CommandCenterPage: React.FC = () => {
             </div>
           </div>
 
-          {/* 3. REAL-TIME ALERTS */}
+          {/* 3. REAL-TIME SHORTFALL RISK ALERTS */}
           <div className="p-2.5 rounded-xl bg-[#09172A] border border-[#14233A] shadow-sm flex flex-col space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold text-[#FFFFFF]">Real-Time Alerts</span>
+              <span className="text-[11px] font-bold text-[#FFFFFF]">14-Day Shortfall Alerts</span>
               <button
-                onClick={() => navigate('/risk-center')}
+                onClick={() => navigate('/scenario-lab')}
                 className="text-[9px] font-medium text-[#00D9FF] hover:underline flex items-center gap-0.5 cursor-pointer"
               >
-                <span>View All</span>
+                <span>Scenario Lab</span>
                 <span>→</span>
               </button>
             </div>
 
-            {/* Alert 1 */}
-            <div className="flex items-start gap-2 p-2 rounded-lg bg-[#0E1F36] border border-[#DC2626]/30">
-              <div className="w-5 h-5 rounded bg-[#DC2626]/20 border border-[#DC2626] flex items-center justify-center shrink-0 mt-0.5">
-                <AlertTriangle className="w-3 h-3 text-[#DC2626]" />
-              </div>
-              <div className="flex flex-col min-w-0">
-                <span className="text-[9.5px] font-bold text-[#FFFFFF] leading-tight">
-                  High Risk Zone Detected
-                </span>
-                <span className="text-[8px] text-[#94A3B8] mt-0.5">
-                  North Ridge Sector · 2 min ago
-                </span>
-              </div>
-            </div>
+            {topRiskAlerts.length > 0 ? (
+              topRiskAlerts.slice(0, 3).map((alert, i) => (
+                <div
+                  key={alert.mine_id || i}
+                  onClick={() => navigate('/scenario-lab')}
+                  className={`flex items-start gap-2 p-2 rounded-lg cursor-pointer transition-colors ${
+                    alert.risk_level === 'CRITICAL'
+                      ? 'bg-[#0E1F36] border border-[#DC2626]/40 hover:border-[#DC2626]'
+                      : 'bg-[#0E1F36] border border-[#FFB020]/40 hover:border-[#FFB020]'
+                  }`}
+                >
+                  <div
+                    className={`w-5 h-5 rounded flex items-center justify-center shrink-0 mt-0.5 ${
+                      alert.risk_level === 'CRITICAL'
+                        ? 'bg-[#DC2626]/20 border border-[#DC2626] text-[#DC2626]'
+                        : 'bg-[#FFB020]/20 border border-[#FFB020] text-[#FFB020]'
+                    }`}
+                  >
+                    <AlertTriangle className="w-3 h-3" />
+                  </div>
+                  <div className="flex flex-col min-w-0">
+                    <div className="flex items-center justify-between gap-1">
+                      <span className="text-[9.5px] font-bold text-[#FFFFFF] truncate">
+                        {alert.mine_name}
+                      </span>
+                      <span
+                        className={`text-[8.5px] font-mono font-bold shrink-0 ${
+                          alert.risk_level === 'CRITICAL' ? 'text-[#FF5252]' : 'text-[#FFB020]'
+                        }`}
+                      >
+                        -{alert.shortfall_tonnes?.toLocaleString()}T
+                      </span>
+                    </div>
+                    <span className="text-[8px] text-[#94A3B8] mt-0.5 truncate leading-tight">
+                      {alert.primary_cause}
+                    </span>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <>
+                {/* Fallback default alerts while fetching */}
+                <div className="flex items-start gap-2 p-2 rounded-lg bg-[#0E1F36] border border-[#DC2626]/30">
+                  <div className="w-5 h-5 rounded bg-[#DC2626]/20 border border-[#DC2626] flex items-center justify-center shrink-0 mt-0.5">
+                    <AlertTriangle className="w-3 h-3 text-[#DC2626]" />
+                  </div>
+                  <div className="flex flex-col min-w-0">
+                    <span className="text-[9.5px] font-bold text-[#FFFFFF] leading-tight">
+                      Balaghat Shortfall Warning
+                    </span>
+                    <span className="text-[8px] text-[#94A3B8] mt-0.5">
+                      Forecast Monsoon Inflow Spike
+                    </span>
+                  </div>
+                </div>
 
-            {/* Alert 2 */}
-            <div className="flex items-start gap-2 p-2 rounded-lg bg-[#0E1F36] border border-[#00D9FF]/30">
-              <div className="w-5 h-5 rounded bg-[#00D9FF]/20 border border-[#00D9FF] flex items-center justify-center shrink-0 mt-0.5">
-                <Info className="w-3 h-3 text-[#00D9FF]" />
-              </div>
-              <div className="flex flex-col min-w-0">
-                <span className="text-[9.5px] font-bold text-[#FFFFFF] leading-tight">
-                  Production Forecast Updated
-                </span>
-                <span className="text-[8px] text-[#00D9FF] mt-0.5">
-                  18.7 Mt · 3 min ago
-                </span>
-              </div>
-            </div>
+                <div className="flex items-start gap-2 p-2 rounded-lg bg-[#0E1F36] border border-[#00D9FF]/30">
+                  <div className="w-5 h-5 rounded bg-[#00D9FF]/20 border border-[#00D9FF] flex items-center justify-center shrink-0 mt-0.5">
+                    <Info className="w-3 h-3 text-[#00D9FF]" />
+                  </div>
+                  <div className="flex flex-col min-w-0">
+                    <span className="text-[9.5px] font-bold text-[#FFFFFF] leading-tight">
+                      Forecast Engine Synchronized
+                    </span>
+                    <span className="text-[8px] text-[#00D9FF] mt-0.5">
+                      16-Day Weather Telemetry Connected
+                    </span>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>

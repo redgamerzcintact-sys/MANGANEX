@@ -49,3 +49,4 @@ def get_mine_weather_telemetry(mine_id: str, db: Session = Depends(get_db)):
         return ApiResponse(data=data, data_provenance=prov)
     except Exception as e:
         raise HTTPException(status_code=404, detail=f"Weather telemetry for mine '{mine_id}' unavailable: {str(e)}")
+

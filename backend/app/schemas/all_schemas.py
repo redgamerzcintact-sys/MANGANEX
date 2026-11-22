@@ -95,6 +95,8 @@ class ScenarioInput(BaseModel):
     fleetAvailabilityPercent: float = 85.0
     dewateringCapacityPercent: float = 90.0
     shiftHours: float = 8.0
+    downtimeHours: Optional[float] = 0.0
+    blastingDelayHours: Optional[float] = 0.0
 
 class NexusChatRequest(BaseModel):
     query: str

@@ -163,11 +163,16 @@ export const api = {
     }),
 
   // ── Production Forecasting ──────────────────────────────────────────────────
-  getProductionForecast: (mineId: string, horizonDays: number = 30) =>
-    fetchApi<any>(`/production/forecast/${mineId}?horizon_days=${horizonDays}`),
+  getProductionForecast: (mineId: string, horizonDays: number = 30, plannedDowntimeHours: number = 0, blastingDelayHours: number = 0) =>
+    fetchApi<any>(
+      `/production/forecast/${mineId}?horizon_days=${horizonDays}&planned_downtime_hours=${plannedDowntimeHours}&blasting_delay_hours=${blastingDelayHours}`
+    ),
   getProductionHistory: (mineId: string, days: number = 90) =>
     fetchApi<any>(`/production/history/${mineId}?days=${days}`),
   getProductionSummary: () => fetchApi<any>('/production/summary'),
+
+  // ── Shortfall Alerts ────────────────────────────────────────────────────────
+  getAlerts: () => fetchApi<{ top_risk_mines: any[]; all_mines_evaluated: number; horizon_days: number }>('/alerts'),
 
   // ── Operations & Simulation ─────────────────────────────────────────────────
   getRisks: () => fetchApi<any>('/risks/all'),

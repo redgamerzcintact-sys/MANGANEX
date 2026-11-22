@@ -333,3 +333,4 @@ export const ProspectivityHeatmapGrid: React.FC<ProspectivityHeatmapGridProps> =
     </div>
   );
 };
+

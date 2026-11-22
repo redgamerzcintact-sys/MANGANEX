@@ -85,3 +85,4 @@ def test_offline_fallback_on_network_failure():
             assert len(data["daily"]) >= 365
             assert data["data_provenance"]["status"] == "REAL_CACHED"
             assert "Snapshot" in data["data_provenance"]["source"]
+
