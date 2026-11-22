@@ -10,7 +10,7 @@ export const AppLayout: React.FC = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   return (
-    <div className="flex flex-col h-screen w-screen overflow-hidden bg-[#080C12] text-[#F2F6FA]">
+    <div className="flex flex-col h-screen w-screen overflow-hidden bg-[#120F0D] text-[#FFF8F0] font-sans antialiased">
       {/* Top Operational Command Bar */}
       <TopBar onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)} />
 
@@ -21,7 +21,7 @@ export const AppLayout: React.FC = () => {
           onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
         />
 
-        <main className="flex-1 overflow-y-auto overflow-x-hidden relative bg-[#080C12]">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden relative bg-[#120F0D]">
           <Outlet />
         </main>
       </div>

@@ -53,10 +53,10 @@ export const ProvenanceBadge: React.FC<ProvenanceBadgeProps> = ({
         }
       : {
           label: 'DERIVED',
-          bg: 'bg-[#54D8E8]/10',
-          border: 'border-[#54D8E8]/30',
-          text: 'text-[#54D8E8]',
-          dot: 'bg-[#54D8E8]',
+          bg: 'bg-[#FB923C]/15',
+          border: 'border-[#FB923C]/35',
+          text: 'text-[#FB923C]',
+          dot: 'bg-[#FB923C]',
           desc: 'Computed via scikit-learn ML models, geostatistical kriging, or physics simulators.',
         };
 
@@ -85,18 +85,18 @@ export const ProvenanceBadge: React.FC<ProvenanceBadgeProps> = ({
           onClick={() => setShowModal(false)}
         >
           <div
-            className="w-full max-w-md p-5 rounded-2xl bg-[#090E18] border border-[#1C3045] shadow-2xl space-y-4 text-xs font-mono text-left"
+            className="w-full max-w-md p-5 rounded-2xl bg-[#1A1613] border border-[#4D4037] shadow-2xl space-y-4 text-xs font-mono text-left"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between border-b border-[#1C3045] pb-3">
+            <div className="flex items-center justify-between border-b border-[#4D4037] pb-3">
               <div className="flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-[#54D8E8]" />
-                <span className="font-heading font-bold text-sm text-white">DATA PROVENANCE SPEC</span>
+                <ShieldCheck className="w-4 h-4 text-[#FB923C]" />
+                <span className="font-heading font-bold text-sm text-[#FFF8F0]">DATA PROVENANCE SPEC</span>
               </div>
               <button
                 type="button"
                 onClick={() => setShowModal(false)}
-                className="p-1 rounded-lg hover:bg-[#152235] text-[#9BAFC1] hover:text-white"
+                className="p-1 rounded-lg hover:bg-[#241E1A] text-[#DEC8B7] hover:text-[#FFF8F0]"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -104,28 +104,28 @@ export const ProvenanceBadge: React.FC<ProvenanceBadgeProps> = ({
 
             <div className="space-y-3">
               <div>
-                <span className="text-[#657A90] text-[10px] block uppercase">Provenance Status</span>
+                <span className="text-[#A69282] text-[10px] block uppercase">Provenance Status</span>
                 <div className="inline-flex items-center gap-2 mt-1">
                   <span
                     className={`px-2 py-0.5 rounded border text-xs font-bold ${config.bg} ${config.border} ${config.text}`}
                   >
                     {config.label}
                   </span>
-                  <span className="text-[11px] text-[#9BAFC1]">{config.desc}</span>
+                  <span className="text-[11px] text-[#DEC8B7]">{config.desc}</span>
                 </div>
               </div>
 
               <div>
-                <span className="text-[#657A90] text-[10px] block uppercase">Data Source / Engine</span>
-                <p className="text-white mt-0.5 text-xs font-semibold">{source}</p>
+                <span className="text-[#A69282] text-[10px] block uppercase">Data Source / Engine</span>
+                <p className="text-[#FFF8F0] mt-0.5 text-xs font-semibold">{source}</p>
               </div>
 
               <div>
-                <span className="text-[#657A90] text-[10px] block uppercase">Retrieved / Computed At</span>
-                <p className="text-[#54D8E8] mt-0.5 text-xs">{retrievedAt}</p>
+                <span className="text-[#A69282] text-[10px] block uppercase">Retrieved / Computed At</span>
+                <p className="text-[#FB923C] mt-0.5 text-xs">{retrievedAt}</p>
               </div>
 
-              <div className="p-3 rounded-xl bg-[#0F1726] border border-[#1C3045] text-[11px] text-[#9BAFC1] leading-relaxed">
+              <div className="p-3 rounded-xl bg-[#241E1A] border border-[#4D4037] text-[11px] text-[#DEC8B7] leading-relaxed">
                 <p>
                   <strong>MOIL Data Governance:</strong> MANGANEX categorizes telemetry as REAL (sensor / actual collar), DERIVED (scikit-learn ML or physics simulation), or SYNTHETIC (calibrated demo benchmark).
                 </p>
@@ -136,7 +136,7 @@ export const ProvenanceBadge: React.FC<ProvenanceBadgeProps> = ({
               <button
                 type="button"
                 onClick={() => setShowModal(false)}
-                className="px-4 py-1.5 rounded-xl bg-[#152235] hover:bg-[#1E2F46] border border-[#1C3045] text-white text-xs font-bold"
+                className="px-4 py-1.5 rounded-xl bg-[#241E1A] hover:bg-[#2F2722] border border-[#4D4037] text-[#FFF8F0] text-xs font-bold"
               >
                 Close
               </button>

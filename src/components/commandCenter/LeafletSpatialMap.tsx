@@ -125,15 +125,15 @@ export const LeafletSpatialMap: React.FC<LeafletSpatialMapProps> = ({
       const latLngs: L.LatLngExpression[] = concession.coords.map((pt) => [pt.lat, pt.lng]);
 
       const polygon = L.polygon(latLngs, {
-        color: isSelected ? '#00E69A' : '#54D8E8',
-        weight: isSelected ? 2.5 : 2,
+        color: isSelected ? '#FB923C' : '#E8B298',
+        weight: isSelected ? 2.8 : 2,
         opacity: 0.95,
-        fillColor: isSelected ? '#00E69A' : '#54D8E8',
-        fillOpacity: isSelected ? 0.22 : 0.14,
+        fillColor: isSelected ? '#FB923C' : '#E8B298',
+        fillOpacity: isSelected ? 0.25 : 0.14,
       });
 
       polygon.bindTooltip(
-        `<div class="font-mono text-[10px]"><strong>${concession.name}</strong><br/><span style="color:#54D8E8">${concession.grade} • ${concession.reserves}</span></div>`,
+        `<div class="font-mono text-[10px]"><strong>${concession.name}</strong><br/><span style="color:#FB923C">${concession.grade} • ${concession.reserves}</span></div>`,
         {
           sticky: true,
           className: 'manganex-map-tooltip',
@@ -159,9 +159,9 @@ export const LeafletSpatialMap: React.FC<LeafletSpatialMapProps> = ({
       const [cLat, cLng] = getConcessionCenter(concession);
       L.circleMarker([cLat, cLng], {
         radius: 3.5,
-        color: '#54D8E8',
+        color: '#FB923C',
         weight: 1.5,
-        fillColor: '#080D18',
+        fillColor: '#1A1613',
         fillOpacity: 1,
       }).addTo(group);
     });
@@ -572,7 +572,7 @@ export const LeafletSpatialMap: React.FC<LeafletSpatialMapProps> = ({
     <div
       ref={containerRef}
       data-testid="manganex-leaflet-map"
-      className="absolute inset-0 w-full h-full bg-[#050D1A] overflow-hidden"
+      className="absolute inset-0 w-full h-full bg-[#120F0D] overflow-hidden"
       style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, width: '100%', height: '100%' }}
     />
   );

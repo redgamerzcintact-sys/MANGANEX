@@ -2,68 +2,75 @@
 
 @layer base {
   :root {
-    /* Dark Theme (Default) */
-    --bg-primary: #080C12;
-    --bg-secondary: #0D141E;
-    --panel-surface: #101927;
-    --elevated-surface: #152235;
-    --border-color: #1C3045;
-    --border-hover: #2C4866;
-    --accent-primary: #54D8E8;
-    --accent-blue: #168BFF;
-    --accent-secondary: #A78BFA;
-    --color-success: #43D6A0;
-    --color-warning: #F4B860;
-    --color-critical: #FF6878;
-    --text-primary: #F2F6FA;
-    --text-secondary: #9BAFC1;
-    --text-muted: #657A90;
-    --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-    --glow-cyan: 0 0 15px rgba(84, 216, 232, 0.25);
+    /* MANGANEX Warm Skin & Earthy Mineral High-Contrast Dark Theme (Default) */
+    --bg-primary: #120F0D;        /* Deep warm obsidian / earth charcoal */
+    --bg-secondary: #1A1613;      /* Warm dark earth backdrop */
+    --panel-surface: #241E1A;     /* Warm skin-tinted elevated panel */
+    --elevated-surface: #2F2722;  /* Rich warm card surface */
+    --border-color: #4D4037;      /* Crisp, high-contrast warm border */
+    --border-hover: #7D6758;      /* Warm sand border hover */
+    --accent-primary: #FB923C;    /* Vibrant warm terracotta / manganese orange */
+    --accent-warm: #F59E0B;       /* Warm pyrolusite amber */
+    --accent-skin: #E8B298;       /* Warm skin tone / peach sand */
+    --accent-blue: #38BDF8;       /* High-contrast precision telemetry cyan */
+    --accent-secondary: #C084FC;  /* Mineral violet */
+    --color-success: #10B981;     /* High-contrast emerald (optimal) */
+    --color-warning: #F59E0B;     /* Warm gold (caution) */
+    --color-critical: #EF4444;    /* High-contrast vermilion (critical shortfall) */
+    --text-primary: #FFF8F0;      /* Warm porcelain white (ultra-high contrast, 16:1 ratio) */
+    --text-secondary: #DEC8B7;    /* Warm skin-tinted secondary text (12:1 ratio) */
+    --text-muted: #A69282;        /* Warm sand muted text */
+    --card-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
+    --glow-warm: 0 0 18px rgba(251, 146, 60, 0.35);
+    --glow-skin: 0 0 14px rgba(232, 178, 152, 0.28);
   }
 
   html.light {
-    /* Light Theme (Precision Engineering Clean) */
-    --bg-primary: #F5F7FA;
-    --bg-secondary: #EDF1F5;
+    /* Light Theme (Warm Desert Sand / Technical Mineral Precision) */
+    --bg-primary: #FBF8F5;
+    --bg-secondary: #F3ECE4;
     --panel-surface: #FFFFFF;
-    --elevated-surface: #F8FAFC;
-    --border-color: #DCE4EC;
-    --border-hover: #CBD5E1;
-    --accent-primary: #087F9B;
-    --accent-blue: #1674D1;
+    --elevated-surface: #F9F5F0;
+    --border-color: #E2D7CC;
+    --border-hover: #C5B5A5;
+    --accent-primary: #C2410C;
+    --accent-warm: #D97706;
+    --accent-skin: #C28E75;
+    --accent-blue: #0284C7;
     --accent-secondary: #7C3AED;
-    --color-success: #159B72;
-    --color-warning: #B7791F;
-    --color-critical: #D94B59;
-    --text-primary: #172333;
-    --text-secondary: #64748B;
-    --text-muted: #94A3B8;
-    --card-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
-    --glow-cyan: 0 0 12px rgba(8, 127, 155, 0.18);
+    --color-success: #059669;
+    --color-warning: #D97706;
+    --color-critical: #DC2626;
+    --text-primary: #1F1610;
+    --text-secondary: #57463A;
+    --text-muted: #8C7667;
+    --card-shadow: 0 4px 20px rgba(45, 30, 20, 0.08);
+    --glow-warm: 0 0 14px rgba(194, 65, 12, 0.2);
+    --glow-skin: 0 0 12px rgba(194, 142, 117, 0.25);
   }
 }
 
 body {
-  font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Inter', 'Roboto', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   background-color: var(--bg-primary);
   color: var(--text-primary);
-  letter-spacing: -0.01em;
+  letter-spacing: -0.012em;
   overflow-x: hidden;
   transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 h1, h2, h3, h4, .font-heading {
-  font-family: 'Space Grotesk', sans-serif;
-  letter-spacing: -0.02em;
+  font-family: 'Inter', 'Roboto', system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.025em;
 }
 
 code, kbd, samp, pre, .font-mono {
-  font-family: 'IBM Plex Mono', monospace;
+  font-family: 'Roboto Mono', 'IBM Plex Mono', monospace;
   font-variant-numeric: tabular-nums;
 }
 
-/* Precision Swiss / Aerospace Scrollbar */
+/* Precision Swiss / Warm Earth Scrollbar */
 ::-webkit-scrollbar {
   width: 5px;
   height: 5px;
@@ -75,19 +82,19 @@ code, kbd, samp, pre, .font-mono {
 
 ::-webkit-scrollbar-thumb {
   background: var(--border-color);
-  border-radius: 2px;
+  border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--accent-primary);
 }
 
-/* Geospatial & Aerospace HUD Grid */
+/* Geospatial & Warm Geological HUD Grid */
 .hud-grid {
   background-size: 32px 32px;
   background-image: 
-    linear-gradient(to right, var(--border-color) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--border-color) 1px, transparent 1px);
+    linear-gradient(to right, rgba(77, 64, 55, 0.5) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(77, 64, 55, 0.5) 1px, transparent 1px);
 }
 
 .hud-panel {
@@ -101,24 +108,24 @@ code, kbd, samp, pre, .font-mono {
   border: 1px solid var(--border-color);
 }
 
-/* MANGANEX Tactical GIS Leaflet Theme Overrides */
+/* Warm Skin High-Contrast Tactical GIS Leaflet Theme Overrides */
 .leaflet-container {
-  background: #050D1A !important;
-  font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #120F0D !important;
+  font-family: 'Inter', 'Roboto', system-ui, sans-serif !important;
 }
 
 .manganex-map-tooltip {
-  background: rgba(8, 13, 24, 0.94) !important;
-  border: 1px solid rgba(84, 216, 232, 0.45) !important;
-  color: #F2F6FA !important;
+  background: rgba(26, 22, 19, 0.96) !important;
+  border: 1px solid rgba(251, 146, 60, 0.5) !important;
+  color: #FFF8F0 !important;
   border-radius: 8px !important;
-  padding: 5px 8px !important;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55) !important;
-  backdrop-filter: blur(8px);
+  padding: 6px 10px !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7) !important;
+  backdrop-filter: blur(10px);
 }
 
 .manganex-map-tooltip::before {
-  border-top-color: rgba(84, 216, 232, 0.45) !important;
+  border-top-color: rgba(251, 146, 60, 0.5) !important;
   border-right-color: transparent !important;
   border-left-color: transparent !important;
 }
@@ -129,14 +136,204 @@ code, kbd, samp, pre, .font-mono {
 }
 
 .leaflet-control-attribution {
-  background: rgba(8, 13, 24, 0.72) !important;
-  color: #657A90 !important;
-  border: 1px solid #1C3045 !important;
+  background: rgba(26, 22, 19, 0.85) !important;
+  color: #DEC8B7 !important;
+  border: 1px solid #4D4037 !important;
   border-radius: 6px !important;
   font-size: 9px !important;
-  padding: 1px 6px !important;
+  padding: 2px 8px !important;
 }
 
 .leaflet-control-attribution a {
-  color: #54D8E8 !important;
+  color: #FB923C !important;
+}
+
+/* ========================================================================= */
+/* NATIONAL HACKATHON GEOLOGICAL ANIMATIONS & HEATMAP EFFECTS                */
+/* ========================================================================= */
+
+@keyframes pulseWarmHalo {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.9;
+    filter: drop-shadow(0 0 6px rgba(251, 146, 60, 0.6));
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 1;
+    filter: drop-shadow(0 0 16px rgba(251, 146, 60, 0.85));
+  }
+}
+
+@keyframes radarSweep {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes scanBeam {
+  0% {
+    top: 0%;
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.8;
+  }
+  85% {
+    opacity: 0.8;
+  }
+  100% {
+    top: 100%;
+    opacity: 0;
+  }
+}
+
+@keyframes shimmerGlow {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-pulse-warm {
+  animation: pulseWarmHalo 2.4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-radar-sweep {
+  animation: radarSweep 6s linear infinite;
+  transform-origin: center center;
+}
+
+.animate-scan-beam {
+  animation: scanBeam 4s ease-in-out infinite;
+}
+
+.geological-scanline {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(251, 146, 60, 0.85), rgba(245, 158, 11, 1), rgba(232, 178, 152, 0.85), transparent);
+  box-shadow: 0 0 15px rgba(251, 146, 60, 0.7);
+  pointer-events: none;
+}
+
+.heatmap-glow-card {
+  box-shadow: 0 0 25px rgba(251, 146, 60, 0.12), inset 0 1px 0 rgba(255, 248, 240, 0.08);
+}
+
+/* ========================================================================= */
+/* GLOBAL WARM SKIN & HIGH-CONTRAST PALETTE OVERRIDES                        */
+/* Ensures every legacy view, chart, table, card, & component adopts theme    */
+/* ========================================================================= */
+
+.dark body,
+.dark main,
+.dark .app-container {
+  background-color: #120F0D !important;
+  color: #FFF8F0 !important;
+}
+
+/* Deep Obsidian Earth backgrounds */
+.dark [class*="bg-[#080C12]"],
+.dark [class*="bg-[#080c12]"],
+.dark [class*="bg-[#090D16]"],
+.dark [class*="bg-[#020712]"],
+.dark [class*="bg-[#050D1A]"],
+.dark [class*="bg-[#060A12]"] {
+  background-color: #120F0D !important;
+}
+
+/* Warm Earth panels & sidebars */
+.dark [class*="bg-[#06101D]"],
+.dark [class*="bg-[#071324]"],
+.dark [class*="bg-[#040A15]"],
+.dark [class*="bg-[#0B0F19]"],
+.dark [class*="bg-[#0C1524]"],
+.dark [class*="bg-[#080D18]"],
+.dark [class*="bg-[#0A1220]"],
+.dark [class*="bg-[#070D18]"],
+.dark [class*="bg-[#090E18]"] {
+  background-color: #1A1613 !important;
+}
+
+/* Warm Skin-Tinted Elevated Cards */
+.dark [class*="bg-[#101927]"],
+.dark [class*="bg-[#09172A]"],
+.dark [class*="bg-[#0D141E]"],
+.dark [class*="bg-[#0E1F36]"],
+.dark [class*="bg-[#0D1624]"],
+.dark [class*="bg-[#0E1726]"],
+.dark [class*="bg-[#0F1726]"] {
+  background-color: #241E1A !important;
+}
+
+/* Elevated Hover & Selected States */
+.dark [class*="bg-[#152235]"],
+.dark [class*="bg-[#0E223D]"],
+.dark [class*="bg-[#101D2E]"],
+.dark [class*="bg-[#1A2D46]"] {
+  background-color: #2F2722 !important;
+}
+
+/* High-Contrast Warm Borders */
+.dark [class*="border-[#1C3045]"],
+.dark [class*="border-[#14233A]"],
+.dark [class*="border-[#142642]"],
+.dark [class*="border-[#121D2C]"],
+.dark [class*="border-[#1E3A8A]"] {
+  border-color: #4D4037 !important;
+}
+
+/* Warm Terracotta & Amber Accents */
+.dark [class*="text-[#54D8E8]"],
+.dark [class*="text-[#00D9FF]"] {
+  color: #FB923C !important;
+}
+
+/* Warm Skin & Sand Readable Text */
+.dark [class*="text-[#9BAFC1]"],
+.dark [class*="text-[#94A3B8]"],
+.dark [class*="text-[#CBD5E1]"],
+.dark [class*="text-[#E2E8F0]"] {
+  color: #DEC8B7 !important;
+}
+
+/* Warm Muted Earth Text */
+.dark [class*="text-[#657A90]"],
+.dark [class*="text-[#64748B]"] {
+  color: #A69282 !important;
+}
+
+/* High Contrast Pure White Text */
+.dark [class*="text-[#F2F6FA]"],
+.dark [class*="text-[#F1F5F9]"] {
+  color: #FFF8F0 !important;
+}
+
+/* Interactive Hover States */
+.dark [class*="hover:bg-[#101927]"]:hover,
+.dark [class*="hover:bg-[#09172A]"]:hover {
+  background-color: #241E1A !important;
+}
+
+.dark [class*="hover:bg-[#152235]"]:hover,
+.dark [class*="hover:bg-[#0E223D]"]:hover,
+.dark [class*="hover:bg-[#1E2F46]"]:hover {
+  background-color: #2F2722 !important;
+}
+
+.dark [class*="hover:border-[#54D8E8]"]:hover,
+.dark [class*="hover:border-[#00D9FF]"]:hover {
+  border-color: #FB923C !important;
+}
+
+.dark [class*="hover:text-[#54D8E8]"]:hover,
+.dark [class*="hover:text-[#00D9FF]"]:hover {
+  color: #FB923C !important;
 }

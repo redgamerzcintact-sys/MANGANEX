@@ -79,29 +79,29 @@ export const MissionBriefingModal: React.FC = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 pointer-events-none flex flex-col justify-between p-6">
+    <div className="fixed inset-0 z-50 pointer-events-none flex flex-col justify-between p-6 font-sans">
       {/* Top Banner Indicator */}
-      <div className="pointer-events-auto flex items-center justify-between px-6 py-3 rounded-xl bg-[#101925]/95 border border-[#37D9FF]/40 shadow-2xl backdrop-blur-md">
+      <div className="pointer-events-auto flex items-center justify-between px-6 py-3 rounded-xl bg-[#1A1613]/95 border border-[#FB923C]/40 shadow-2xl backdrop-blur-md">
         <div className="flex items-center gap-3">
-          <div className="h-8 w-8 rounded-lg bg-[#37D9FF] text-black flex items-center justify-center font-bold">
+          <div className="h-8 w-8 rounded-lg bg-[#FB923C] text-[#120F0D] flex items-center justify-center font-bold">
             <Sparkles className="h-5 w-5" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-mono uppercase tracking-widest text-[#37D9FF]">
+              <span className="text-xs font-mono uppercase tracking-widest text-[#FB923C] font-bold">
                 MANGANEX 5-STEP JUDGE GUIDED TOUR
               </span>
-              <span className="text-xs text-[#96AABD]">
+              <span className="text-xs text-[#DEC8B7]">
                 • Step {briefingSceneIndex + 1} of {scenes.length}
               </span>
             </div>
-            <h2 className="text-sm font-heading font-bold text-[#EDF5FC]">{currentScene.title}</h2>
+            <h2 className="text-sm font-heading font-bold text-[#FFF8F0]">{currentScene.title}</h2>
           </div>
         </div>
 
         <button
           onClick={stopBriefing}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#26384A] bg-[#152130] text-xs font-mono text-[#96AABD] hover:text-[#FF6378] hover:border-[#FF6378]/50 transition-colors"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#4D4037] bg-[#241E1A] text-xs font-mono text-[#DEC8B7] hover:text-[#EF4444] hover:border-[#EF4444]/50 transition-colors cursor-pointer"
         >
           <X className="h-4 w-4" />
           <span>EXIT TOUR</span>
@@ -109,27 +109,27 @@ export const MissionBriefingModal: React.FC = () => {
       </div>
 
       {/* Bottom Floating Presenter Card */}
-      <div className="pointer-events-auto max-w-2xl mx-auto w-full rounded-2xl bg-[#101925]/95 border border-[#26384A] p-5 shadow-[0_10px_40px_rgba(0,0,0,0.8)] backdrop-blur-xl">
-        <div className="flex items-center justify-between text-xs font-mono text-[#9A85FF] mb-1">
+      <div className="pointer-events-auto max-w-2xl mx-auto w-full rounded-2xl bg-[#1A1613]/95 border border-[#4D4037] p-5 shadow-[0_10px_40px_rgba(0,0,0,0.85)] backdrop-blur-xl">
+        <div className="flex items-center justify-between text-xs font-mono text-[#E8B298] mb-1 font-bold">
           <span>{currentScene.subtitle}</span>
-          <span className="text-[#38D9A9]">STEP {briefingSceneIndex + 1}/{scenes.length}</span>
+          <span className="text-[#10B981]">STEP {briefingSceneIndex + 1}/{scenes.length}</span>
         </div>
 
-        <p className="text-sm text-[#EDF5FC] leading-relaxed mb-3">
+        <p className="text-sm text-[#FFF8F0] leading-relaxed mb-3">
           {currentScene.description}
         </p>
 
-        <div className="p-2.5 rounded-lg bg-[#080D14]/80 border border-[#26384A] text-xs font-mono text-[#37D9FF] flex items-center gap-2 mb-4">
-          <CheckCircle2 className="h-4 w-4 text-[#38D9A9] shrink-0" />
+        <div className="p-2.5 rounded-lg bg-[#241E1A] border border-[#4D4037] text-xs font-mono text-[#FB923C] flex items-center gap-2 mb-4">
+          <CheckCircle2 className="h-4 w-4 text-[#10B981] shrink-0" />
           <span>{currentScene.keyAction}</span>
         </div>
 
         {/* Scene Navigation Buttons */}
-        <div className="flex items-center justify-between pt-2 border-t border-[#26384A]">
+        <div className="flex items-center justify-between pt-2 border-t border-[#4D4037]">
           <button
             onClick={handlePrev}
             disabled={briefingSceneIndex === 0}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#26384A] text-xs font-medium text-[#96AABD] hover:text-[#EDF5FC] disabled:opacity-40 disabled:pointer-events-none transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#4D4037] text-xs font-medium text-[#DEC8B7] hover:text-[#FFF8F0] disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer"
           >
             <ChevronLeft className="h-4 w-4" />
             <span>Previous Step</span>
@@ -142,10 +142,10 @@ export const MissionBriefingModal: React.FC = () => {
                 key={i}
                 className={`h-2 rounded-full transition-all ${
                   i === briefingSceneIndex
-                    ? 'w-6 bg-[#37D9FF]'
+                    ? 'w-6 bg-[#FB923C]'
                     : i < briefingSceneIndex
-                    ? 'w-2 bg-[#38D9A9]'
-                    : 'w-2 bg-[#26384A]'
+                    ? 'w-2 bg-[#10B981]'
+                    : 'w-2 bg-[#4D4037]'
                 }`}
               />
             ))}
@@ -153,7 +153,7 @@ export const MissionBriefingModal: React.FC = () => {
 
           <button
             onClick={handleNext}
-            className="flex items-center gap-2 px-4 py-1.5 rounded-lg bg-[#37D9FF] hover:bg-[#37D9FF]/90 text-black text-xs font-semibold tracking-wide shadow-[0_0_15px_rgba(55,217,255,0.4)] transition-all"
+            className="flex items-center gap-2 px-4 py-1.5 rounded-lg bg-[#FB923C] hover:bg-[#F59E0B] text-[#120F0D] text-xs font-bold tracking-wide shadow-[0_0_15px_rgba(251,146,60,0.4)] transition-all cursor-pointer"
           >
             <span>{briefingSceneIndex === scenes.length - 1 ? 'Finish Tour' : 'Next Step'}</span>
             <ChevronRight className="h-4 w-4" />
