@@ -156,6 +156,7 @@ export const api = {
   explainProspect: (id: string) => fetchApi<any>(`/geology/prospects/${id}/explain`),
   getProspectivityGrid: () => fetchApi<any>('/geology/prospectivity/grid'),
   getProspectivityModelCard: () => fetchApi<any>('/geology/prospectivity/model-card'),
+  getDrillTargets: () => fetchApi<{ targets: any[]; total_targets: number }>('/geology/drill-targets'),
   scoreCustomProspect: (features: Record<string, number>) =>
     fetchApi<any>('/geology/prospectivity/score', {
       method: 'POST',

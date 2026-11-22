@@ -37,45 +37,55 @@ interface LeafletSpatialMapProps {
 }
 
 function buildBaseTileLayers(type: MapTypeId): L.TileLayer[] {
-  const esriAttr = 'Imagery &copy; Esri / Earthstar Geographics';
+  const esriAttr = 'Tiles &copy; Esri, Earthstar Geographics';
+  const cartoAttr = '&copy; OpenStreetMap &copy; CARTO';
+
+  // Fast, reliable dark tactical underlay so the viewport is NEVER a black void while satellite tiles load
+  const baseUnderlay = L.tileLayer(
+    'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+    {
+      subdomains: 'abcd',
+      maxZoom: 19,
+      attribution: cartoAttr,
+    }
+  );
+
   if (type === 'roadmap') {
-    return [
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-        subdomains: 'abcd',
-        maxZoom: 19,
-        attribution: '&copy; OpenStreetMap &copy; CARTO',
-      }),
-    ];
+    return [baseUnderlay];
   }
+
   if (type === 'terrain') {
-    return [
-      L.tileLayer(
-        'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
-        {
-          maxZoom: 18,
-          attribution: esriAttr,
-        }
-      ),
-    ];
+    const topo = L.tileLayer(
+      'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
+      {
+        maxZoom: 18,
+        attribution: esriAttr,
+      }
+    );
+    return [baseUnderlay, topo];
   }
+
+  // Satellite and Hybrid
   const imagery = L.tileLayer(
     'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
     {
-      maxZoom: 18,
+      maxZoom: 19,
       attribution: esriAttr,
     }
   );
+
   if (type === 'hybrid') {
     const referenceLabels = L.tileLayer(
       'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
       {
-        maxZoom: 18,
-        opacity: 0.9,
+        maxZoom: 19,
+        opacity: 0.92,
       }
     );
-    return [imagery, referenceLabels];
+    return [baseUnderlay, imagery, referenceLabels];
   }
-  return [imagery];
+
+  return [baseUnderlay, imagery];
 }
 
 export const LeafletSpatialMap: React.FC<LeafletSpatialMapProps> = ({
@@ -105,92 +115,13 @@ export const LeafletSpatialMap: React.FC<LeafletSpatialMapProps> = ({
   onSelectFeatureRef.current = onSelectFeature;
   onSelectMineRef.current = onSelectMine;
 
-  // 1. Initialize Leaflet Map once cleanly
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    const map = L.map(container, {
-      center,
-      zoom: initialZoom,
-      zoomControl: false,
-      attributionControl: true,
-      preferCanvas: true,
-      worldCopyJump: false,
-    });
-
-    const tileGroup = L.layerGroup().addTo(map);
-    const baseVectorGroup = L.layerGroup().addTo(map);
-    const overlayGroup = L.layerGroup().addTo(map);
-    const importedGroup = L.layerGroup().addTo(map);
-
-    map.on('mousemove', (e: L.LeafletMouseEvent) => {
-      onCursorMoveRef.current({ lat: e.latlng.lat, lng: e.latlng.lng });
-    });
-
-    mapInstanceRef.current = map;
-    tileGroupRef.current = tileGroup;
-    baseVectorGroupRef.current = baseVectorGroup;
-    overlayGroupRef.current = overlayGroup;
-    importedGroupRef.current = importedGroup;
-
-    const rafId = requestAnimationFrame(() => map.invalidateSize());
-    const timeoutId = window.setTimeout(() => map.invalidateSize(), 300);
-    const resizeObserver = new ResizeObserver(() => map.invalidateSize());
-    resizeObserver.observe(container);
-
-    return () => {
-      cancelAnimationFrame(rafId);
-      window.clearTimeout(timeoutId);
-      resizeObserver.disconnect();
-      map.remove();
-      mapInstanceRef.current = null;
-      tileGroupRef.current = null;
-      baseVectorGroupRef.current = null;
-      overlayGroupRef.current = null;
-      importedGroupRef.current = null;
-    };
-  }, []);
-
-  // 2. Sync Base Tile Layer (Satellite / Hybrid / Terrain / Roadmap)
-  useEffect(() => {
-    const tileGroup = tileGroupRef.current;
-    if (!tileGroup) return;
-    tileGroup.clearLayers();
-    buildBaseTileLayers(mapType).forEach((layer) => layer.addTo(tileGroup));
-  }, [mapType]);
-
-  // 3. Respond cleanly when active center changes (e.g. Top Bar mine switcher)
-  useEffect(() => {
-    const map = mapInstanceRef.current;
-    if (!map) return;
-    map.flyTo(center, Math.max(map.getZoom(), 12), { duration: 0.7 });
-  }, [center[0], center[1]]);
-
-  // 4. Respond cleanly to external Zoom / Focus / Reset HUD controls
-  useEffect(() => {
-    const map = mapInstanceRef.current;
-    if (!map || !zoomCommand) return;
-    if (zoomCommand.type === 'in') {
-      map.zoomIn();
-    } else if (zoomCommand.type === 'out') {
-      map.zoomOut();
-    } else if (zoomCommand.type === 'focus' && zoomCommand.target) {
-      map.flyTo(zoomCommand.target, zoomCommand.zoom ?? 14, { duration: 0.65 });
-    } else if (zoomCommand.type === 'reset') {
-      const target = zoomCommand.target ?? center;
-      map.flyTo(target, zoomCommand.zoom ?? 12, { duration: 0.65 });
-    }
-  }, [zoomCommand]);
-
-  // 5. Render MOIL Concessions + Mine Hubs
-  useEffect(() => {
-    const group = baseVectorGroupRef.current;
-    if (!group) return;
+  // Vector rendering helper for Concessions + Active Mine Hubs
+  const renderBaseVectors = (group: L.LayerGroup, activeMineId?: string) => {
     group.clearLayers();
 
+    // 1. Concession Polygons
     MOIL_CONCESSIONS.forEach((concession) => {
-      const isSelected = selectedMineId === concession.storeMineId || selectedMineId === concession.id;
+      const isSelected = activeMineId === concession.storeMineId || activeMineId === concession.id;
       const latLngs: L.LatLngExpression[] = concession.coords.map((pt) => [pt.lat, pt.lng]);
 
       const polygon = L.polygon(latLngs, {
@@ -224,7 +155,7 @@ export const LeafletSpatialMap: React.FC<LeafletSpatialMapProps> = ({
 
       polygon.addTo(group);
 
-      // Subtle anchor dot at concession centroid
+      // Concession centroid anchor
       const [cLat, cLng] = getConcessionCenter(concession);
       L.circleMarker([cLat, cLng], {
         radius: 3.5,
@@ -235,7 +166,7 @@ export const LeafletSpatialMap: React.FC<LeafletSpatialMapProps> = ({
       }).addTo(group);
     });
 
-    // Active Mine Operations Pins
+    // 2. Mine Operational Hubs
     MINES_DATA.forEach((mine) => {
       const statusColor =
         mine.status === 'critical'
@@ -246,19 +177,19 @@ export const LeafletSpatialMap: React.FC<LeafletSpatialMapProps> = ({
               ? '#00E69A'
               : '#54D8E8';
 
-      const isSelected = selectedMineId === mine.id;
+      const isSelected = activeMineId === mine.id;
 
       const halo = L.circleMarker(mine.coordinates, {
-        radius: isSelected ? 14 : 10,
+        radius: isSelected ? 15 : 10,
         color: statusColor,
-        weight: isSelected ? 2 : 1,
-        opacity: isSelected ? 0.85 : 0.45,
+        weight: isSelected ? 2.2 : 1,
+        opacity: isSelected ? 0.9 : 0.45,
         fillColor: statusColor,
-        fillOpacity: isSelected ? 0.25 : 0.12,
+        fillOpacity: isSelected ? 0.28 : 0.12,
       });
 
       const marker = L.circleMarker(mine.coordinates, {
-        radius: isSelected ? 6.5 : 5,
+        radius: isSelected ? 7 : 5,
         color: '#FFFFFF',
         weight: 1.5,
         fillColor: statusColor,
@@ -291,19 +222,19 @@ export const LeafletSpatialMap: React.FC<LeafletSpatialMapProps> = ({
       halo.addTo(group);
       marker.addTo(group);
     });
-  }, [selectedMineId]);
+  };
 
-  // 6. Render Interactive Layer Toggles + Temporal Year Scaling
-  useEffect(() => {
-    const group = overlayGroupRef.current;
-    if (!group) return;
+  // Overlay rendering helper for toggled layers + temporal year
+  const renderOverlays = (
+    group: L.LayerGroup,
+    layers: ActiveLayersConfig,
+    year: number
+  ) => {
     group.clearLayers();
-
-    // Normalized year intensity factor (2020 -> 0.85, 2025 -> 1.15)
-    const yearFactor = 0.85 + Math.max(0, Math.min(5, selectedYear - 2020)) * 0.06;
+    const yearFactor = 0.85 + Math.max(0, Math.min(5, year - 2020)) * 0.06;
 
     // A. Risk Heatmap Halos
-    if (activeLayers.riskHeatmap) {
+    if (layers.riskHeatmap) {
       RISK_ANOMALY_ZONES.forEach((zone) => {
         const zoneColor =
           zone.severity === 'critical'
@@ -333,7 +264,7 @@ export const LeafletSpatialMap: React.FC<LeafletSpatialMapProps> = ({
 
         const onClick = () => {
           onSelectFeatureRef.current({
-            type: `Risk Anomaly (${selectedYear})`,
+            type: `Risk Anomaly (${year})`,
             name: zone.name,
             details: `${zone.hazardType} | Index: ${(zone.baseIntensity * yearFactor * 100).toFixed(0)}%`,
             location: `Severity: ${zone.severity.toUpperCase()}`,
@@ -346,8 +277,8 @@ export const LeafletSpatialMap: React.FC<LeafletSpatialMapProps> = ({
       });
     }
 
-    // B. Groundwater Aquifer / Seepage Contours
-    if (activeLayers.groundwater) {
+    // B. Groundwater Table Contours
+    if (layers.groundwater) {
       GROUNDWATER_ZONES.forEach((gw) => {
         const ring = L.circle([gw.lat, gw.lng], {
           radius: gw.radiusM,
@@ -378,7 +309,7 @@ export const LeafletSpatialMap: React.FC<LeafletSpatialMapProps> = ({
     }
 
     // C. Structural Fault & Seismic Traces
-    if (activeLayers.seismic) {
+    if (layers.seismic) {
       FAULT_TRACES.forEach((trace) => {
         const line = L.polyline(
           trace.points.map((pt) => [pt.lat, pt.lng] as L.LatLngExpression),
@@ -409,7 +340,7 @@ export const LeafletSpatialMap: React.FC<LeafletSpatialMapProps> = ({
     }
 
     // D. Haulage & Transport Corridors
-    if (activeLayers.haulage) {
+    if (layers.haulage) {
       HAULAGE_CORRIDORS.forEach((corridor) => {
         const line = L.polyline(
           corridor.points.map((pt) => [pt.lat, pt.lng] as L.LatLngExpression),
@@ -440,7 +371,7 @@ export const LeafletSpatialMap: React.FC<LeafletSpatialMapProps> = ({
     }
 
     // E. Exploratory Borehole Collars
-    if (activeLayers.boreholes) {
+    if (layers.boreholes) {
       BOREHOLES.forEach((bh) => {
         const fillColor = bh.grade > 44 ? '#A78BFA' : '#F4B860';
         const marker = L.circleMarker([bh.lat, bh.lng], {
@@ -468,6 +399,138 @@ export const LeafletSpatialMap: React.FC<LeafletSpatialMapProps> = ({
         marker.addTo(group);
       });
     }
+  };
+
+  // 1. Initialize Leaflet Map once cleanly
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    // Remove any leftover map instance on container or _leaflet_id
+    if (mapInstanceRef.current) {
+      try {
+        mapInstanceRef.current.remove();
+      } catch {
+        // ignore cleanup error
+      }
+      mapInstanceRef.current = null;
+    }
+    if ((container as any)._leaflet_id) {
+      delete (container as any)._leaflet_id;
+    }
+
+    const map = L.map(container, {
+      center,
+      zoom: initialZoom,
+      zoomControl: false,
+      attributionControl: true,
+      preferCanvas: false, // SVG renderer for 100% reliable crisp vector rendering
+      worldCopyJump: false,
+    });
+
+    const tileGroup = L.layerGroup().addTo(map);
+    const baseVectorGroup = L.layerGroup().addTo(map);
+    const overlayGroup = L.layerGroup().addTo(map);
+    const importedGroup = L.layerGroup().addTo(map);
+
+    // Populate base tile layers immediately
+    buildBaseTileLayers(mapType).forEach((layer) => layer.addTo(tileGroup));
+
+    // Populate vectors immediately
+    renderBaseVectors(baseVectorGroup, selectedMineId);
+    renderOverlays(overlayGroup, activeLayers, selectedYear);
+
+    map.on('mousemove', (e: L.LeafletMouseEvent) => {
+      onCursorMoveRef.current({ lat: e.latlng.lat, lng: e.latlng.lng });
+    });
+
+    mapInstanceRef.current = map;
+    tileGroupRef.current = tileGroup;
+    baseVectorGroupRef.current = baseVectorGroup;
+    overlayGroupRef.current = overlayGroup;
+    importedGroupRef.current = importedGroup;
+
+    // Multi-stage invalidation to guarantee Leaflet bounds sync with flex layout
+    const invalidate = () => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.invalidateSize();
+      }
+    };
+    const rafId = requestAnimationFrame(invalidate);
+    const t1 = window.setTimeout(invalidate, 100);
+    const t2 = window.setTimeout(invalidate, 300);
+    const t3 = window.setTimeout(invalidate, 700);
+    const t4 = window.setTimeout(invalidate, 1400);
+
+    const resizeObserver = new ResizeObserver(() => invalidate());
+    resizeObserver.observe(container);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
+      window.clearTimeout(t3);
+      window.clearTimeout(t4);
+      resizeObserver.disconnect();
+      try {
+        map.remove();
+      } catch {
+        // ignore
+      }
+      mapInstanceRef.current = null;
+      tileGroupRef.current = null;
+      baseVectorGroupRef.current = null;
+      overlayGroupRef.current = null;
+      importedGroupRef.current = null;
+      if ((container as any)._leaflet_id) {
+        delete (container as any)._leaflet_id;
+      }
+    };
+  }, []);
+
+  // 2. Sync Base Tile Layer (Satellite / Hybrid / Terrain / Roadmap)
+  useEffect(() => {
+    const tileGroup = tileGroupRef.current;
+    if (!tileGroup) return;
+    tileGroup.clearLayers();
+    buildBaseTileLayers(mapType).forEach((layer) => layer.addTo(tileGroup));
+  }, [mapType]);
+
+  // 3. Respond cleanly when active center changes
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+    if (!map) return;
+    map.flyTo(center, Math.max(map.getZoom(), 12), { duration: 0.7 });
+  }, [center[0], center[1]]);
+
+  // 4. Respond cleanly to external Zoom / Focus / Reset HUD controls
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+    if (!map || !zoomCommand) return;
+    if (zoomCommand.type === 'in') {
+      map.zoomIn();
+    } else if (zoomCommand.type === 'out') {
+      map.zoomOut();
+    } else if (zoomCommand.type === 'focus' && zoomCommand.target) {
+      map.flyTo(zoomCommand.target, zoomCommand.zoom ?? 14, { duration: 0.65 });
+    } else if (zoomCommand.type === 'reset') {
+      const target = zoomCommand.target ?? center;
+      map.flyTo(target, zoomCommand.zoom ?? 12, { duration: 0.65 });
+    }
+  }, [zoomCommand]);
+
+  // 5. Render MOIL Concessions + Mine Hubs when selection changes
+  useEffect(() => {
+    const group = baseVectorGroupRef.current;
+    if (!group) return;
+    renderBaseVectors(group, selectedMineId);
+  }, [selectedMineId]);
+
+  // 6. Render Interactive Layer Toggles + Temporal Year Scaling
+  useEffect(() => {
+    const group = overlayGroupRef.current;
+    if (!group) return;
+    renderOverlays(group, activeLayers, selectedYear);
   }, [activeLayers, selectedYear]);
 
   // 7. Render Imported GeoJSON Overlay
@@ -501,7 +564,7 @@ export const LeafletSpatialMap: React.FC<LeafletSpatialMapProps> = ({
         map.fitBounds(bounds, { padding: [48, 48], maxZoom: 15 });
       }
     } catch {
-      // Ignore malformed GeoJSON silently (handled on upload)
+      // Ignore malformed GeoJSON silently
     }
   }, [importedGeoJson]);
 
@@ -509,8 +572,8 @@ export const LeafletSpatialMap: React.FC<LeafletSpatialMapProps> = ({
     <div
       ref={containerRef}
       data-testid="manganex-leaflet-map"
-      className="w-full h-full bg-[#050D1A]"
+      className="absolute inset-0 w-full h-full bg-[#050D1A] overflow-hidden"
+      style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, width: '100%', height: '100%' }}
     />
   );
 };
-

@@ -1,158 +1,180 @@
 # MANGANEX — The Earth's Hidden Intelligence
-## AI-Powered Geological Exploration & Mining Operations Platform
+### AI-Powered Mineral Prospectivity & Operational Shortfall Intelligence Platform
 
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.6-blue.svg)](https://www.typescriptlang.org/)
-[![React](https://img.shields.io/badge/React-19.0-61DAFB.svg)](https://react.dev/)
-[![Python](https://img.shields.io/badge/FastAPI-Python_3.11-009688.svg)](https://fastapi.tiangolo.com/)
-[![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.3.3-6DB33F.svg)](https://spring.io/projects/spring-boot)
-[![Three.js](https://img.shields.io/badge/Three.js-WebGL-black.svg)](https://threejs.org/)
-[![Google Maps](https://img.shields.io/badge/Google_Maps-API_v3-4285F4.svg)](https://developers.google.com/maps)
-[![Sentinel-2](https://img.shields.io/badge/Copernicus-Sentinel--2_MSI-003399.svg)](https://sentinels.copernicus.eu/)
+[![CI Pipeline](https://github.com/redgamerzcintact-sys/MANGANEX/actions/workflows/ci.yml/badge.svg)](https://github.com/redgamerzcintact-sys/MANGANEX/actions/workflows/ci.yml)
+[![Live Demo](https://img.shields.io/badge/Live_Demo-manganex--three.vercel.app-00E676?style=flat&logo=vercel)](https://manganex-three.vercel.app)
+[![React 19](https://img.shields.io/badge/React-19.0-61DAFB.svg?logo=react)](https://react.dev/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-Python_3.11-009688.svg?logo=fastapi)](https://fastapi.tiangolo.com/)
+[![scikit-learn](https://img.shields.io/badge/scikit--learn-1.4+-F7931E.svg?logo=scikit-learn)](https://scikit-learn.org/)
+[![Docker](https://img.shields.io/badge/Docker-compose_ready-2496ED.svg?logo=docker)](https://www.docker.com/)
 
-Built for the **Ministry of Steel National Mining Intelligence Initiative** & **MOIL Limited**.  
-*Fusing Remote Sensing, 3D Lithological Modeling, Explainable Machine Learning, and Real-Time IoT Telemetry to Discover High-Grade Manganese Reserves and Prevent Extraction Shortfalls.*
+Built for the **Ministry of Steel National Mining Intelligence Hackathon** & **MOIL Limited** (Manganese Ore India Limited).
 
 ---
 
-## 🏛️ Executive Architecture
+## ⚡ 30-Second Pitch
 
-MANGANEX is an integrated mineral intelligence platform built with **React 19 + TypeScript** on the frontend and **Python FastAPI + SQLite** on the backend:
+MANGANEX is an end-to-end mineral intelligence and operational decision-support system built to solve MOIL's two most critical challenges across the Central India Manganese Belt:
 
+1. **Reserve Prospectivity & Next-Drill Recommender**: Replaces subjective exploration with a **5-Fold Spatial Block Cross-Validated (10km blocks)** ensemble (Random Forest + Gradient Boosting, ROC-AUC: **0.999**, PR-AUC: **0.982** vs 0.010 baseline). It scores 500m cells using active learning ($\text{Score} = P(\text{mineralization}) \times \text{Uncertainty InfoGain} \div \text{Cost Proxy}$) to rank top-5 diamond core wireline targets with local `shap.TreeExplainer` feature drivers.
+2. **Weather-Driven Extraction Shortfall Forecasting**: Couples **100% REAL Open-Meteo numerical weather telemetry** (precipitation, root-zone soil saturation) with equipment downtime events to predict production shortfalls as asymmetric $P_{10}/P_{50}/P_{90}$ quantile distributions at 7, 15, and 30-day horizons. In **Scenario Lab**, operators simulate counterfactual mitigation actions (pump boosters, shifted blasting windows, dry-bench fleet redeployment) that report dynamically computed recovered tonnages.
+
+---
+
+## 🏛️ System Architecture
+
+```mermaid
+flowchart TD
+    subgraph Feeds["Telemetry & Geospatial Ingestion"]
+        OM["Open-Meteo ERA5 Reanalysis & 16D Forecast API (No API Key Required)"]
+        S2["Sentinel-2 Level-2A BOA Multi-Spectral Surface Reflectance"]
+        SRTM["SRTM 30m Digital Elevation Model & Topographic Slope"]
+        GSI["GSI / USGS Manganese Deposits & Sauser Thrust Lineaments"]
+        LocalSnap["Local Weather Snapshot (backend/data/weather_snapshot.json)"]
+    end
+
+    subgraph Backend["FastAPI Production Backend (Python 3.11)"]
+        API["API Gateway & Router (/api/v1)"]
+        WeatherCache["Weather Ingestion Engine (SQLite 6h Cache + Offline Fallback)"]
+        
+        subgraph Models["Explainable AI & ML Engines"]
+            ProspectML["Spatial Block CV Prospectivity (scikit-learn RF + GB)"]
+            ShapEngine["Local Attribution (shap.TreeExplainer)"]
+            DrillOpt["Active Learning Drill Collar Optimizer (NMS >= 1.5km)"]
+            QuantileForecaster["Quantile Gradient Boosting Shortfall Forecaster (P10/P50/P90)"]
+            ScenarioLabEngine["Parametric Counterfactual Solver (docs/simulation.md)"]
+        end
+
+        DB[(SQLite / PostgreSQL via SQLAlchemy)]
+        Auth["JWT Zero-Trust RBAC (Admin, Geologist, Engineer, Analyst, Viewer)"]
+    end
+
+    subgraph Frontend["React 19 + TypeScript + Vite SPA"]
+        LandingPage["Landing Page (Cold-Start /health Warmup Ping & Guided Tour)"]
+        GISMap["Cadastral Command Center (ESRI High-Res Satellite GIS Engine)"]
+        ExplorationUI["Exploration Lab (500m Heatmap, Numbered Pins, 'Why this zone?' SHAP)"]
+        ProductionUI["Production Intelligence (Quantile Bands, Forecast Quality Card)"]
+        ScenarioUI["Hero Scenario Lab (3-Scenario Side-by-Side Matrix, PDF Report Export)"]
+        NexusUI["NEXUS AI Decision Copilot (Deterministic Tool-Calling RAG)"]
+    end
+
+    OM -->|Live Ingestion| WeatherCache
+    LocalSnap -.->|Offline Fallback| WeatherCache
+    S2 & SRTM & GSI --> ProspectML --> ShapEngine --> DrillOpt
+
+    WeatherCache --> QuantileForecaster
+    DB --> QuantileForecaster --> ScenarioLabEngine
+
+    WeatherCache & DrillOpt & QuantileForecaster & ScenarioLabEngine --> API
+    API <-->|REST + Data Provenance Envelope| Frontend
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                       MANGANEX MISSION WEB APPLICATION                      │
-│        React 19 • TypeScript • Tailwind CSS • Three.js WebGL • Recharts      │
-│      Leaflet & Google Maps API v3 • MapLibre GL • Web Speech STT / TTS      │
-└──────────────────────────────────────▲──────────────────────────────────────┘
-                                       │ HTTP / JSON & SSE
-                                       ▼
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                     PYTHON FASTAPI BACKEND (Port 8000)                      │
-│ • Full IAM, BCrypt Authentication & Pre-Seeded 1-Click Demo Profiles         │
-│ • Random Forest + Gradient Boosting (scikit-learn) ML Engines               │
-│ • Real-time Production Shortfall Forecasting (Weather, Downtime, Blasting)   │
-│ • Subsurface Prospectivity from Borehole Core Assays & Fold Tectonics        │
-│ • Sentinel-2 Multi-Spectral Surface Reflectance (Surface Indicators Only)    │
-│ • NEXUS AI Multilingual Decision Copilot & RAG Knowledge Search              │
-└─────────────────────────────────────────────────────────────────────────────┘
-```
-
-> **Note on Backend Architecture:** The active frontend connects directly to the Python FastAPI backend (`backend/app`, port 8000), which handles all authentication, SQLite persistence, machine learning, and decision intelligence. The Java service in `java-backend/` is an optional enterprise reference implementation and is **not used** by the frontend.
 
 ---
 
-## 🚀 Key Systems & Capabilities
+## 📸 Platform Previews
 
-### 1. 🤖 NEXUS AI Multilingual Geospatial Assistant
-- **17 Application Tools:** Orchestrates real backend tools including `get_mine_details`, `get_formation_lithology`, `get_borehole_assays`, `get_swir_alteration`, `get_production_forecast`, `get_fleet_telemetry`, `run_prospectivity_score`, and `generate_geological_report`.
-- **26 Languages Supported:**
-  - *13 Indian Languages:* English, Hindi (हिन्दी), Marathi (मराठी), Bengali (বাংলা), Tamil (தமிழ்), Telugu (తెలుగు), Gujarati (ગુજરાતી), Kannada (ಕನ್ನಡ), Malayalam (മലയാളം), Punjabi (ਪੰਜਾਬੀ), Urdu (اردو), Odia (ଓଡ଼ିଆ), Assamese (অসমীয়া).
-  - *13 International Languages:* Spanish, French, German, Japanese, Chinese, Arabic, Russian, Portuguese, Italian, Korean, Turkish, Indonesian, Persian.
-- **ChatGPT-Grade User Experience:**
-  - Conversation search, pinning/unpinning, rename, and session history management.
-  - Message edit and resend capabilities.
-  - Real-time streaming SSE responses with stop generation button.
-  - Verified RAG document citations and follow-up recommendation action pills.
-  - Native Web Speech API STT (voice transcription) & TTS (speech readout).
-
-### 2. 🔐 Enterprise Authentication & Role-Based Portals (RBAC)
-- **Zero-Trust IAM Architecture:** Secure authentication with BCrypt password hashing, session tokens, and lockout defense (HTTP 429 after 5 failed attempts).
-- **Self-Service Registration:** Live password strength meter, email verification workflow with token activation.
-- **Password Recovery Protocol:** Verified reset token flow with new credential encryption.
-- **5 Dedicated Role Mission Portals:**
-  - `Admin`: User governance, IAM security policies, and audit trails (`/admin/dashboard`).
-  - `Geologist`: Borehole assays, 3D lithology, and prospectivity analytics (`/geologist/dashboard`).
-  - `Mining Engineer`: Production pulse, fleet availability, and haulage tracking (`/operations/dashboard`).
-  - `Data Analyst`: Sentinel-2 spectral indices, ML models, and analytics reports (`/analytics/dashboard`).
-  - `Viewer`: Executive read-only overview, cadastre viewer, and approved reports (`/viewer/dashboard`).
-
-### 3. 🌍 Scientific 3D Subsurface Digital Twin
-- **Data-Driven Surface DEM:** High-resolution terrain mesh driven by digital elevation models with contour lines and vertical exaggeration controls ($1.0\times$ to $3.5\times$).
-- **Sauser Belt Stratigraphy:** 4 authentic formations with true $72^\circ$ SE tectonic dip:
-  1. *Laterite & Weathered Regolith* ($0\text{ to }45\text{m}$)
-  2. *Mansar Quartz-Muscovite Schist* host rock ($45\text{ to }180\text{m}$)
-  3. *Braunite-Pyrolusite Primary Ore Reef* ($180\text{ to }290\text{m}$, $48\%\text{ Mn}$)
-  4. *Tirodi Biotite Gneiss* crystalline granitic basement ($>290\text{m}$)
-- **Tirodi Regional Thrust Fault:** Semitransparent $68^\circ$ dipping fault zone.
-- **Wireline Core Drillholes:** Real collar coordinates for `BH-BG-2023-14`, `BH-BG-2024-03`, `BH-UK-2022-09` with interactive core logging inspector.
-- **Dynamic 2D Cross-Section Generator:** Instant transverse (**Line A-A'**) and longitudinal (**Line B-B'**) geological section generator.
-
-### 4. 🗺️ Google Maps Cadastral Command Center
-- **Google Maps API v3 Integration:** Satellite, Hybrid, Terrain, and Roadmap basemaps.
-- **Places Autocomplete:** Quick search for mines, districts, and geological formations.
-- **Cadastral Layers:** Concession boundaries, active pits, underground winzes, and boreholes.
-- **GeoJSON Export / Import:** Seamless exchange of spatial boundaries with GIS software (QGIS/ArcGIS).
+| Command Center & High-Res Satellite GIS | Scenario Lab Counterfactual Planning |
+|---|---|
+| ![Command Center](screenshot.png) | ![Scenario Lab](screenshot.png) |
+| *ESRI World Imagery basemap with concessions, fault traces, and boreholes* | *Interactive multi-parameter controls, P10/P50/P90 shortfalls, and ranked actions* |
 
 ---
 
-## 🔐 1-Click Judge & Evaluator Demo Access
+## 📊 Data Provenance Matrix
 
-For hackathon judges and evaluators, MANGANEX provides pre-seeded 1-click demo login buttons directly on the Landing Page (`/`) and Login page (`/login`):
-- **Admin**: Rajesh Sharma (`admin@moil.gov.in`) — Platform governance & security
-- **Geologist**: Dr. Priya Deshmukh (`geologist@moil.gov.in`) — Core drillhole assays, 3D stratigraphy, & prospectivity
-- **Mining Engineer**: Vikram Patil (`engineer@moil.gov.in`) — Production telemetry, fleet status, & winze dewatering
-- **Data Analyst**: Sunita Rao (`analyst@moil.gov.in`) — Sentinel-2 surface indicators & scikit-learn models
-- **Viewer**: Executive Read-Only (`viewer@moil.gov.in`) — UNFC resource overviews & management briefings
+Every API response carries a strict `data_provenance` audit envelope rendered via the `<ProvenanceBadge />` component across all views:
+
+| Data Layer | Provenance Status | Primary Source | Usage in Platform |
+|---|---|---|---|
+| **Historical Weather & Soil Saturation** | `REAL` / `REAL_CACHED` | Open-Meteo ERA5-Land Reanalysis (365 days) | Environmental risk & ground softening penalty |
+| **16-Day Weather Forecast** | `REAL` | Open-Meteo High-Resolution Numerical Forecast | Multi-horizon extraction shortfall forecast ($P_{10}/P_{50}/P_{90}$) |
+| **Manganese Occurrences** | `REAL` | Geological Survey of India (GSI) & USGS Mineral Deposit Database | Positive training labels for prospectivity model |
+| **Multispectral Surface Indicators** | `REAL` | Sentinel-2 Level-2A BOA Reflectance (B4, B2, B11, B12, B8) | Surface alteration gossans & iron-oxide/clay ratios |
+| **Topography & Fault Traces** | `REAL` | SRTM 30m DEM & Sauser Mobile Belt structural maps | Slope gradient and fault proximity features |
+| **Mine Production History** | `SYNTHETIC` | Calibrated physics model ([docs/simulation.md](docs/simulation.md)) | Operational baseline (confidential MOIL enterprise logs) |
+| **Prospectivity Predictions** | `DERIVED` | Spatial Block CV Random Forest + Gradient Boosting | 500m cell mineralization probability & uncertainty |
+| **Next-Drill Target Scoring** | `DERIVED` | Active learning formula ($P \times I / C$) with NMS | Top-5 ranked diamond core exploration targets |
 
 ---
 
-## 🛠️ Quick Start & Installation
+## 🚀 Quickstart & Running the App
 
-### Prerequisites
-- **Node.js**: v18.0 or higher
-- **Python**: v3.11 with `pip`
-- **Java**: JDK 17 or higher (JDK 21 / 25 supported)
-- **Maven**: (for building Java backend)
+### Option 1: Docker Compose (Single Command, Zero Config)
 
-### 1-Click Launch (Windows)
-Double-click `start_manganex.bat` or run:
-```powershell
-powershell -ExecutionPolicy Bypass -File launch_servers.ps1
-```
-This automatically verifies ports, starts the Python AI backend, Java backend, and Vite frontend.
-
-### Manual Service Launch
-
-#### 1. Frontend Web App (Port 3000)
 ```bash
-npm install
-npm run build
-npm run preview -- --host 0.0.0.0 --port 3000
+docker compose up --build
 ```
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+- **Web UI**: Open `http://localhost:3000`
+- **FastAPI Backend**: `http://localhost:8000`
+- **Interactive Swagger Docs**: `http://localhost:8000/docs`
+- **Health Check**: `http://localhost:8000/health`
 
-#### 2. Python AI Service (Port 8000)
+### Option 2: Local Development
+
+#### Prerequisites
+- Node.js 20+
+- Python 3.11+
+
+#### 1. Backend Setup
 ```bash
+# Navigate to backend and create virtual environment
 cd backend
+python -m venv venv
+# On Windows:
+.\venv\Scripts\activate
+# On Linux/macOS:
+source venv/bin/activate
+
+# Install dependencies and seed local database
 pip install -r requirements.txt
-python run_server.py
-```
-API Documentation available at [http://localhost:8000/api/v1/docs](http://localhost:8000/api/v1/docs).
+python -m app.scripts.seed_demo_data
 
-#### 3. Java Spring Boot Enterprise API (Port 8080)
+# Start FastAPI server
+uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
+```
+
+#### 2. Frontend Setup
 ```bash
-cd java-backend
-mvn clean package -DskipTests
-java -jar target/manganex-backend-1.0.0.jar
+# From repository root
+npm install
+npm run dev
+# App runs at http://localhost:5173
 ```
-Health status at [http://localhost:8080/actuator/health](http://localhost:8080/actuator/health).
 
 ---
 
-## 🧪 Automated Test Suite
+## 🔐 1-Click Judge Demo Accounts
 
-Run the full end-to-end verification audit:
-```bash
-python test_final_upgrade.py
-```
-*Current Result: 27 / 27 Tests Passed (100% Pass Rate).*
+On the landing page (`/`) and login page (`/login`), click any role button to launch directly into that operational portal:
+
+- **Geologist**: Dr. Priya Deshmukh (`geologist@moil.gov.in`) — Core drilling assays, 3D lithological strata, prospectivity grid, and drill target recommender.
+- **Mining Engineer**: Vikram Patil (`engineer@moil.gov.in`) — Production telemetry, weather alerts, and Scenario Lab.
+- **Data Analyst**: Sunita Rao (`analyst@moil.gov.in`) — Sentinel-2 surface indicators and model cards.
+- **Platform Admin**: Rajesh Sharma (`admin@moil.gov.in`) — User governance and system audit logs.
+- **Executive Viewer**: Executive Read-Only (`viewer@moil.gov.in`) — Resource summary briefings.
+
+---
+
+## ⚠️ Statutory Limitations & Scientific Boundaries
+
+1. **Surface Indicators Only**: Remote sensing indices (Iron Oxide B4/B2, SWIR B11/B12, NDVI) detect surface alterational gossans and vegetational stress. **Satellite imagery cannot penetrate bedrock to detect underground manganese.** All prospects represent exploration suitability (UNFC 333 - Inferred) and strictly require confirmatory wireline diamond core drilling.
+2. **Confidential MOIL Logs**: Historical production is simulated using a calibrated physics formula ([docs/simulation.md](docs/simulation.md)) driven by real weather. For live enterprise deployment, replace with MOIL SAP/SCADA production shift logs.
+3. **Java Backend Status**: The Java Spring Boot prototype in `java-backend/` is experimental and **not used** by the frontend. The active production backend is the Python FastAPI service in `backend/app/`.
 
 ---
 
-## 📜 Compliance & Security
-- **UNFC-1997 / UNFC-2009**: Compliant resource classification categories (111 Proved, 122 Probable, 333 Inferred).
-- **DGMS Safety Compliance**: Directorate General of Mines Safety blast vibration standards ($<10\text{ mm/s}$).
-- **Zero-Trust IAM**: Role-based access control, cryptographic password hashing, and session expiration.
+## 📖 Extended Documentation
+
+- [System Architecture & Data Flows](docs/ARCHITECTURE.md)
+- [Comprehensive API Specification](docs/API.md)
+- [Machine Learning Model Cards](docs/MODEL_CARDS.md)
+- [Production Simulation & Physics Formulas](docs/simulation.md)
+- [Cloud Deployment & Keep-Alive Guide](DEPLOYMENT.md)
 
 ---
-&copy; 2026 MANGANEX Consortium • Ministry of Steel • MOIL Limited
+
+## 👥 Hackathon Team & Attributions
+
+Developed for the **Ministry of Steel National Mining Intelligence Hackathon**:
+- **Domain Focus**: Ministry of Steel & MOIL Limited (Manganese Ore India Limited).
+- **Core Technology**: React 19, TypeScript, FastAPI, Scikit-Learn, SHAP, Leaflet, ESRI World Imagery, Open-Meteo ERA5.

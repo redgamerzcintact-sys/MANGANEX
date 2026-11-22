@@ -1,0 +1,24 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install system dependencies including curl for healthchecks
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python requirements
+COPY backend/requirements.txt /app/requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy backend application code and data
+COPY backend /app/backend
+COPY docs /app/docs
+
+WORKDIR /app/backend
+
+# Seed database and start FastAPI via uvicorn
+EXPOSE 8000
+
+CMD ["sh", "-c", "python -m app.scripts.seed_demo_data && uvicorn app.main:app --host 0.0.0.0 --port 8000"]

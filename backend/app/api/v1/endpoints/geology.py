@@ -5,6 +5,7 @@ from app.database.session import get_db
 from app.models.entities import GeologicalProspect, Borehole
 from app.schemas.all_schemas import ApiResponse, DataProvenance
 from app.ml.prospectivity.model import run_prospectivity_model, get_model_card, get_prospectivity_grid
+from app.ml.prospectivity.drill_targets import compute_drill_targets
 
 router = APIRouter()
 
@@ -156,6 +157,30 @@ def get_prospectivity_model_card():
         data_provenance=DataProvenance(
             status="REAL",
             source="Spatial Block Cross-Validation (GroupKFold 10km) & TreeExplainer Model Card",
+            retrieved_at=datetime.datetime.now(datetime.timezone.utc).isoformat() + "Z"
+        )
+    )
+
+@router.get("/drill-targets", response_model=ApiResponse)
+def get_recommended_drill_targets(db: Session = Depends(get_db)):
+    """
+    Returns top 5 next-drill-target recommendations scored by:
+    Score = P(mineralization) * Uncertainty_Info_Gain / Cost_Proxy.
+    Wording is strictly indicative, NOT a reserve estimate.
+    """
+    boreholes = db.query(Borehole).all()
+    bh_dicts = [{"latitude": b.latitude, "longitude": b.longitude} for b in boreholes]
+    targets = compute_drill_targets(existing_boreholes=bh_dicts, top_k=5)
+    return ApiResponse(
+        data={
+            "targets": targets,
+            "total_targets": len(targets),
+            "scoring_formula": "Score = P(mineralization) * Uncertainty_Info_Gain / Drilling_Cost_Proxy",
+            "statutory_note": "Indicative exploration targets only. Surface indicators model. Diamond core borehole drilling required for UNFC reserve certification.",
+        },
+        data_provenance=DataProvenance(
+            status="DERIVED",
+            source="Prospectivity Grid Active Learning & Cost-Optimized Drill Recommender",
             retrieved_at=datetime.datetime.now(datetime.timezone.utc).isoformat() + "Z"
         )
     )
