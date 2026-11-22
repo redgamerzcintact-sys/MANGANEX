@@ -11,24 +11,17 @@ import {
   HazardTriangle3D,
   ShieldScore3D,
   RobotMascot3D,
-  EarthXRayBlock3D,
-  SatelliteSpaceGraphic,
-  RegionalHeatmapGraphic,
-  MobileViewMockup3D
 } from '../brand/VisualAssets';
 import {
   Layers,
   Calendar,
   Sliders,
   ChevronRight,
-  Box,
-  Compass,
   TrendingUp,
   TrendingDown,
   AlertTriangle,
   Info,
-  Send,
-  Check
+  Check,
 } from 'lucide-react';
 
 export const CommandCenterPage: React.FC = () => {
@@ -56,7 +49,7 @@ export const CommandCenterPage: React.FC = () => {
     seismic: true,
     groundwater: false,
     haulage: true,
-    riskHeatmap: true
+    riskHeatmap: true,
   });
 
   const toggleLayer = (key: keyof typeof activeLayers) => {
@@ -74,42 +67,12 @@ export const CommandCenterPage: React.FC = () => {
     return () => clearInterval(interval);
   }, [isPlayingYear]);
 
-  // NEXUS Chat preview state
-  const [chatInput, setChatInput] = useState('');
-  const [chatMessages, setChatMessages] = useState([
-    {
-      sender: 'user',
-      text: 'Show me high potential Manganese zones in Mandla region.'
-    },
-    {
-      sender: 'ai',
-      text: '3 prospective zones evaluated via Random Forest + Gradient Boosting. Estimated potential: 42.5 Mt (UNFC 333 Inferred). Core drilling required for reserve certification.'
-    }
-  ]);
-
-  const handleSendMessage = (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    if (!chatInput.trim()) return;
-    const newMsg = { sender: 'user', text: chatInput };
-    setChatMessages((prev) => [...prev, newMsg]);
-    setChatInput('');
-    setTimeout(() => {
-      setChatMessages((prev) => [
-        ...prev,
-        {
-          sender: 'ai',
-          text: `Analysis complete: 3 target zones evaluated via Random Forest + Gradient Boosting. Braunite horizon estimated at -180m depth. Borehole validation required.`
-        }
-      ]);
-    }, 900);
-  };
-
   return (
     <div className="flex flex-col h-full w-full overflow-hidden bg-[#020712] text-[#F1F5F9] select-none font-sans">
       {/* ========================================================================= */}
-      {/* 1. UPPER SECTION: CONTROL HUB (215px) + MAP (FLEX) + INTELLIGENCE (320px)   */}
+      {/* CLEAN FULL-VIEWPORT GIS EXPLORER: CONTROL HUB + EXPANSIVE MAP + METRICS   */}
       {/* ========================================================================= */}
-      <div className="flex flex-1 min-h-0 overflow-hidden relative border-b border-[#14233A]">
+      <div className="flex flex-1 min-h-0 h-full overflow-hidden relative">
         
         {/* ----------------------------------------------------------------------- */}
         {/* A. LEFT PANEL: CONTROL HUB                                              */}
@@ -317,7 +280,7 @@ export const CommandCenterPage: React.FC = () => {
             </div>
           </div>
 
-          {/* 4. AI ASSISTANT CARD (Bottom of Control Hub) */}
+          {/* 4. AI ASSISTANT QUICK ACTION */}
           <div
             onClick={() => toggleNexus()}
             className="p-2.5 rounded-xl bg-[#09172A] border border-[#3B82F6]/50 shadow-[0_0_12px_rgba(59,130,246,0.25)] flex items-center justify-between cursor-pointer hover:border-[#00D9FF] transition-all group mt-2"
@@ -337,7 +300,7 @@ export const CommandCenterPage: React.FC = () => {
         </div>
 
         {/* ----------------------------------------------------------------------- */}
-        {/* B. CENTER SATELLITE MAP                                                 */}
+        {/* B. CENTER SATELLITE MAP (EXPANDED TO FULL VIEWPORT HEIGHT)              */}
         {/* ----------------------------------------------------------------------- */}
         <div className="flex-1 h-full relative overflow-hidden">
           <InteractiveMap
@@ -409,7 +372,7 @@ export const CommandCenterPage: React.FC = () => {
             </div>
           </div>
 
-          {/* 2. PRODUCTION TREND CHART (High-fidelity inline vector chart) */}
+          {/* 2. PRODUCTION TREND CHART */}
           <div className="p-2.5 rounded-xl bg-[#09172A] border border-[#14233A] shadow-sm flex flex-col">
             <div className="flex items-center justify-between mb-1.5">
               <span className="text-[11px] font-bold text-[#FFFFFF]">Production Trend</span>
@@ -562,182 +525,6 @@ export const CommandCenterPage: React.FC = () => {
                 </div>
               </>
             )}
-          </div>
-        </div>
-      </div>
-
-      {/* ========================================================================= */}
-      {/* 2. BOTTOM VISUAL STRIP (5 EXACT CARDS MATCHING REFERENCE)                  */}
-      {/* ========================================================================= */}
-      <div className="h-[250px] shrink-0 bg-[#040A15] p-2.5 flex items-stretch gap-2.5 overflow-x-auto">
-        
-        {/* CARD 1: EARTH X-RAY VIEW (~23% width) */}
-        <div className="flex-1 min-w-[240px] max-w-[25%] rounded-2xl bg-[#071324] border border-[#142642] p-3 flex flex-col justify-between relative overflow-hidden group shadow-md hover:border-[#00D9FF]/40 transition-colors">
-          <div>
-            <div className="text-[12.5px] font-bold text-[#FFFFFF] tracking-wide">Earth X-Ray View</div>
-            <div className="text-[9px] text-[#94A3B8]">Explore the hidden layers</div>
-          </div>
-
-          {/* 3D Isometric Strata Block */}
-          <div className="relative flex-1 flex items-center justify-center py-1">
-            <EarthXRayBlock3D className="w-full h-full max-h-[145px]" />
-          </div>
-
-          {/* 3D Layer View Trigger Button */}
-          <div className="flex justify-end">
-            <button
-              onClick={() => setIsXRayModalOpen(true)}
-              className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#00D9FF]/15 hover:bg-[#00D9FF]/30 border border-[#00D9FF] text-[9.5px] font-bold text-[#00D9FF] shadow-[0_0_8px_rgba(0,217,255,0.3)] transition-all cursor-pointer"
-            >
-              <Box className="w-3 h-3" />
-              <span>3D Layer View</span>
-            </button>
-          </div>
-        </div>
-
-        {/* CARD 2: SATELLITE INTELLIGENCE (~19% width) */}
-        <div className="flex-1 min-w-[210px] max-w-[20%] rounded-2xl bg-[#071324] border border-[#142642] p-3 flex flex-col justify-between relative overflow-hidden shadow-md hover:border-[#00D9FF]/40 transition-colors">
-          <div>
-            <div className="text-[12.5px] font-bold text-[#FFFFFF] tracking-wide">Satellite Intelligence</div>
-            <div className="text-[9px] text-[#94A3B8]">Powered by Space Technology</div>
-          </div>
-
-          {/* Orbiting Satellite Scene */}
-          <div className="relative flex-1 rounded-xl overflow-hidden my-1.5 border border-[#142642]">
-            <SatelliteSpaceGraphic className="w-full h-full object-cover" />
-
-            {/* Bottom-Left Telemetry Inset */}
-            <div className="absolute bottom-1.5 left-1.5 space-y-0.5 text-[8.5px] font-medium bg-[#020611]/85 p-1.5 rounded-lg border border-[#14233A] backdrop-blur-sm">
-              <div className="flex items-center gap-1 text-[#FFFFFF]">
-                <Check className="w-2.5 h-2.5 text-[#00E69A]" />
-                <span>NDVI: 0.72</span>
-              </div>
-              <div className="flex items-center gap-1 text-[#FFFFFF]">
-                <Check className="w-2.5 h-2.5 text-[#00E69A]" />
-                <span>Soil Moisture: 68%</span>
-              </div>
-              <div className="flex items-center gap-1 text-[#FFFFFF]">
-                <Check className="w-2.5 h-2.5 text-[#00E69A]" />
-                <span>Rainfall: 842 mm</span>
-              </div>
-            </div>
-
-            {/* Bottom-Right Inset NDVI false-color map */}
-            <div className="absolute bottom-1.5 right-1.5 w-11 h-11 rounded-lg overflow-hidden border border-[#00E69A] shadow-md bg-[#020611]">
-              <div className="absolute top-0.5 left-1 text-[6.5px] font-bold text-[#00E69A] bg-[#020611]/80 px-0.5 rounded">
-                NDVI
-              </div>
-              <div className="w-full h-full bg-gradient-to-br from-[#FF1E1E] via-[#FFD600] to-[#00E676] opacity-85" />
-            </div>
-          </div>
-        </div>
-
-        {/* CARD 3: GEOLOGICAL HEATMAP (~18% width) */}
-        <div className="flex-1 min-w-[200px] max-w-[19%] rounded-2xl bg-[#071324] border border-[#142642] p-3 flex flex-col justify-between relative overflow-hidden shadow-md hover:border-[#00D9FF]/40 transition-colors">
-          <div>
-            <div className="text-[12.5px] font-bold text-[#FFFFFF] tracking-wide">Geological Heatmap</div>
-            <div className="text-[9px] text-[#94A3B8]">Find the richest zones</div>
-          </div>
-
-          {/* Regional Heatmap Graphic */}
-          <div className="relative flex-1 rounded-xl overflow-hidden my-1.5 border border-[#142642]">
-            <RegionalHeatmapGraphic className="w-full h-full" />
-
-            {/* Bottom-Right Color Legend */}
-            <div className="absolute bottom-1.5 right-1.5 bg-[#020611]/85 p-1 rounded-md border border-[#14233A] text-[8px] space-y-0.5">
-              <div className="flex items-center gap-1 text-[#CBD5E1]">
-                <span className="w-2 h-2 rounded-sm bg-[#FF1E1E]" />
-                <span>High</span>
-              </div>
-              <div className="flex items-center gap-1 text-[#CBD5E1]">
-                <span className="w-2 h-2 rounded-sm bg-[#FFDE00]" />
-                <span>Medium</span>
-              </div>
-              <div className="flex items-center gap-1 text-[#CBD5E1]">
-                <span className="w-2 h-2 rounded-sm bg-[#00D9FF]" />
-                <span>Low</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* CARD 4: NEXUS AI ASSISTANT (~26% width) */}
-        <div className="flex-1 min-w-[270px] max-w-[27%] rounded-2xl bg-[#071324] border border-[#142642] p-3 flex flex-col justify-between relative overflow-hidden shadow-md hover:border-[#3B82F6]/50 transition-colors">
-          <div>
-            <div className="text-[12.5px] font-bold text-[#FFFFFF] tracking-wide">NEXUS AI Assistant</div>
-            <div className="text-[9px] text-[#94A3B8]">Your Geo-Intelligence Copilot</div>
-          </div>
-
-          <div className="flex items-center gap-2 flex-1 my-1">
-            {/* Left side: Dialogue snippet & audio waveform */}
-            <div className="flex-1 flex flex-col justify-between h-full space-y-1">
-              {/* User Bubble */}
-              <div className="p-1.5 rounded-xl bg-[#0D1E36] border border-[#1E3A8A] text-[8px] text-[#E2E8F0] flex items-center gap-1.5">
-                <div className="w-3.5 h-3.5 rounded-full bg-[#1E3A8A] flex items-center justify-center shrink-0">
-                  <Compass className="w-2 h-2 text-[#00D9FF]" />
-                </div>
-                <span className="truncate">Show me high potential Manganese zones in Mandla region.</span>
-              </div>
-
-              {/* AI Bubble */}
-              <div className="p-1.5 rounded-xl bg-[#0B2544] border border-[#00D9FF]/40 text-[8px] text-[#00D9FF] flex items-start gap-1.5">
-                <div className="w-3.5 h-3.5 rounded-full bg-[#00E69A]/20 flex items-center justify-center shrink-0 mt-0.5">
-                  <Check className="w-2 h-2 text-[#00E69A]" />
-                </div>
-                <span className="leading-tight">
-                  3 prospective zones evaluated via Random Forest + Gradient Boosting (UNFC 333 Inferred). Borehole validation required.
-                </span>
-              </div>
-
-              {/* Glowing Soundwave Equalizer */}
-              <div className="flex items-center justify-center gap-1 h-3 py-0.5">
-                {[4, 8, 12, 6, 10, 14, 7, 11, 5, 9, 13, 6, 12, 8].map((h, i) => (
-                  <span
-                    key={i}
-                    className="w-0.5 bg-[#00D9FF] rounded-full animate-pulse"
-                    style={{
-                      height: `${h}px`,
-                      animationDelay: `${i * 0.1}s`
-                    }}
-                  />
-                ))}
-              </div>
-            </div>
-
-            {/* Right side: 3D Robot Mascot */}
-            <div className="w-20 shrink-0 flex items-center justify-center">
-              <RobotMascot3D className="w-18 h-22 drop-shadow-[0_0_12px_rgba(0,217,255,0.4)]" />
-            </div>
-          </div>
-
-          {/* Interactive Chat Input Bar */}
-          <form onSubmit={handleSendMessage} className="relative flex items-center mt-0.5">
-            <input
-              type="text"
-              value={chatInput}
-              onChange={(e) => setChatInput(e.target.value)}
-              placeholder="Ask anything..."
-              className="w-full h-7 pl-3 pr-8 rounded-full bg-[#030914] border border-[#1E3A8A] text-[9.5px] text-[#FFFFFF] placeholder-[#64748B] focus:outline-none focus:border-[#00D9FF] transition-colors"
-            />
-            <button
-              type="submit"
-              className="absolute right-1 w-5 h-5 rounded-full bg-[#0284C7] hover:bg-[#00D9FF] text-[#FFFFFF] flex items-center justify-center transition-colors cursor-pointer"
-            >
-              <Send className="w-2.5 h-2.5 ml-0.5" />
-            </button>
-          </form>
-        </div>
-
-        {/* CARD 5: MOBILE VIEW (~14% width) */}
-        <div className="flex-1 min-w-[140px] max-w-[15%] rounded-2xl bg-[#071324] border border-[#142642] p-3 flex flex-col justify-between relative overflow-hidden shadow-md hover:border-[#00D9FF]/40 transition-colors">
-          <div>
-            <div className="text-[12.5px] font-bold text-[#FFFFFF] tracking-wide">Mobile View</div>
-            <div className="text-[9px] text-[#94A3B8]">On the Go. Always.</div>
-          </div>
-
-          {/* 3D Tilted Smartphone Mockup */}
-          <div className="relative flex-1 flex items-center justify-center py-1">
-            <MobileViewMockup3D className="w-full h-full max-h-[175px]" />
           </div>
         </div>
       </div>
