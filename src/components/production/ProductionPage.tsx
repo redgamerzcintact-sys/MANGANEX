@@ -4,6 +4,7 @@ import { useAppStore } from '../../stores/appStore';
 import { api } from '../../services/api';
 import { ProvenanceBadge } from '../common/ProvenanceBadge';
 import { WeatherTelemetryPanel } from '../common/WeatherTelemetryPanel';
+import { useChartTheme } from '../../hooks/useChartTheme';
 import {
   Activity, TrendingDown, TrendingUp, AlertTriangle, Clock,
   RefreshCw, ChevronDown, Zap, Target, BarChart3, Layers, ShieldCheck, GitFork
@@ -45,8 +46,8 @@ const StatusBadge: React.FC<{ level: string }> = ({ level }) => {
 const CustomTooltip: React.FC<any> = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-[#1A1613] border border-[#4D4037] rounded-xl p-3 text-xs font-mono shadow-xl">
-      <p className="text-[#FB923C] font-bold mb-1">{label}</p>
+    <div className="bg-[var(--chart-tooltip-bg)] border border-[var(--chart-tooltip-border)] rounded-xl p-3 text-xs font-mono shadow-xl text-[var(--chart-tooltip-text)]">
+      <p className="text-[var(--accent-primary)] font-bold mb-1">{label}</p>
       {payload.map((p: any, i: number) => (
         <p key={i} style={{ color: p.color }}>{p.name}: {p.value?.toLocaleString()} T</p>
       ))}
@@ -57,6 +58,7 @@ const CustomTooltip: React.FC<any> = ({ active, payload, label }) => {
 export const ProductionPage: React.FC = () => {
   const navigate = useNavigate();
   const { selectedMine } = useAppStore();
+  const chartColors = useChartTheme();
   const [activeMineId, setActiveMineId] = useState('mine-balaghat');
   const [horizon, setHorizon] = useState(30);
   const [plannedDowntimeHours, setPlannedDowntimeHours] = useState(0);
@@ -372,9 +374,9 @@ export const ProductionPage: React.FC = () => {
                         <stop offset="100%" stopColor="#E8B298" stopOpacity={0.05} />
                       </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#4D4037" />
-                    <XAxis dataKey="day" tick={{ fill: '#A69282', fontSize: 10 }} />
-                    <YAxis tick={{ fill: '#A69282', fontSize: 10 }} />
+                    <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} />
+                    <XAxis dataKey="day" tick={{ fill: chartColors.textMuted, fontSize: 10 }} />
+                    <YAxis tick={{ fill: chartColors.textMuted, fontSize: 10 }} />
                     <Tooltip content={<CustomTooltip />} />
                     <ReferenceLine y={forecastChartData[0]?.target} stroke="#F59E0B" strokeDasharray="4 2" label={{ value: 'Target', fill: '#F59E0B', fontSize: 10 }} />
                     <Area type="monotone" dataKey="upper" stroke="none" fill="url(#quantileBand)" name="P90 Upside" />
@@ -530,9 +532,9 @@ export const ProductionPage: React.FC = () => {
                         <stop offset="100%" stopColor="#FFB020" stopOpacity={0} />
                       </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#1A2D40" />
-                    <XAxis dataKey="date" tick={{ fill: '#4A7A9A', fontSize: 9 }} interval={6} />
-                    <YAxis tick={{ fill: '#4A7A9A', fontSize: 10 }} />
+                    <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} />
+                    <XAxis dataKey="date" tick={{ fill: chartColors.textMuted, fontSize: 9 }} interval={6} />
+                    <YAxis tick={{ fill: chartColors.textMuted, fontSize: 10 }} />
                     <Tooltip content={<CustomTooltip />} />
                     <Legend wrapperStyle={{ fontSize: 10, color: '#A0BDD0' }} />
                     <Area type="monotone" dataKey="planned" stroke="#FFB020" strokeWidth={1} fill="url(#plannedGrad)" name="Planned (TPD)" strokeDasharray="4 2" />
@@ -567,9 +569,9 @@ export const ProductionPage: React.FC = () => {
                 <div className="text-[10px] text-[#4A7A9A] mb-4">Actual vs. Planned (Tonnes/Month)</div>
                 <ResponsiveContainer width="100%" height={280}>
                   <BarChart data={mineCompData} margin={{ top: 5, right: 20, left: 10, bottom: 20 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#1A2D40" />
-                    <XAxis dataKey="name" tick={{ fill: '#A0BDD0', fontSize: 10 }} />
-                    <YAxis tick={{ fill: '#4A7A9A', fontSize: 10 }} />
+                    <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} />
+                    <XAxis dataKey="name" tick={{ fill: chartColors.text, fontSize: 10 }} />
+                    <YAxis tick={{ fill: chartColors.textMuted, fontSize: 10 }} />
                     <Tooltip content={<CustomTooltip />} />
                     <Legend wrapperStyle={{ fontSize: 10, color: '#A0BDD0' }} />
                     <Bar dataKey="target" name="Target" fill="#FFB02040" stroke="#FFB020" strokeWidth={1} />

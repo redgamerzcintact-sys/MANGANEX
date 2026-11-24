@@ -40,6 +40,21 @@
     --card-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
     --glow-warm: 0 0 18px rgba(251, 146, 60, 0.35);
     --glow-skin: 0 0 14px rgba(232, 178, 152, 0.28);
+    /* Chart series tokens */
+    --chart-series-1: #FB923C;
+    --chart-series-2: #38BDF8;
+    --chart-series-3: #10B981;
+    --chart-series-4: #F59E0B;
+    --chart-series-5: #C084FC;
+    --chart-grid: rgba(255, 248, 240, 0.08);
+    --chart-tooltip-bg: #1A1613;
+    --chart-tooltip-border: #4D4037;
+    --chart-tooltip-text: #FFF8F0;
+    --input-bg: #1A1613;
+    --input-border: #4D4037;
+    --input-text: #FFF8F0;
+    --skeleton-base: #241E1A;
+    --skeleton-highlight: #2F2722;
   }
 
   html.light {
@@ -60,10 +75,25 @@
     --color-critical: #DC2626;
     --text-primary: #1F1610;
     --text-secondary: #57463A;
-    --text-muted: #8C7667;
+    --text-muted: #735D4F;
     --card-shadow: 0 4px 20px rgba(45, 30, 20, 0.08);
     --glow-warm: 0 0 14px rgba(194, 65, 12, 0.2);
     --glow-skin: 0 0 12px rgba(194, 142, 117, 0.25);
+    /* Chart series tokens (light) */
+    --chart-series-1: #C2410C;
+    --chart-series-2: #0284C7;
+    --chart-series-3: #059669;
+    --chart-series-4: #D97706;
+    --chart-series-5: #7C3AED;
+    --chart-grid: rgba(31, 22, 16, 0.08);
+    --chart-tooltip-bg: #FFFFFF;
+    --chart-tooltip-border: #E2D7CC;
+    --chart-tooltip-text: #1F1610;
+    --input-bg: #FFFFFF;
+    --input-border: #E2D7CC;
+    --input-text: #1F1610;
+    --skeleton-base: #EAE2D8;
+    --skeleton-highlight: #F5EFE8;
   }
 }
 
@@ -369,4 +399,205 @@ pre,
 .dark [class*="hover:text-[#54D8E8]"]:hover,
 .dark [class*="hover:text-[#00D9FF]"]:hover {
   color: #FB923C !important;
+}
+
+/* ========================================================================= */
+/* COMPLETE SYSTEMIC LIGHT MODE ENGINE                                        */
+/* Replaces every hardcoded dark tone with crisp warm light variables        */
+/* ========================================================================= */
+
+html.light body,
+html.light .app-container {
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Light Mode: Base Backdrops */
+html.light [class*="bg-[#120F0D]"],
+html.light [class*="bg-[#080C12]"],
+html.light [class*="bg-[#080c12]"],
+html.light [class*="bg-[#090D16]"],
+html.light [class*="bg-[#020712]"],
+html.light [class*="bg-[#050D1A]"],
+html.light [class*="bg-[#060A12]"] {
+  background-color: var(--bg-primary) !important;
+}
+
+/* Light Mode: Sidebars and Secondary Backdrops */
+html.light [class*="bg-[#1A1613]"],
+html.light [class*="bg-[#06101D]"],
+html.light [class*="bg-[#071324]"],
+html.light [class*="bg-[#040A15]"],
+html.light [class*="bg-[#0B0F19]"],
+html.light [class*="bg-[#0C1524]"],
+html.light [class*="bg-[#080D18]"],
+html.light [class*="bg-[#0A1220]"],
+html.light [class*="bg-[#070D18]"],
+html.light [class*="bg-[#090E18]"] {
+  background-color: var(--bg-secondary) !important;
+}
+
+/* Light Mode: Elevated Panels & Cards */
+html.light [class*="bg-[#241E1A]"],
+html.light [class*="bg-[#101927]"],
+html.light [class*="bg-[#09172A]"],
+html.light [class*="bg-[#0D141E]"],
+html.light [class*="bg-[#0E1F36]"],
+html.light [class*="bg-[#0D1624]"],
+html.light [class*="bg-[#0E1726]"],
+html.light [class*="bg-[#0F1726]"],
+html.light [class*="bg-[#0A1520]"],
+html.light [class*="bg-[#0E1A26]"],
+html.light [class*="bg-[#070C12]"] {
+  background-color: var(--panel-surface) !important;
+}
+
+/* Light Mode: Raised Surfaces & Selected Elements */
+html.light [class*="bg-[#2F2722]"],
+html.light [class*="bg-[#152235]"],
+html.light [class*="bg-[#0E223D]"],
+html.light [class*="bg-[#101D2E]"],
+html.light [class*="bg-[#1A2D46]"],
+html.light [class*="bg-[#3C322B]"] {
+  background-color: var(--elevated-surface) !important;
+}
+
+/* Light Mode: High-Contrast Borders */
+html.light [class*="border-[#4D4037]"],
+html.light [class*="border-[#1C3045]"],
+html.light [class*="border-[#14233A]"],
+html.light [class*="border-[#142642]"],
+html.light [class*="border-[#121D2C]"],
+html.light [class*="border-[#1E3A8A]"],
+html.light [class*="border-[#1A2D40]"] {
+  border-color: var(--border-color) !important;
+}
+
+/* Light Mode: Primary Headings and Text (contrast > 14:1) */
+html.light [class*="text-[#FFF8F0]"],
+html.light [class*="text-[#F2F6FA]"],
+html.light [class*="text-[#F1F5F9]"] {
+  color: var(--text-primary) !important;
+}
+
+/* Light Mode: Secondary Text (contrast > 7:1) */
+html.light [class*="text-[#DEC8B7]"],
+html.light [class*="text-[#9BAFC1]"],
+html.light [class*="text-[#A0BDD0]"],
+html.light [class*="text-[#CBD5E1]"],
+html.light [class*="text-[#E2E8F0]"] {
+  color: var(--text-secondary) !important;
+}
+
+/* Light Mode: Muted / Caption Text (contrast > 4.5:1) */
+html.light [class*="text-[#A69282]"],
+html.light [class*="text-[#657A90]"],
+html.light [class*="text-[#64748B]"],
+html.light [class*="text-[#4A7A9A]"] {
+  color: var(--text-muted) !important;
+}
+
+/* Light Mode: Brand Accent Text & Hover */
+html.light [class*="text-[#FB923C]"],
+html.light [class*="text-[#54D8E8]"],
+html.light [class*="text-[#00D9FF]"] {
+  color: var(--accent-primary) !important;
+}
+
+html.light [class*="hover:bg-[#241E1A]"]:hover,
+html.light [class*="hover:bg-[#101927]"]:hover,
+html.light [class*="hover:bg-[#09172A]"]:hover {
+  background-color: var(--elevated-surface) !important;
+}
+
+html.light [class*="hover:bg-[#2F2722]"]:hover,
+html.light [class*="hover:bg-[#152235]"]:hover,
+html.light [class*="hover:bg-[#0E223D]"]:hover {
+  background-color: var(--bg-secondary) !important;
+}
+
+html.light [class*="hover:border-[#FB923C]"]:hover,
+html.light [class*="hover:border-[#54D8E8]"]:hover {
+  border-color: var(--accent-primary) !important;
+}
+
+html.light [class*="hover:text-[#FB923C]"]:hover,
+html.light [class*="hover:text-[#54D8E8]"]:hover {
+  color: var(--accent-primary) !important;
+}
+
+/* Light Mode: Form Inputs, Selects, and Textareas */
+html.light input:not([type="checkbox"]):not([type="radio"]),
+html.light textarea,
+html.light select {
+  background-color: var(--input-bg) !important;
+  color: var(--input-text) !important;
+  border-color: var(--input-border) !important;
+}
+
+html.light input::placeholder,
+html.light textarea::placeholder {
+  color: var(--text-muted) !important;
+}
+
+/* Light Mode: Leaflet Controls & Popups */
+html.light .leaflet-popup-content-wrapper {
+  background-color: var(--panel-surface) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-color) !important;
+  box-shadow: var(--card-shadow) !important;
+}
+
+html.light .leaflet-popup-tip {
+  background-color: var(--panel-surface) !important;
+}
+
+html.light .leaflet-bar a {
+  background-color: var(--panel-surface) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+html.light .leaflet-bar a:hover {
+  background-color: var(--elevated-surface) !important;
+  color: var(--accent-primary) !important;
+}
+
+html.light .leaflet-control-attribution {
+  background-color: var(--panel-surface) !important;
+  color: var(--text-muted) !important;
+}
+
+html.light .leaflet-control-attribution a {
+  color: var(--accent-primary) !important;
+}
+
+/* Light Mode: Recharts Grid & Tooltip */
+html.light .recharts-cartesian-grid line {
+  stroke: var(--chart-grid) !important;
+}
+
+html.light .recharts-text,
+html.light .recharts-label {
+  fill: var(--text-muted) !important;
+}
+
+html.light .recharts-default-tooltip {
+  background-color: var(--chart-tooltip-bg) !important;
+  border: 1px solid var(--chart-tooltip-border) !important;
+  color: var(--chart-tooltip-text) !important;
+  box-shadow: var(--card-shadow) !important;
+}
+
+/* Light Mode: Scrollbars */
+html.light ::-webkit-scrollbar-track {
+  background: var(--bg-secondary) !important;
+}
+
+html.light ::-webkit-scrollbar-thumb {
+  background: var(--border-hover) !important;
+}
+
+html.light ::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted) !important;
 }

@@ -4,7 +4,12 @@ Tests live parsing, SQLite caching, HTTP failure mocking, and offline snapshot f
 """
 import pytest
 from unittest.mock import patch
-import requests
+try:
+    import requests
+    RequestException = requests.RequestException
+except (ImportError, AttributeError):
+    import httpx as requests
+    RequestException = requests.RequestError
 from fastapi.testclient import TestClient
 from app.main import app
 from app.services.weather.open_meteo import (
@@ -75,8 +80,8 @@ def test_mine_weather_endpoint():
 
 def test_offline_fallback_on_network_failure():
     """Mock HTTP connection error and verify graceful fallback to snapshot with REAL_CACHED."""
-    # Force requests.get to fail as if network is down
-    with patch("requests.get", side_effect=requests.RequestException("Network unreachable / DNS failure")):
+    # Force network call to fail as if network is down
+    with patch("app.services.weather.open_meteo.requests.get", side_effect=RequestException("Network unreachable / DNS failure")):
         # Bypass cache by testing through get_mine_weather with fresh mine id or clearing cache
         with patch("app.services.weather.open_meteo.load_cached_weather", return_value=None):
             data = get_mine_weather("mine-ukwa")

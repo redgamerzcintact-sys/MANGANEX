@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAppStore } from '../../stores/appStore';
 import { api } from '../../services/api';
 import { ProvenanceBadge } from '../common/ProvenanceBadge';
+import { useChartTheme } from '../../hooks/useChartTheme';
 import {
   GitFork,
   Sliders,
@@ -52,6 +53,7 @@ interface ScenarioState {
 
 export const ScenarioLabPage: React.FC = () => {
   const { selectedMine } = useAppStore();
+  const chartColors = useChartTheme();
 
   // Active inputs
   const [rainfallMm, setRainfallMm] = useState<number>(35);
@@ -733,15 +735,15 @@ export const ScenarioLabPage: React.FC = () => {
           <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={comparisonChartData} margin={{ top: 10, right: 30, left: 20, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#4D4037" />
-                <XAxis dataKey="name" stroke="#DEC8B7" tick={{ fontSize: 11 }} />
-                <YAxis stroke="#DEC8B7" tick={{ fontSize: 11 }} />
-                <Tooltip contentStyle={{ backgroundColor: '#1A1613', borderColor: '#4D4037', borderRadius: '10px', fontSize: 12, color: '#FFF8F0' }} />
-                <Legend wrapperStyle={{ fontSize: 12 }} />
-                <Bar dataKey="Target" fill="#FB923C" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="Simulated" fill="#E8B298" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="Shortfall" fill="#EF4444" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="Recovery" fill="#10B981" radius={[4, 4, 0, 0]} />
+                <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} />
+                <XAxis dataKey="name" stroke={chartColors.textMuted} tick={{ fontSize: 11 }} />
+                <YAxis stroke={chartColors.textMuted} tick={{ fontSize: 11 }} />
+                <Tooltip contentStyle={{ backgroundColor: chartColors.tooltipBg, borderColor: chartColors.tooltipBorder, borderRadius: '10px', fontSize: 12, color: chartColors.tooltipText }} />
+                <Legend wrapperStyle={{ fontSize: 12, color: chartColors.text }} />
+                <Bar dataKey="Target" fill={chartColors.series1} radius={[4, 4, 0, 0]} />
+                <Bar dataKey="Simulated" fill={chartColors.series2} radius={[4, 4, 0, 0]} />
+                <Bar dataKey="Shortfall" fill={chartColors.shortfall} radius={[4, 4, 0, 0]} />
+                <Bar dataKey="Recovery" fill={chartColors.recovery} radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>

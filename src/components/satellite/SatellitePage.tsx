@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useAppStore } from '../../stores/appStore';
 import { api } from '../../services/api';
 import { ProvenanceBadge } from '../common/ProvenanceBadge';
+import { useChartTheme } from '../../hooks/useChartTheme';
 import {
   Layers,
   Calendar,
@@ -48,8 +49,8 @@ type Sensor = typeof SENSORS[number];
 const CustomTooltip: React.FC<any> = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-[#120F0D] border border-[#4D4037] rounded-xl p-3 text-xs font-mono shadow-xl text-[#FFF8F0]">
-      <p className="text-[#FB923C] font-bold mb-1">{label}</p>
+    <div className="bg-[var(--chart-tooltip-bg)] border border-[var(--chart-tooltip-border)] rounded-xl p-3 text-xs font-mono shadow-xl text-[var(--chart-tooltip-text)]">
+      <p className="text-[var(--accent-primary)] font-bold mb-1">{label}</p>
       {payload.map((p: any, i: number) => (
         <p key={i} style={{ color: p.color }}>
           {p.name}: {typeof p.value === 'number' ? p.value.toFixed(3) : p.value}
@@ -61,6 +62,7 @@ const CustomTooltip: React.FC<any> = ({ active, payload, label }) => {
 
 export const SatellitePage: React.FC = () => {
   const { selectedMine } = useAppStore();
+  const chartColors = useChartTheme();
   const [activeMineId, setActiveMineId] = useState('mine-balaghat');
   const [sensor, setSensor] = useState<Sensor>('Sentinel-2 MSI');
   const [observations, setObservations] = useState<any>(null);
@@ -255,9 +257,9 @@ export const SatellitePage: React.FC = () => {
                 <div className="text-[10.5px] text-[#A69282] mb-3">Valid acquisitions only · Cloud-masked per Scene Classification Layer</div>
                 <ResponsiveContainer width="100%" height={190}>
                   <LineChart data={timeSeriesData} margin={{ top: 5, right: 20, left: 0, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#4D4037" />
-                    <XAxis dataKey="date" tick={{ fill: '#DEC8B7', fontSize: 9 }} />
-                    <YAxis domain={[0, 1]} tick={{ fill: '#DEC8B7', fontSize: 9 }} />
+                    <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} />
+                    <XAxis dataKey="date" tick={{ fill: chartColors.textMuted, fontSize: 9 }} />
+                    <YAxis domain={[0, 1]} tick={{ fill: chartColors.textMuted, fontSize: 9 }} />
                     <Tooltip content={<CustomTooltip />} />
                     <Legend wrapperStyle={{ fontSize: 10 }} />
                     <Line type="monotone" dataKey="ndvi" stroke="#10B981" strokeWidth={2.5} dot={false} name="NDVI" />
@@ -311,9 +313,9 @@ export const SatellitePage: React.FC = () => {
                         <stop offset="100%" stopColor="#EF4444" stopOpacity={0} />
                       </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#4D4037" />
-                    <XAxis dataKey="date" tick={{ fill: '#DEC8B7', fontSize: 9 }} />
-                    <YAxis domain={[0, 1]} tick={{ fill: '#DEC8B7', fontSize: 9 }} />
+                    <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} />
+                    <XAxis dataKey="date" tick={{ fill: chartColors.textMuted, fontSize: 9 }} />
+                    <YAxis domain={[0, 1]} tick={{ fill: chartColors.textMuted, fontSize: 9 }} />
                     <Tooltip content={<CustomTooltip />} />
                     <Area type="monotone" dataKey="swir" stroke="#EF4444" fill="url(#swirGrad)" name="SWIR Index" strokeWidth={1.8} />
                   </AreaChart>

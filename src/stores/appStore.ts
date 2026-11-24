@@ -62,8 +62,18 @@ interface AppState {
   stopBriefing: () => void;
 }
 
+const getInitialTheme = (): 'dark' | 'light' => {
+  if (typeof window !== 'undefined') {
+    const saved = localStorage.getItem('manganex_theme');
+    if (saved === 'dark' || saved === 'light') return saved;
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) return 'dark';
+    return 'light';
+  }
+  return 'dark';
+};
+
 export const useAppStore = create<AppState>((set, get) => ({
-  theme: (typeof window !== 'undefined' && localStorage.getItem('manganex_theme') === 'light') ? 'light' : 'dark',
+  theme: getInitialTheme(),
   setTheme: (theme) => {
     if (typeof window !== 'undefined') {
       localStorage.setItem('manganex_theme', theme);

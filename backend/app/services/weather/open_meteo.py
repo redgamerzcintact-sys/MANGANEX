@@ -10,7 +10,15 @@ import logging
 import os
 import sqlite3
 from typing import Any, Dict, List, Optional
-import requests
+try:
+    import requests
+except ImportError:
+    import httpx
+    class _RequestsCompat:
+        @staticmethod
+        def get(url, timeout=8, **kwargs):
+            return httpx.get(url, timeout=timeout, **kwargs)
+    requests = _RequestsCompat()
 from app.core.config import settings
 
 logger = logging.getLogger(__name__)

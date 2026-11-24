@@ -1,5 +1,6 @@
 import sys
 import os
+os.environ["DISABLE_SQLALCHEMY_CEXT"] = "1"
 from importlib.machinery import (
     FileFinder,
     SourceFileLoader,
@@ -15,7 +16,7 @@ class CythonFallbackExtensionLoader(ExtensionFileLoader):
     def create_module(self, spec):
         try:
             return super().create_module(spec)
-        except (ImportError, OSError):
+        except (ImportError, OSError, ValueError):
             dir_name, base_name = os.path.split(spec.origin)
             simple_name = base_name.split(".")[0] + ".py"
             py_path = os.path.join(dir_name, simple_name)
@@ -32,7 +33,7 @@ class CythonFallbackExtensionLoader(ExtensionFileLoader):
             return
         try:
             super().exec_module(module)
-        except (ImportError, OSError):
+        except (ImportError, OSError, ValueError):
             dir_name, base_name = os.path.split(module.__file__)
             simple_name = base_name.split(".")[0] + ".py"
             py_path = os.path.join(dir_name, simple_name)
@@ -53,12 +54,17 @@ sys.path_hooks = [FileFinder.path_hook(*loaders)]
 sys.path_importer_cache.clear()
 
 import datetime
+import time
+import uuid
+import logging
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.api.v1.router import api_router
 from app.database.session import engine, Base, SessionLocal
 from app.scripts.seed_demo_data import seed_database
+
+logger = logging.getLogger("manganex.api")
 
 # Initialize database schema
 Base.metadata.create_all(bind=engine)
@@ -76,6 +82,18 @@ app = FastAPI(
     docs_url=None if is_prod else f"{settings.API_V1_STR}/docs",
     redoc_url=None if is_prod else f"{settings.API_V1_STR}/redoc",
 )
+
+
+@app.middleware("http")
+async def correlation_id_and_timing_middleware(request: Request, call_next):
+    correlation_id = request.headers.get("X-Correlation-ID") or str(uuid.uuid4())
+    start_time = time.perf_counter()
+    response = await call_next(request)
+    duration_ms = round((time.perf_counter() - start_time) * 1000.0, 2)
+    response.headers["X-Correlation-ID"] = correlation_id
+    response.headers["X-Response-Time-Ms"] = str(duration_ms)
+    logger.info(f"[{correlation_id}] {request.method} {request.url.path} -> {response.status_code} ({duration_ms}ms)")
+    return response
 
 
 @app.middleware("http")
@@ -98,7 +116,8 @@ app.add_middleware(
     allow_origin_regex=settings.BACKEND_CORS_ORIGIN_REGEX,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allow_headers=["Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With"],
+    allow_headers=["Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With", "X-Correlation-ID"],
+    expose_headers=["X-Correlation-ID", "X-Response-Time-Ms"],
 )
 
 # Mount API v1 router

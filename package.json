@@ -6,7 +6,12 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "lint": "node scripts/verify_i18n.mjs && tsc --noEmit",
+    "test:i18n": "node scripts/verify_i18n.mjs",
+    "test:backend": "python -m pytest backend/tests/ -v",
+    "ci": "node scripts/verify_i18n.mjs && tsc -b"
   },
   "dependencies": {
     "@deck.gl/core": "^9.4.1",

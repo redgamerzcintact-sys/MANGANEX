@@ -109,6 +109,7 @@ export const App: React.FC = () => {
 
         {/* Shared / Specialized Feature Modules */}
         <Route path="/command-center" element={<ProtectedRoute><CommandCenterPage /></ProtectedRoute>} />
+        <Route path="/map" element={<ProtectedRoute><CommandCenterPage /></ProtectedRoute>} />
         <Route path="/map-explorer" element={<ProtectedRoute><CommandCenterPage /></ProtectedRoute>} />
         <Route path="/landing" element={<LandingPage />} />
         <Route path="/exploration" element={<ProtectedRoute><ExplorationPage /></ProtectedRoute>} />
@@ -118,6 +119,7 @@ export const App: React.FC = () => {
         <Route path="/satellite" element={<ProtectedRoute><SatellitePage /></ProtectedRoute>} />
         <Route path="/environmental" element={<ProtectedRoute><EnvironmentalPage /></ProtectedRoute>} />
         <Route path="/production" element={<ProtectedRoute><ProductionPage /></ProtectedRoute>} />
+        <Route path="/forecast" element={<ProtectedRoute><ProductionPage /></ProtectedRoute>} />
         <Route path="/equipment" element={<ProtectedRoute><EquipmentPage /></ProtectedRoute>} />
         <Route path="/risk-center" element={<ProtectedRoute><RiskCenterPage /></ProtectedRoute>} />
         <Route path="/scenario-lab" element={<ProtectedRoute><ScenarioLabPage /></ProtectedRoute>} />

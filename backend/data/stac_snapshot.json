@@ -1,0 +1,132 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "id": "S2B_MSIL2A_20261120T051109_N0511_R019_T44QME_20261120T083421",
+      "type": "Feature",
+      "bbox": [80.15, 21.75, 80.25, 21.85],
+      "properties": {
+        "datetime": "2026-11-20T05:11:09.024Z",
+        "platform": "Sentinel-2B",
+        "instruments": ["msi"],
+        "constellation": "Sentinel-2",
+        "eo:cloud_cover": 8.4,
+        "s2:nodata_pixel_percentage": 0.0,
+        "s2:mgrs_tile": "44QME",
+        "processing_baseline": "05.11",
+        "product_type": "S2MSI2A",
+        "usable": true
+      }
+    },
+    {
+      "id": "S2A_MSIL2A_20261115T051111_N0511_R019_T44QME_20261115T082143",
+      "type": "Feature",
+      "bbox": [80.15, 21.75, 80.25, 21.85],
+      "properties": {
+        "datetime": "2026-11-15T05:11:11.028Z",
+        "platform": "Sentinel-2A",
+        "instruments": ["msi"],
+        "constellation": "Sentinel-2",
+        "eo:cloud_cover": 12.1,
+        "s2:nodata_pixel_percentage": 0.0,
+        "s2:mgrs_tile": "44QME",
+        "processing_baseline": "05.11",
+        "product_type": "S2MSI2A",
+        "usable": true
+      }
+    },
+    {
+      "id": "S2B_MSIL2A_20261110T051109_N0511_R019_T44QME_20261110T083015",
+      "type": "Feature",
+      "bbox": [80.15, 21.75, 80.25, 21.85],
+      "properties": {
+        "datetime": "2026-11-10T05:11:09.025Z",
+        "platform": "Sentinel-2B",
+        "instruments": ["msi"],
+        "constellation": "Sentinel-2",
+        "eo:cloud_cover": 78.6,
+        "s2:nodata_pixel_percentage": 0.0,
+        "s2:mgrs_tile": "44QME",
+        "processing_baseline": "05.11",
+        "product_type": "S2MSI2A",
+        "usable": false,
+        "cloud_masked": true
+      }
+    },
+    {
+      "id": "S2A_MSIL2A_20261105T051111_N0511_R019_T44QME_20261105T082531",
+      "type": "Feature",
+      "bbox": [80.15, 21.75, 80.25, 21.85],
+      "properties": {
+        "datetime": "2026-11-05T05:11:11.026Z",
+        "platform": "Sentinel-2A",
+        "instruments": ["msi"],
+        "constellation": "Sentinel-2",
+        "eo:cloud_cover": 4.2,
+        "s2:nodata_pixel_percentage": 0.0,
+        "s2:mgrs_tile": "44QME",
+        "processing_baseline": "05.11",
+        "product_type": "S2MSI2A",
+        "usable": true
+      }
+    },
+    {
+      "id": "S2B_MSIL2A_20261031T051109_N0511_R019_T44QME_20261031T083312",
+      "type": "Feature",
+      "bbox": [80.15, 21.75, 80.25, 21.85],
+      "properties": {
+        "datetime": "2026-10-31T05:11:09.027Z",
+        "platform": "Sentinel-2B",
+        "instruments": ["msi"],
+        "constellation": "Sentinel-2",
+        "eo:cloud_cover": 6.8,
+        "s2:nodata_pixel_percentage": 0.0,
+        "s2:mgrs_tile": "44QME",
+        "processing_baseline": "05.11",
+        "product_type": "S2MSI2A",
+        "usable": true
+      }
+    },
+    {
+      "id": "S2A_MSIL2A_20261026T051111_N0511_R019_T44QME_20261026T082219",
+      "type": "Feature",
+      "bbox": [80.15, 21.75, 80.25, 21.85],
+      "properties": {
+        "datetime": "2026-10-26T05:11:11.024Z",
+        "platform": "Sentinel-2A",
+        "instruments": ["msi"],
+        "constellation": "Sentinel-2",
+        "eo:cloud_cover": 11.5,
+        "s2:nodata_pixel_percentage": 0.0,
+        "s2:mgrs_tile": "44QME",
+        "processing_baseline": "05.11",
+        "product_type": "S2MSI2A",
+        "usable": true
+      }
+    },
+    {
+      "id": "S2B_MSIL2A_20261021T051109_N0511_R019_T44QME_20261021T082950",
+      "type": "Feature",
+      "bbox": [80.15, 21.75, 80.25, 21.85],
+      "properties": {
+        "datetime": "2026-10-21T05:11:09.025Z",
+        "platform": "Sentinel-2B",
+        "instruments": ["msi"],
+        "constellation": "Sentinel-2",
+        "eo:cloud_cover": 15.3,
+        "s2:nodata_pixel_percentage": 0.0,
+        "s2:mgrs_tile": "44QME",
+        "processing_baseline": "05.11",
+        "product_type": "S2MSI2A",
+        "usable": true
+      }
+    }
+  ],
+  "context": {
+    "returned": 7,
+    "matched": 7,
+    "usable_count": 6,
+    "cloud_masked_count": 1,
+    "summary": "6 of 7 scenes usable (1 scene cloud-masked at 78.6% cloud cover)"
+  }
+}

@@ -26,8 +26,10 @@ import {
   ResponsiveContainer,
   CartesianGrid
 } from 'recharts';
+import { useChartTheme } from '../../hooks/useChartTheme';
 
 export const IntelligencePage: React.FC = () => {
+  const chartColors = useChartTheme();
   const { selectedMine } = useAppStore();
   const [forecastData, setForecastData] = useState<any | null>(null);
   const [loading, setLoading] = useState(false);
@@ -161,11 +163,11 @@ export const IntelligencePage: React.FC = () => {
           <div className="h-60 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart layout="vertical" data={featureImportance} margin={{ top: 5, right: 30, left: 160, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1C3045" />
-                <XAxis type="number" domain={[0, 0.45]} stroke="#9BAFC1" tick={{ fontSize: 11 }} />
-                <YAxis dataKey="feature" type="category" width={160} stroke="#9BAFC1" tick={{ fontSize: 11 }} />
-                <Tooltip contentStyle={{ backgroundColor: '#090D16', borderColor: '#1C3045', fontSize: 12 }} />
-                <Bar dataKey="impact" fill="#54D8E8" radius={[0, 4, 4, 0]} name="SHAP Attribution" />
+                <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} />
+                <XAxis type="number" domain={[0, 0.45]} stroke={chartColors.textMuted} tick={{ fontSize: 11 }} />
+                <YAxis dataKey="feature" type="category" width={160} stroke={chartColors.text} tick={{ fontSize: 11 }} />
+                <Tooltip contentStyle={{ backgroundColor: chartColors.tooltipBg, borderColor: chartColors.tooltipBorder, borderRadius: '8px', fontSize: 12, color: chartColors.tooltipText }} />
+                <Bar dataKey="impact" fill={chartColors.series1} radius={[0, 4, 4, 0]} name="SHAP Attribution" />
               </BarChart>
             </ResponsiveContainer>
           </div>

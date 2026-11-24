@@ -1,5 +1,6 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore, UserRole } from '../../stores/authStore';
 import {
   Compass,
@@ -45,6 +46,7 @@ interface NavSection {
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ collapsed, onToggle }) => {
+  const { t } = useTranslation();
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
 
@@ -59,48 +61,48 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed, onToggle }) => {
   const getSectionsForRole = (userRole: UserRole): NavSection[] => {
     // 1. Role's default dashboard
     const roleDashboardMap: Record<UserRole, { to: string; label: string }> = {
-      ROLE_GEOLOGIST: { to: '/geologist/dashboard', label: 'Geologist Workspace' },
-      ROLE_ENGINEER: { to: '/operations/dashboard', label: 'Operations Command' },
-      ROLE_ANALYST: { to: '/analyst/dashboard', label: 'Data Analytics Center' },
-      ROLE_VIEWER: { to: '/viewer/dashboard', label: 'Executive Portal' },
-      ROLE_ADMIN: { to: '/admin/dashboard', label: 'Platform Control Center' },
+      ROLE_GEOLOGIST: { to: '/geologist/dashboard', label: t('nav.geologistWorkspace') },
+      ROLE_ENGINEER: { to: '/operations/dashboard', label: t('nav.operationsCommand') },
+      ROLE_ANALYST: { to: '/analyst/dashboard', label: t('nav.dataAnalyticsCenter') },
+      ROLE_VIEWER: { to: '/viewer/dashboard', label: t('nav.executivePortal') },
+      ROLE_ADMIN: { to: '/admin/dashboard', label: t('nav.platformControlCenter') },
     };
 
     const myDashboard = roleDashboardMap[userRole] || roleDashboardMap.ROLE_ADMIN;
 
     return [
       {
-        group: 'ROLE WORKSPACE',
+        group: t('nav.roleWorkspace'),
         items: [
           { to: myDashboard.to, label: myDashboard.label, icon: LayoutDashboard },
         ],
       },
       {
-        group: 'CORE HACKATHON PILLARS',
+        group: t('nav.corePillars'),
         items: [
-          { to: '/command-center', label: 'Cadastral GIS Map', icon: Compass, badge: 'GIS' },
-          { to: '/prospectivity', label: 'Reserve Prospectivity', icon: Cpu, badge: 'AI' },
-          { to: '/production', label: 'Shortfall Forecasting', icon: Activity, badge: 'AI' },
-          { to: '/scenario-lab', label: 'Scenario Lab (Mitigation)', icon: GitFork, badge: 'HERO' },
+          { to: '/command-center', label: t('nav.cadastralGisMap'), icon: Compass, badge: 'GIS' },
+          { to: '/prospectivity', label: t('nav.reserveProspectivity'), icon: Cpu, badge: 'AI' },
+          { to: '/production', label: t('nav.shortfallForecasting'), icon: Activity, badge: 'AI' },
+          { to: '/scenario-lab', label: t('nav.scenarioLab'), icon: GitFork, badge: 'HERO' },
         ],
       },
       {
-        group: 'GEOSPATIAL & TWIN',
+        group: t('nav.geospatialTwin'),
         items: [
-          { to: '/subsurface', label: '3D Subsurface Twin', icon: Box },
-          { to: '/satellite', label: 'Satellite Alteration Indices', icon: Satellite },
-          { to: '/equipment', label: 'Equipment & Pump Fleet', icon: Wrench },
+          { to: '/subsurface', label: t('nav.subsurfaceTwin'), icon: Box },
+          { to: '/satellite', label: t('nav.satelliteIndices'), icon: Satellite },
+          { to: '/equipment', label: t('nav.equipmentFleet'), icon: Wrench },
         ],
       },
       {
-        group: 'INTELLIGENCE & AUDIT',
+        group: t('nav.intelligenceAudit'),
         items: [
-          { to: '/nexus', label: 'NEXUS AI Copilot', icon: BrainCircuit, badge: 'RAG' },
-          { to: '/reports', label: 'Audit Reports & Logs', icon: FileText },
+          { to: '/nexus', label: t('nav.nexusCopilot'), icon: BrainCircuit, badge: 'RAG' },
+          { to: '/reports', label: t('nav.auditReports'), icon: FileText },
           ...(userRole === 'ROLE_ADMIN'
             ? [
-                { to: '/admin/users', label: 'User Management', icon: Users },
-                { to: '/settings', label: 'System Configuration', icon: Settings },
+                { to: '/admin/users', label: t('nav.userManagement'), icon: Users },
+                { to: '/settings', label: t('nav.systemConfig'), icon: Settings },
               ]
             : []),
         ],
@@ -131,23 +133,23 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed, onToggle }) => {
 
   return (
     <aside
-      className={`h-full border-r border-[#4D4037] bg-[#1A1613] flex flex-col justify-between transition-all duration-300 z-20 select-none font-sans ${
+      className={`h-full border-r border-[var(--border-color)] bg-[var(--bg-secondary)] flex flex-col justify-between transition-all duration-300 z-20 select-none font-sans ${
         collapsed ? 'w-[68px]' : 'w-[242px]'
       }`}
     >
       {/* Role Profile Badge at top */}
       {!collapsed && (
-        <div className="p-3 border-b border-[#4D4037]/60 bg-[#241E1A]">
+        <div className="p-3 border-b border-[var(--border-color)]/60 bg-[var(--panel-surface)]">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 overflow-hidden">
-              <div className="w-6 h-6 rounded-md bg-[#2F2722] border border-[#4D4037] flex items-center justify-center shrink-0">
+              <div className="w-6 h-6 rounded-md bg-[var(--elevated-surface)] border border-[var(--border-color)] flex items-center justify-center shrink-0">
                 <ShieldCheck className={`w-3.5 h-3.5 ${badge.text}`} />
               </div>
               <div className="min-w-0">
-                <div className="text-[11px] font-bold text-[#FFF8F0] truncate">
+                <div className="text-[11px] font-bold text-[var(--text-primary)] truncate">
                   {user?.fullName || 'Chief Exploration Geologist'}
                 </div>
-                <div className="text-[9px] font-mono text-[#DEC8B7] truncate">
+                <div className="text-[9px] font-mono text-[var(--text-secondary)] truncate">
                   {user?.organization || 'MOIL Limited'}
                 </div>
               </div>
@@ -166,7 +168,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed, onToggle }) => {
         {sections.map((section, idx) => (
           <div key={idx} className="space-y-1">
             {!collapsed && (
-              <div className="px-3 text-[9px] font-mono tracking-widest text-[#A69282] uppercase font-bold">
+              <div className="px-3 text-[9px] font-mono tracking-widest text-[var(--text-muted)] uppercase font-bold">
                 {section.group}
               </div>
             )}
@@ -179,8 +181,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed, onToggle }) => {
                   className={({ isActive }) =>
                     `flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-mono transition-all ${
                       isActive
-                        ? 'bg-[#2F2722] text-[#FB923C] border border-[#FB923C]/50 shadow-[0_0_14px_rgba(251,146,60,0.22)] font-bold'
-                        : 'text-[#DEC8B7] hover:text-[#FFF8F0] hover:bg-[#241E1A] border border-transparent'
+                        ? 'bg-[var(--elevated-surface)] text-[var(--accent-primary)] border border-[var(--accent-primary)]/50 shadow-sm font-bold'
+                        : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--panel-surface)] border border-transparent'
                     }`
                   }
                 >
@@ -192,12 +194,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed, onToggle }) => {
                         <span
                           className={`text-[8px] font-mono px-1.5 py-0.2 rounded font-bold ${
                             item.badge === 'ALERT' || item.badge === 'LIVE'
-                              ? 'bg-[#EF4444]/20 text-[#EF4444] border border-[#EF4444]/40 animate-pulse'
+                              ? 'bg-[var(--color-critical)]/20 text-[var(--color-critical)] border border-[var(--color-critical)]/40 animate-pulse'
                               : item.badge === 'HERO' || item.badge === 'AI' || item.badge === 'RAG'
-                              ? 'bg-[#FB923C]/20 text-[#FB923C] border border-[#FB923C]/40'
+                              ? 'bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] border border-[var(--accent-primary)]/40'
                               : item.badge === 'READ'
-                              ? 'bg-[#10B981]/20 text-[#10B981] border border-[#10B981]/40'
-                              : 'bg-[#E8B298]/20 text-[#E8B298] border border-[#E8B298]/40'
+                              ? 'bg-[var(--color-success)]/20 text-[var(--color-success)] border border-[var(--color-success)]/40'
+                              : 'bg-[var(--accent-skin)]/20 text-[var(--accent-skin)] border border-[var(--accent-skin)]/40'
                           }`}
                         >
                           {item.badge}
@@ -213,27 +215,27 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed, onToggle }) => {
       </div>
 
       {/* Footer: Sign Out & Collapse Controls */}
-      <div className="p-2 border-t border-[#4D4037] bg-[#241E1A] space-y-1">
+      <div className="p-2 border-t border-[var(--border-color)] bg-[var(--panel-surface)] space-y-1">
         <button
           onClick={handleLogout}
-          className="w-full flex items-center gap-2 p-2 rounded-xl bg-[#1A1613] hover:bg-[#EF4444]/15 text-[#DEC8B7] hover:text-[#EF4444] text-xs font-mono transition-colors cursor-pointer border border-[#4D4037] hover:border-[#EF4444]/40"
-          title="Sign out of current account"
+          className="w-full flex items-center gap-2 p-2 rounded-xl bg-[var(--bg-secondary)] hover:bg-[var(--color-critical)]/15 text-[var(--text-secondary)] hover:text-[var(--color-critical)] text-xs font-mono transition-colors cursor-pointer border border-[var(--border-color)] hover:border-[var(--color-critical)]/40"
+          title={t('nav.signOut')}
         >
           <LogOut className="h-4 w-4 shrink-0" />
-          {!collapsed && <span>SIGN OUT</span>}
+          {!collapsed && <span>{t('nav.signOut')}</span>}
         </button>
 
         <button
           onClick={onToggle}
-          className="w-full flex items-center justify-center gap-2 p-2 rounded-xl bg-[#1A1613] hover:bg-[#2F2722] text-[#DEC8B7] hover:text-[#FFF8F0] text-xs font-mono transition-colors cursor-pointer border border-[#4D4037]"
-          title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          className="w-full flex items-center justify-center gap-2 p-2 rounded-xl bg-[var(--bg-secondary)] hover:bg-[var(--elevated-surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] text-xs font-mono transition-colors cursor-pointer border border-[var(--border-color)]"
+          title={collapsed ? t('nav.collapseRail') : t('nav.collapseRail')}
         >
           {collapsed ? (
             <ChevronRight className="h-4 w-4" />
           ) : (
             <>
               <ChevronLeft className="h-4 w-4" />
-              <span>COLLAPSE RAIL</span>
+              <span>{t('nav.collapseRail')}</span>
             </>
           )}
         </button>

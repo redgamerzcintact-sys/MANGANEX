@@ -1,6 +1,7 @@
 const API_BASE = ((import.meta as any).env?.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api/v1').replace(/\/+$/, '');
 
 export async function fetchApi<T>(endpoint: string, options?: RequestInit): Promise<T | null> {
+  const cacheKey = `manganex_last_good_${endpoint.split('?')[0]}`;
   try {
     const token = localStorage.getItem('manganex_token');
     const headers: Record<string, string> = {
@@ -12,10 +13,14 @@ export async function fetchApi<T>(endpoint: string, options?: RequestInit): Prom
       headers['Authorization'] = `Bearer ${token}`;
     }
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 6000);
+
     const res = await fetch(`${API_BASE}${endpoint}`, {
       ...options,
-      headers
-    });
+      headers,
+      signal: controller.signal,
+    }).finally(() => clearTimeout(timeoutId));
 
     if (!res.ok) {
       if (res.status === 401 && endpoint !== '/auth/login') {
@@ -35,10 +40,22 @@ export async function fetchApi<T>(endpoint: string, options?: RequestInit): Prom
         json.data.data_provenance = prov;
       }
     }
-    // Return data property if standard envelope, otherwise return top-level json
-    return (json.data !== undefined ? json.data : json) as T;
+    const result = (json.data !== undefined ? json.data : json) as T;
+    
+    // Cache last-good response for resilient fallback
+    try {
+      localStorage.setItem(cacheKey, JSON.stringify(result));
+    } catch {}
+
+    return result;
   } catch (err: any) {
-    console.warn(`API call failed for ${endpoint}:`, err?.message || err);
+    console.warn(`API call failed for ${endpoint}, engaging last-good fallback:`, err?.message || err);
+    try {
+      const cached = localStorage.getItem(cacheKey);
+      if (cached) {
+        return JSON.parse(cached) as T;
+      }
+    } catch {}
     throw err;
   }
 }

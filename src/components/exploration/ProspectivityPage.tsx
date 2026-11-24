@@ -3,6 +3,7 @@ import { PROSPECTS_DATA } from '../../data/demoData';
 import { GeologicalProspect } from '../../types';
 import { ProvenanceBadge } from '../common/ProvenanceBadge';
 import { ModelCardDrawer } from './ModelCardDrawer';
+import { useChartTheme } from '../../hooks/useChartTheme';
 import { ProspectivityHeatmapGrid } from './ProspectivityHeatmapGrid';
 import { api } from '../../services/api';
 import {
@@ -35,6 +36,7 @@ import {
 } from 'recharts';
 
 export const ProspectivityPage: React.FC = () => {
+  const chartColors = useChartTheme();
   const [selectedProspect, setSelectedProspect] = useState<GeologicalProspect>(PROSPECTS_DATA[0]);
   const [isModelCardOpen, setIsModelCardOpen] = useState<boolean>(false);
   const [modelCard, setModelCard] = useState<any>(null);
@@ -184,24 +186,24 @@ export const ProspectivityPage: React.FC = () => {
             <div className="h-64 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <RadarChart data={radarData}>
-                  <PolarGrid stroke="#4D4037" />
-                  <PolarAngleAxis dataKey="subject" stroke="#DEC8B7" fontSize={10} fontFamily="monospace" />
-                  <PolarRadiusAxis stroke="#A69282" fontSize={9} domain={[0, 50]} />
+                  <PolarGrid stroke={chartColors.grid} />
+                  <PolarAngleAxis dataKey="subject" stroke={chartColors.text} fontSize={10} fontFamily="monospace" />
+                  <PolarRadiusAxis stroke={chartColors.textMuted} fontSize={9} domain={[0, 50]} />
                   <Radar
                     name="Importance %"
                     dataKey="value"
-                    stroke="#FB923C"
-                    fill="#FB923C"
+                    stroke={chartColors.series1}
+                    fill={chartColors.series1}
                     fillOpacity={0.35}
                   />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: '#1A1613',
-                      border: '1px solid #4D4037',
+                      backgroundColor: chartColors.tooltipBg,
+                      border: `1px solid ${chartColors.tooltipBorder}`,
                       borderRadius: '8px',
                       fontSize: '11px',
                       fontFamily: 'monospace',
-                      color: '#FFF8F0',
+                      color: chartColors.tooltipText,
                     }}
                   />
                 </RadarChart>
