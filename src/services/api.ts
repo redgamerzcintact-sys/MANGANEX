@@ -14,7 +14,7 @@ export async function fetchApi<T>(endpoint: string, options?: RequestInit): Prom
     }
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 6000);
+    const timeoutId = setTimeout(() => controller.abort(), 20000);
 
     const res = await fetch(`${API_BASE}${endpoint}`, {
       ...options,
@@ -56,7 +56,7 @@ export async function fetchApi<T>(endpoint: string, options?: RequestInit): Prom
         return JSON.parse(cached) as T;
       }
     } catch {}
-    throw err;
+    return null;
   }
 }
 

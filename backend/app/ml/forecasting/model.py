@@ -15,6 +15,10 @@ from app.services.weather.open_meteo import get_mine_weather
 
 logger = logging.getLogger(__name__)
 
+# In-memory LRU/TTL Cache for Fast ML Response
+_FORECAST_CACHE: Dict[str, Dict[str, Any]] = {}
+_BACKTEST_CACHE: Dict[str, Dict[str, Any]] = {}
+
 # Calibrated MOIL Mine Parameters (docs/simulation.md)
 MINE_SIMULATION_PARAMETERS: Dict[str, Dict[str, Any]] = {
     "mine-balaghat": {
@@ -243,13 +247,17 @@ def run_rolling_origin_backtest(
     X: np.ndarray,
     y: np.ndarray,
     meta: List[Dict[str, Any]],
-    test_days: int = 30
+    test_days: int = 30,
+    mine_id: str = "default"
 ) -> Dict[str, Any]:
     """
     Perform rolling-origin walk-forward backtest versus a naive 7-day-mean baseline.
     Computes real MAE, MAPE, interval coverage (in [P10, P90]), and improvement over naive baseline.
-    Never hardcoded.
+    Cached per mine_id for fast inference.
     """
+    if mine_id in _BACKTEST_CACHE:
+        return _BACKTEST_CACHE[mine_id]
+
     from sklearn.ensemble import GradientBoostingRegressor
 
     n_samples = len(X)
@@ -260,10 +268,10 @@ def run_rolling_origin_backtest(
     X_train_base = X[:train_end]
     y_train_base = y[:train_end]
 
-    # Quantile models for evaluation
-    gb_p10 = GradientBoostingRegressor(loss="quantile", alpha=0.10, n_estimators=60, max_depth=3, random_state=42)
-    gb_p50 = GradientBoostingRegressor(loss="quantile", alpha=0.50, n_estimators=60, max_depth=3, random_state=42)
-    gb_p90 = GradientBoostingRegressor(loss="quantile", alpha=0.90, n_estimators=60, max_depth=3, random_state=42)
+    # Fast quantile models for evaluation (n_estimators=35, max_depth=3)
+    gb_p10 = GradientBoostingRegressor(loss="quantile", alpha=0.10, n_estimators=35, max_depth=3, random_state=42)
+    gb_p50 = GradientBoostingRegressor(loss="quantile", alpha=0.50, n_estimators=35, max_depth=3, random_state=42)
+    gb_p90 = GradientBoostingRegressor(loss="quantile", alpha=0.90, n_estimators=35, max_depth=3, random_state=42)
 
     gb_p10.fit(X_train_base, y_train_base)
     gb_p50.fit(X_train_base, y_train_base)
@@ -299,7 +307,7 @@ def run_rolling_origin_backtest(
 
     mae_improvement_pct = float(max(0.0, (mae_naive - mae_model) / max(1e-4, mae_naive) * 100.0))
 
-    return {
+    backtest_result = {
         "evaluation_days": int(test_days),
         "backtest_mae_tonnes": round(mae_model, 1),
         "backtest_mape_percent": round(mape_model, 2),
@@ -311,6 +319,8 @@ def run_rolling_origin_backtest(
         "status": "VALIDATED_HONEST_BACKTEST",
         "provenance_note": "Metrics computed via walk-forward rolling-origin evaluation on real weather historical series.",
     }
+    _BACKTEST_CACHE[mine_id] = backtest_result
+    return backtest_result
 
 
 def run_production_forecast(
@@ -327,6 +337,9 @@ def run_production_forecast(
     from sklearn.ensemble import GradientBoostingRegressor
 
     horizon_days = max(7, min(90, int(horizon_days)))
+    cache_key = f"{mine_id}_{horizon_days}_{planned_downtime_hours}_{blasting_delay_hours}"
+    if not production_history and cache_key in _FORECAST_CACHE:
+        return _FORECAST_CACHE[cache_key]
 
     # Fetch weather payload
     weather_payload = get_mine_weather(mine_id)
@@ -338,17 +351,17 @@ def run_production_forecast(
     # Feature matrix from history
     X, y, meta = _build_feature_matrix(history)
 
-    # Train 3 Quantile Gradient Boosting Regressors
-    gb_p10 = GradientBoostingRegressor(loss="quantile", alpha=0.10, n_estimators=100, max_depth=4, learning_rate=0.06, random_state=42)
-    gb_p50 = GradientBoostingRegressor(loss="quantile", alpha=0.50, n_estimators=100, max_depth=4, learning_rate=0.06, random_state=42)
-    gb_p90 = GradientBoostingRegressor(loss="quantile", alpha=0.90, n_estimators=100, max_depth=4, learning_rate=0.06, random_state=42)
+    # Fast & responsive Quantile Gradient Boosting Regressors
+    gb_p10 = GradientBoostingRegressor(loss="quantile", alpha=0.10, n_estimators=45, max_depth=3, learning_rate=0.08, random_state=42)
+    gb_p50 = GradientBoostingRegressor(loss="quantile", alpha=0.50, n_estimators=45, max_depth=3, learning_rate=0.08, random_state=42)
+    gb_p90 = GradientBoostingRegressor(loss="quantile", alpha=0.90, n_estimators=45, max_depth=3, learning_rate=0.08, random_state=42)
 
     gb_p10.fit(X, y)
     gb_p50.fit(X, y)
     gb_p90.fit(X, y)
 
-    # Honest walk-forward backtest
-    backtest_metrics = run_rolling_origin_backtest(X, y, meta, test_days=30)
+    # Honest walk-forward backtest (cached per mine_id)
+    backtest_metrics = run_rolling_origin_backtest(X, y, meta, test_days=30, mine_id=mine_id)
 
     # Prepare future weather forecast lookup
     forecast_weather_records = [d for d in weather_daily if d.get("is_forecast", False)]
@@ -512,7 +525,7 @@ def run_production_forecast(
     if not gap_start_date and forecast_series:
         gap_start_date = forecast_series[0]["date"]
 
-    return {
+    result = {
         "mine_id": mine_id,
         "horizon_days": horizon_days,
         "inputs_applied": {
@@ -544,8 +557,8 @@ def run_production_forecast(
         "model_metadata": {
             "model_type": "GradientBoostingRegressor (scikit-learn)",
             "loss_function": "Quantile Loss (P10, P50, P90)",
-            "n_estimators": 100,
-            "max_depth": 4,
+            "n_estimators": 45,
+            "max_depth": 3,
             "backtest": backtest_metrics,
             "ui_note": "Weather real, production simulated, replace with MOIL production logs.",
             "data_provenance": {
@@ -559,6 +572,8 @@ def run_production_forecast(
             }
         }
     }
+    _FORECAST_CACHE[cache_key] = result
+    return result
 
 
 def evaluate_scenario_counterfactuals(
@@ -690,7 +705,7 @@ def evaluate_scenario_counterfactuals(
     # Rank by recovered tonnes in descending order
     ranked_actions = sorted(evaluated_actions, key=lambda x: x["tonnes_recovered"], reverse=True)
 
-    return {
+    result = {
         "mine_id": mine_id,
         "horizon_days": horizon_days,
         "scenario_inputs": {
